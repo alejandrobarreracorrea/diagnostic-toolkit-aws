@@ -1,0 +1,10 @@
+Service,us-east-1
+cloudwatch,1
+s3,2
+iam,2
+lambda,1
+autoscaling,1
+securityhub,0
+cloudformation,1
+rds,1
+ec2,2

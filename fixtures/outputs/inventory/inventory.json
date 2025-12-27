@@ -1,0 +1,414 @@
+{
+  "services": {
+    "cloudwatch": {
+      "name": "cloudwatch",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "d",
+        "e",
+        "s",
+        "c",
+        "r",
+        "i",
+        "b",
+        "e",
+        "_",
+        "a",
+        "l",
+        "a",
+        "r",
+        "m",
+        "s",
+        "'",
+        "}"
+      ],
+      "total_operations": 1,
+      "resource_count": 1
+    },
+    "s3": {
+      "name": "s3",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "l",
+        "i",
+        "s",
+        "t",
+        "_",
+        "b",
+        "u",
+        "c",
+        "k",
+        "e",
+        "t",
+        "s",
+        "'",
+        ",",
+        " ",
+        "'",
+        "g",
+        "e",
+        "t",
+        "_",
+        "b",
+        "u",
+        "c",
+        "k",
+        "e",
+        "t",
+        "_",
+        "l",
+        "o",
+        "c",
+        "a",
+        "t",
+        "i",
+        "o",
+        "n",
+        "'",
+        "}"
+      ],
+      "total_operations": 2,
+      "resource_count": 2
+    },
+    "iam": {
+      "name": "iam",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "l",
+        "i",
+        "s",
+        "t",
+        "_",
+        "u",
+        "s",
+        "e",
+        "r",
+        "s",
+        "'",
+        ",",
+        " ",
+        "'",
+        "l",
+        "i",
+        "s",
+        "t",
+        "_",
+        "r",
+        "o",
+        "l",
+        "e",
+        "s",
+        "'",
+        "}"
+      ],
+      "total_operations": 2,
+      "resource_count": 2
+    },
+    "lambda": {
+      "name": "lambda",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "l",
+        "i",
+        "s",
+        "t",
+        "_",
+        "f",
+        "u",
+        "n",
+        "c",
+        "t",
+        "i",
+        "o",
+        "n",
+        "s",
+        "'",
+        "}"
+      ],
+      "total_operations": 1,
+      "resource_count": 1
+    },
+    "autoscaling": {
+      "name": "autoscaling",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "d",
+        "e",
+        "s",
+        "c",
+        "r",
+        "i",
+        "b",
+        "e",
+        "_",
+        "a",
+        "u",
+        "t",
+        "o",
+        "_",
+        "s",
+        "c",
+        "a",
+        "l",
+        "i",
+        "n",
+        "g",
+        "_",
+        "g",
+        "r",
+        "o",
+        "u",
+        "p",
+        "s",
+        "'",
+        "}"
+      ],
+      "total_operations": 1,
+      "resource_count": 1
+    },
+    "securityhub": {
+      "name": "securityhub",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "d",
+        "e",
+        "s",
+        "c",
+        "r",
+        "i",
+        "b",
+        "e",
+        "_",
+        "h",
+        "u",
+        "b",
+        "'",
+        "}"
+      ],
+      "total_operations": 1,
+      "resource_count": 0
+    },
+    "cloudformation": {
+      "name": "cloudformation",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "d",
+        "e",
+        "s",
+        "c",
+        "r",
+        "i",
+        "b",
+        "e",
+        "_",
+        "s",
+        "t",
+        "a",
+        "c",
+        "k",
+        "s",
+        "'",
+        "}"
+      ],
+      "total_operations": 1,
+      "resource_count": 1
+    },
+    "rds": {
+      "name": "rds",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "d",
+        "e",
+        "s",
+        "c",
+        "r",
+        "i",
+        "b",
+        "e",
+        "_",
+        "d",
+        "b",
+        "_",
+        "i",
+        "n",
+        "s",
+        "t",
+        "a",
+        "n",
+        "c",
+        "e",
+        "s",
+        "'",
+        "}"
+      ],
+      "total_operations": 1,
+      "resource_count": 1
+    },
+    "ec2": {
+      "name": "ec2",
+      "regions": [
+        "us-east-1"
+      ],
+      "operations": [
+        "{",
+        "'",
+        "d",
+        "e",
+        "s",
+        "c",
+        "r",
+        "i",
+        "b",
+        "e",
+        "_",
+        "v",
+        "p",
+        "c",
+        "s",
+        "'",
+        ",",
+        " ",
+        "'",
+        "d",
+        "e",
+        "s",
+        "c",
+        "r",
+        "i",
+        "b",
+        "e",
+        "_",
+        "i",
+        "n",
+        "s",
+        "t",
+        "a",
+        "n",
+        "c",
+        "e",
+        "s",
+        "'",
+        "}"
+      ],
+      "total_operations": 2,
+      "resource_count": 2
+    }
+  },
+  "regions": {
+    "us-east-1": {
+      "name": "us-east-1",
+      "services": [
+        {
+          "service": "cloudwatch",
+          "count": 1
+        },
+        {
+          "service": "s3",
+          "count": 2
+        },
+        {
+          "service": "iam",
+          "count": 2
+        },
+        {
+          "service": "lambda",
+          "count": 1
+        },
+        {
+          "service": "autoscaling",
+          "count": 1
+        },
+        {
+          "service": "cloudformation",
+          "count": 1
+        },
+        {
+          "service": "rds",
+          "count": 1
+        },
+        {
+          "service": "ec2",
+          "count": 2
+        }
+      ],
+      "total_resources": 11
+    }
+  },
+  "total_resources": 11,
+  "top_services": [
+    {
+      "service": "s3",
+      "count": 2
+    },
+    {
+      "service": "iam",
+      "count": 2
+    },
+    {
+      "service": "ec2",
+      "count": 2
+    },
+    {
+      "service": "cloudwatch",
+      "count": 1
+    },
+    {
+      "service": "lambda",
+      "count": 1
+    },
+    {
+      "service": "autoscaling",
+      "count": 1
+    },
+    {
+      "service": "cloudformation",
+      "count": 1
+    },
+    {
+      "service": "rds",
+      "count": 1
+    },
+    {
+      "service": "securityhub",
+      "count": 0
+    }
+  ],
+  "top_regions": [
+    {
+      "region": "us-east-1",
+      "count": 11
+    }
+  ]
+}

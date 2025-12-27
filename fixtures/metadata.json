@@ -1,0 +1,15 @@
+{
+  "account_id": "123456789012",
+  "account_alias": "demo-account",
+  "arn": "arn:aws:iam::123456789012:role/ECADRole",
+  "user_id": "AROAEXAMPLE:ECAD-Session",
+  "regions": [
+    "us-east-1",
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "organization": null,
+  "timestamp": "2024-01-15T10:00:00"
+}
+
+

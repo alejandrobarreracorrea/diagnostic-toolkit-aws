@@ -1,0 +1,247 @@
+{
+  "services": {
+    "cloudwatch": {
+      "name": "cloudwatch",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "describe_alarms",
+              "success": true,
+              "paginated": false,
+              "file": "cloudwatch/us-east-1/describe_alarms.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 1
+        }
+      },
+      "operations": "{'describe_alarms'}",
+      "total_operations": 1
+    },
+    "s3": {
+      "name": "s3",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "get_bucket_location",
+              "success": true,
+              "paginated": false,
+              "file": "s3/us-east-1/get_bucket_location.json.gz",
+              "error": null,
+              "resource_count": 1
+            },
+            {
+              "operation": "list_buckets",
+              "success": true,
+              "paginated": false,
+              "file": "s3/us-east-1/list_buckets.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 2
+        }
+      },
+      "operations": "{'list_buckets', 'get_bucket_location'}",
+      "total_operations": 2
+    },
+    "iam": {
+      "name": "iam",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "list_roles",
+              "success": true,
+              "paginated": false,
+              "file": "iam/us-east-1/list_roles.json.gz",
+              "error": null,
+              "resource_count": 1
+            },
+            {
+              "operation": "list_users",
+              "success": true,
+              "paginated": false,
+              "file": "iam/us-east-1/list_users.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 2
+        }
+      },
+      "operations": "{'list_users', 'list_roles'}",
+      "total_operations": 2
+    },
+    "lambda": {
+      "name": "lambda",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "list_functions",
+              "success": true,
+              "paginated": false,
+              "file": "lambda/us-east-1/list_functions.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 1
+        }
+      },
+      "operations": "{'list_functions'}",
+      "total_operations": 1
+    },
+    "autoscaling": {
+      "name": "autoscaling",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "describe_auto_scaling_groups",
+              "success": true,
+              "paginated": false,
+              "file": "autoscaling/us-east-1/describe_auto_scaling_groups.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 1
+        }
+      },
+      "operations": "{'describe_auto_scaling_groups'}",
+      "total_operations": 1
+    },
+    "securityhub": {
+      "name": "securityhub",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "describe_hub",
+              "success": false,
+              "paginated": false,
+              "file": "securityhub/us-east-1/describe_hub.json.gz",
+              "error": {
+                "code": "InvalidAccessException",
+                "message": "Security Hub is not enabled"
+              }
+            }
+          ],
+          "count": 1
+        }
+      },
+      "operations": "{'describe_hub'}",
+      "total_operations": 1
+    },
+    "cloudformation": {
+      "name": "cloudformation",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "describe_stacks",
+              "success": true,
+              "paginated": false,
+              "file": "cloudformation/us-east-1/describe_stacks.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 1
+        }
+      },
+      "operations": "{'describe_stacks'}",
+      "total_operations": 1
+    },
+    "rds": {
+      "name": "rds",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "describe_db_instances",
+              "success": true,
+              "paginated": false,
+              "file": "rds/us-east-1/describe_db_instances.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 1
+        }
+      },
+      "operations": "{'describe_db_instances'}",
+      "total_operations": 1
+    },
+    "ec2": {
+      "name": "ec2",
+      "regions": {
+        "us-east-1": {
+          "operations": [
+            {
+              "operation": "describe_vpcs",
+              "success": true,
+              "paginated": false,
+              "file": "ec2/us-east-1/describe_vpcs.json.gz",
+              "error": null,
+              "resource_count": 1
+            },
+            {
+              "operation": "describe_instances",
+              "success": true,
+              "paginated": false,
+              "file": "ec2/us-east-1/describe_instances.json.gz",
+              "error": null,
+              "resource_count": 1
+            }
+          ],
+          "count": 2
+        }
+      },
+      "operations": "{'describe_vpcs', 'describe_instances'}",
+      "total_operations": 2
+    }
+  },
+  "regions": [
+    "us-east-1"
+  ],
+  "operations": {
+    "cloudwatch:us-east-1": [
+      "describe_alarms"
+    ],
+    "s3:us-east-1": [
+      "get_bucket_location",
+      "list_buckets"
+    ],
+    "iam:us-east-1": [
+      "list_roles",
+      "list_users"
+    ],
+    "lambda:us-east-1": [
+      "list_functions"
+    ],
+    "autoscaling:us-east-1": [
+      "describe_auto_scaling_groups"
+    ],
+    "securityhub:us-east-1": [
+      "describe_hub"
+    ],
+    "cloudformation:us-east-1": [
+      "describe_stacks"
+    ],
+    "rds:us-east-1": [
+      "describe_db_instances"
+    ],
+    "ec2:us-east-1": [
+      "describe_vpcs",
+      "describe_instances"
+    ]
+  },
+  "total_files": 12,
+  "total_operations": 12
+}

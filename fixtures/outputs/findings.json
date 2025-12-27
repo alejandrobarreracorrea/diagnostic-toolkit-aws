@@ -1,0 +1,71 @@
+{
+  "findings": [
+    {
+      "id": "SEC-002",
+      "domain": "Security",
+      "severity": "medium",
+      "title": "AWS Config no detectado",
+      "description": "AWS Config no est\u00e1 habilitado o no se pudo acceder. Config permite auditor\u00eda y cumplimiento continuo.",
+      "recommendation": "Habilitar AWS Config para auditor\u00eda y cumplimiento continuo.",
+      "impact": "Falta de visibilidad de cambios de configuraci\u00f3n",
+      "effort": "Medio"
+    },
+    {
+      "id": "SEC-003",
+      "domain": "Security",
+      "severity": "high",
+      "title": "CloudTrail no detectado",
+      "description": "AWS CloudTrail no est\u00e1 habilitado o no se pudo acceder. CloudTrail es esencial para auditor\u00eda y cumplimiento.",
+      "recommendation": "Habilitar CloudTrail en todas las regiones para registro de actividad de API.",
+      "impact": "Falta de auditor\u00eda de actividad de API",
+      "effort": "Bajo"
+    },
+    {
+      "id": "REL-001",
+      "domain": "Reliability",
+      "severity": "info",
+      "title": "RDS detectado - Verificar configuraci\u00f3n Multi-AZ",
+      "description": "Se detect\u00f3 uso de RDS. Se recomienda verificar que las instancias cr\u00edticas est\u00e9n configuradas con Multi-AZ para alta disponibilidad.",
+      "recommendation": "Revisar configuraci\u00f3n de instancias RDS y habilitar Multi-AZ para bases de datos cr\u00edticas.",
+      "impact": "Posible falta de alta disponibilidad en bases de datos",
+      "effort": "Medio"
+    },
+    {
+      "id": "REL-002",
+      "domain": "Reliability",
+      "severity": "info",
+      "title": "Auto Scaling detectado",
+      "description": "Se detect\u00f3 uso de Auto Scaling Groups. Verificar configuraci\u00f3n de health checks y pol\u00edticas de escalado.",
+      "recommendation": "Revisar configuraci\u00f3n de Auto Scaling Groups para asegurar escalado adecuado.",
+      "impact": "Potencial mejora en confiabilidad y disponibilidad",
+      "effort": "Bajo"
+    },
+    {
+      "id": "COST-001",
+      "domain": "Cost Optimization",
+      "severity": "low",
+      "title": "Cost Explorer no detectado o sin acceso",
+      "description": "No se pudo acceder a Cost Explorer. Esto puede limitar la visibilidad de costos.",
+      "recommendation": "Habilitar acceso a Cost Explorer para an\u00e1lisis de costos detallado.",
+      "impact": "Limitada visibilidad de costos",
+      "effort": "Bajo"
+    },
+    {
+      "id": "OPS-002",
+      "domain": "Operational Excellence",
+      "severity": "low",
+      "title": "Systems Manager no detectado",
+      "description": "AWS Systems Manager no est\u00e1 habilitado o no se pudo acceder. SSM proporciona gesti\u00f3n centralizada de instancias.",
+      "recommendation": "Considerar habilitar Systems Manager para gesti\u00f3n centralizada de instancias EC2.",
+      "impact": "Falta de gesti\u00f3n centralizada de instancias",
+      "effort": "Medio"
+    }
+  ],
+  "findings_by_severity": {
+    "medium": 1,
+    "high": 1,
+    "info": 2,
+    "low": 2
+  },
+  "total_findings": 6
+}

@@ -1,0 +1,184 @@
+{
+  "metadata": {
+    "run_dir": "fixtures",
+    "generated_at": "2025-12-25T23:17:35.375359",
+    "account_id": "123456789012"
+  },
+  "pillars": {
+    "Operational Excellence": {
+      "evidence": [
+        {
+          "type": "service_present",
+          "service": "CloudWatch",
+          "status": "detected",
+          "description": "CloudWatch est\u00e1 en uso"
+        },
+        {
+          "type": "service_present",
+          "service": "CloudFormation",
+          "status": "detected",
+          "description": "CloudFormation est\u00e1 en uso"
+        }
+      ],
+      "questions": [
+        "\u00bfSe est\u00e1n usando m\u00e9tricas personalizadas?",
+        "\u00bfHay dashboards configurados?",
+        "\u00bfSe est\u00e1n configurando alarmas para m\u00e9tricas cr\u00edticas?",
+        "\u00bfSe est\u00e1 usando Infrastructure as Code para todos los recursos?",
+        "\u00bfSe est\u00e1n usando StackSets para m\u00faltiples cuentas/regiones?"
+      ],
+      "summary": "2 servicios operacionales detectados"
+    },
+    "Security": {
+      "evidence": [
+        {
+          "type": "service_present",
+          "service": "Security Hub",
+          "status": "detected",
+          "description": "AWS Security Hub est\u00e1 habilitado o accesible"
+        },
+        {
+          "type": "service_missing",
+          "service": "AWS Config",
+          "status": "not_detected",
+          "description": "AWS Config no est\u00e1 habilitado o no es accesible",
+          "gap": "Falta de auditor\u00eda de cambios de configuraci\u00f3n"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudTrail",
+          "status": "not_detected",
+          "description": "AWS CloudTrail no est\u00e1 habilitado o no es accesible",
+          "gap": "CR\u00cdTICO: Falta de auditor\u00eda de actividad de API"
+        },
+        {
+          "type": "service_present",
+          "service": "IAM",
+          "status": "detected",
+          "description": "IAM est\u00e1 accesible"
+        },
+        {
+          "type": "service_missing",
+          "service": "GuardDuty",
+          "status": "not_detected",
+          "description": "Amazon GuardDuty no est\u00e1 habilitado",
+          "gap": "Falta de detecci\u00f3n de amenazas"
+        },
+        {
+          "type": "review_required",
+          "category": "public_resources",
+          "description": "Revisar manualmente recursos con IPs p\u00fablicas o acceso p\u00fablico",
+          "suggested_review": [
+            "EC2 instances con IPs p\u00fablicas",
+            "RDS instances con publicly accessible",
+            "S3 buckets con pol\u00edticas p\u00fablicas",
+            "Load Balancers p\u00fablicos"
+          ]
+        }
+      ],
+      "questions": [
+        "\u00bfEst\u00e1 Security Hub configurado para todas las regiones activas?",
+        "\u00bfSe est\u00e1n revisando regularmente los findings de Security Hub?",
+        "\u00bfC\u00f3mo se auditan los cambios de configuraci\u00f3n sin Config?",
+        "\u00bfPor qu\u00e9 no se est\u00e1 usando CloudTrail? (CR\u00cdTICO)",
+        "\u00bfSe est\u00e1 usando MFA para usuarios con privilegios?",
+        "\u00bfSe revisan regularmente las pol\u00edticas IAM?",
+        "\u00bfSe usan roles en lugar de usuarios para aplicaciones?",
+        "\u00bfQu\u00e9 recursos tienen acceso p\u00fablico y por qu\u00e9?",
+        "\u00bfSe est\u00e1n usando Security Groups y NACLs correctamente?"
+      ],
+      "summary": "2 servicios de seguridad detectados"
+    },
+    "Reliability": {
+      "evidence": [
+        {
+          "type": "service_present",
+          "service": "Auto Scaling",
+          "status": "detected",
+          "description": "Auto Scaling Groups est\u00e1n en uso"
+        },
+        {
+          "type": "service_present",
+          "service": "RDS",
+          "status": "detected",
+          "description": "RDS est\u00e1 en uso"
+        }
+      ],
+      "questions": [
+        "\u00bfLas Auto Scaling Groups est\u00e1n configuradas con health checks adecuados?",
+        "\u00bfLas pol\u00edticas de escalado est\u00e1n optimizadas?",
+        "\u00bfLas instancias RDS cr\u00edticas est\u00e1n configuradas con Multi-AZ?",
+        "\u00bfSe est\u00e1n usando backups autom\u00e1ticos?",
+        "\u00bfSe han probado los procedimientos de failover?"
+      ],
+      "summary": "2 servicios de confiabilidad detectados"
+    },
+    "Performance Efficiency": {
+      "evidence": [
+        {
+          "type": "service_present",
+          "service": "Auto Scaling",
+          "status": "detected",
+          "description": "Auto Scaling puede ayudar con performance"
+        }
+      ],
+      "questions": [
+        "\u00bfLas pol\u00edticas de escalado responden adecuadamente a la carga?"
+      ],
+      "summary": "1 servicios de performance detectados"
+    },
+    "Cost Optimization": {
+      "evidence": [
+        {
+          "type": "service_missing",
+          "service": "Cost Explorer",
+          "status": "not_detected",
+          "description": "Cost Explorer no accesible",
+          "gap": "Limitada visibilidad de costos"
+        },
+        {
+          "type": "review_required",
+          "category": "reserved_instances",
+          "description": "Revisar oportunidad de Reserved Instances o Savings Plans",
+          "suggested_review": [
+            "Analizar uso de instancias EC2",
+            "Evaluar Reserved Instances vs Savings Plans",
+            "Revisar instancias que podr\u00edan usar tipos m\u00e1s econ\u00f3micos"
+          ]
+        }
+      ],
+      "questions": [
+        "\u00bfSe est\u00e1n usando Reserved Instances o Savings Plans?",
+        "\u00bfSe han evaluado instancias que podr\u00edan usar tipos m\u00e1s econ\u00f3micos?"
+      ],
+      "summary": "1 regiones activas, 0 servicios de costo detectados"
+    },
+    "Sustainability": {
+      "evidence": [
+        {
+          "type": "observation",
+          "category": "regions",
+          "description": "1 regiones en uso",
+          "suggestion": "Considerar usar regiones con energ\u00eda renovable cuando sea posible"
+        },
+        {
+          "type": "service_present",
+          "service": "Auto Scaling",
+          "status": "detected",
+          "description": "Auto Scaling ayuda a usar solo recursos necesarios"
+        },
+        {
+          "type": "service_present",
+          "service": "Lambda",
+          "status": "detected",
+          "description": "Lambda (serverless) es m\u00e1s eficiente energ\u00e9ticamente"
+        }
+      ],
+      "questions": [
+        "\u00bfSe han considerado regiones con energ\u00eda renovable?",
+        "\u00bfSe est\u00e1n usando servicios serverless cuando es posible?"
+      ],
+      "summary": "2 servicios relevantes para sostenibilidad"
+    }
+  }
+}

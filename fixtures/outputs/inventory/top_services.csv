@@ -1,0 +1,10 @@
+Service,Resource Count
+s3,2
+iam,2
+ec2,2
+cloudwatch,1
+lambda,1
+autoscaling,1
+cloudformation,1
+rds,1
+securityhub,0

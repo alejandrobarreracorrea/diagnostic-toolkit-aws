@@ -42,6 +42,25 @@ Ver estructura detallada en [`docs/STRUCTURE.md`](docs/STRUCTURE.md)
 - Credenciales AWS con permisos ReadOnly (ver `docs/security.md`)
 - 10GB+ de espacio en disco (dependiendo del tamaño del entorno)
 
+## 🔐 Configuración de Permisos IAM
+
+### Opción Rápida: CloudFormation (Recomendado)
+
+Crea automáticamente el rol IAM y las políticas necesarias:
+
+```bash
+aws cloudformation create-stack \
+  --stack-name ECAD-IAM-Role \
+  --template-body file://policies/ecad-iam-role-cloudformation.yaml \
+  --capabilities CAPABILITY_NAMED_IAM
+```
+
+**📖 Ver guía completa:** [`policies/README-CLOUDFORMATION.md`](policies/README-CLOUDFORMATION.md)
+
+### Opción Manual: Políticas IAM
+
+Si prefieres crear las políticas manualmente, ver: [`policies/README-IAM-POLICIES.md`](policies/README-IAM-POLICIES.md)
+
 ## Instalación Rápida
 
 ### Linux / macOS

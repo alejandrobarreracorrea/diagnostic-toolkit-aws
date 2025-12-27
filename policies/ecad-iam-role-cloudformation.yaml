@@ -1,0 +1,511 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'ECAD - CloudFormation template para crear rol IAM y políticas ReadOnly necesarias para AWS Cloud Architecture Diagnostic'
+
+Parameters:
+  RoleName:
+    Type: String
+    Default: ECAD-ReadOnly-Role
+    Description: Nombre del rol IAM que se creará para ECAD
+    AllowedPattern: '^[a-zA-Z0-9+=,.@_-]+$'
+    MaxLength: 64
+  
+  PrincipalAccountId:
+    Type: String
+    Default: ''
+    Description: '(Opcional) ID de cuenta AWS que puede asumir este rol. Dejar vacío para permitir desde la misma cuenta.'
+    AllowedPattern: '^$|^[0-9]{12}$'
+  
+  PrincipalArn:
+    Type: String
+    Default: ''
+    Description: '(Opcional) ARN específico de usuario/rol que puede asumir este rol. Dejar vacío para permitir desde la misma cuenta.'
+    AllowedPattern: '^$|^arn:aws:(iam|sts)::[0-9]{12}:(user|role)/[a-zA-Z0-9+=,.@_-]+$'
+  
+  ExternalId:
+    Type: String
+    Default: ''
+    Description: '(Opcional) External ID para asumir el rol de forma segura (recomendado para cross-account)'
+    NoEcho: true
+    MaxLength: 1224
+  
+  EnableSameAccountAccess:
+    Type: String
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: Permitir que usuarios/roles de la misma cuenta asuman este rol
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Configuración del Rol
+        Parameters:
+          - RoleName
+          - EnableSameAccountAccess
+      - Label:
+          default: Configuración Cross-Account (Opcional)
+        Parameters:
+          - PrincipalAccountId
+          - PrincipalArn
+          - ExternalId
+
+Resources:
+  # Política IAM Part 1 - Servicios principales
+  ECADReadOnlyPolicyPart1:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub '${RoleName}-Policy-Part1'
+      Description: 'ECAD ReadOnly Access - Part 1 (Servicios principales)'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: ECADReadOnlyAccessPart1
+            Effect: Allow
+            Action:
+              - 'acm:Describe*'
+              - 'acm:Get*'
+              - 'acm:List*'
+              - 'apigateway:GET'
+              - 'application-autoscaling:Describe*'
+              - 'autoscaling:Describe*'
+              - 'backup:Describe*'
+              - 'backup:Get*'
+              - 'backup:List*'
+              - 'batch:Describe*'
+              - 'batch:List*'
+              - 'cloudformation:Describe*'
+              - 'cloudformation:Get*'
+              - 'cloudformation:List*'
+              - 'cloudfront:Get*'
+              - 'cloudfront:List*'
+              - 'cloudtrail:Describe*'
+              - 'cloudtrail:Get*'
+              - 'cloudtrail:List*'
+              - 'cloudtrail:LookupEvents'
+              - 'cloudwatch:Describe*'
+              - 'cloudwatch:Get*'
+              - 'cloudwatch:List*'
+              - 'codebuild:Describe*'
+              - 'codebuild:List*'
+              - 'codecommit:Get*'
+              - 'codecommit:List*'
+              - 'codepipeline:Get*'
+              - 'codepipeline:List*'
+              - 'cognito-idp:Describe*'
+              - 'cognito-idp:Get*'
+              - 'cognito-idp:List*'
+              - 'compute-optimizer:Describe*'
+              - 'compute-optimizer:Get*'
+              - 'config:Describe*'
+              - 'config:Get*'
+              - 'config:List*'
+              - 'config:SelectResourceConfig'
+              - 'datasync:Describe*'
+              - 'datasync:List*'
+              - 'directconnect:Describe*'
+              - 'dlm:Get*'
+              - 'dlm:List*'
+              - 'dms:Describe*'
+              - 'dms:List*'
+              - 'ds:Describe*'
+              - 'ds:Get*'
+              - 'ds:List*'
+              - 'dynamodb:Describe*'
+              - 'dynamodb:List*'
+              - 'ec2:Describe*'
+              - 'ec2:Get*'
+              - 'ecr:Describe*'
+              - 'ecr:Get*'
+              - 'ecr:List*'
+              - 'ecs:Describe*'
+              - 'ecs:List*'
+              - 'eks:Describe*'
+              - 'eks:List*'
+              - 'elasticache:Describe*'
+              - 'elasticache:List*'
+              - 'elasticbeanstalk:Describe*'
+              - 'elasticbeanstalk:List*'
+              - 'elasticloadbalancing:Describe*'
+              - 'es:Describe*'
+              - 'es:List*'
+              - 'events:Describe*'
+              - 'events:List*'
+              - 'firehose:Describe*'
+              - 'firehose:List*'
+              - 'glue:Get*'
+              - 'glue:List*'
+              - 'guardduty:Describe*'
+              - 'guardduty:Get*'
+              - 'guardduty:List*'
+              - 'health:Describe*'
+              - 'iam:Generate*'
+              - 'iam:Get*'
+              - 'iam:List*'
+              - 'inspector2:Describe*'
+              - 'inspector2:Get*'
+              - 'inspector2:List*'
+              - 'iot:Describe*'
+              - 'iot:Get*'
+              - 'iot:List*'
+              - 'iotanalytics:Describe*'
+              - 'iotanalytics:List*'
+              - 'iotevents:Describe*'
+              - 'iotevents:List*'
+              - 'iotfleethub:Describe*'
+              - 'iotfleethub:List*'
+              - 'kinesis:Describe*'
+              - 'kinesis:Get*'
+              - 'kinesis:List*'
+              - 'kms:Describe*'
+              - 'kms:Get*'
+              - 'kms:List*'
+              - 'lambda:Get*'
+              - 'lambda:List*'
+              - 'logs:Describe*'
+              - 'logs:Get*'
+              - 'logs:List*'
+              - 'logs:FilterLogEvents'
+              - 'logs:TestMetricFilter'
+              - 'macie2:Describe*'
+              - 'macie2:Get*'
+              - 'macie2:List*'
+              - 'mq:Describe*'
+              - 'mq:List*'
+              - 'organizations:Describe*'
+              - 'organizations:List*'
+              - 'ram:Get*'
+              - 'ram:List*'
+              - 'rds:Describe*'
+              - 'rds:List*'
+              - 'redshift:Describe*'
+              - 'redshift:Get*'
+              - 'redshift:List*'
+              - 'resource-groups:Get*'
+              - 'resource-groups:List*'
+              - 'route53:Get*'
+              - 'route53:List*'
+              - 'route53resolver:Get*'
+              - 'route53resolver:List*'
+              - 's3:GetBucketLocation'
+              - 's3:GetBucketVersioning'
+              - 's3:ListAllMyBuckets'
+              - 's3:ListBucket'
+              - 's3:GetBucketAcl'
+              - 's3:GetBucketPolicy'
+              - 's3:GetBucketPublicAccessBlock'
+              - 's3:GetEncryptionConfiguration'
+              - 's3:GetLifecycleConfiguration'
+              - 's3:GetReplicationConfiguration'
+              - 's3:GetBucketTagging'
+              - 's3:GetBucketWebsite'
+              - 's3:GetObjectVersion'
+              - 's3:GetObject'
+              - 's3:GetObjectAcl'
+              - 's3:GetObjectTagging'
+              - 'sagemaker:Describe*'
+              - 'sagemaker:Get*'
+              - 'sagemaker:List*'
+              - 'secretsmanager:Describe*'
+              - 'secretsmanager:Get*'
+              - 'secretsmanager:List*'
+              - 'securityhub:Describe*'
+              - 'securityhub:Get*'
+              - 'securityhub:List*'
+              - 'securityhub:BatchGet*'
+              - 'servicecatalog:Describe*'
+              - 'servicecatalog:Get*'
+              - 'servicecatalog:List*'
+              - 'ses:Describe*'
+              - 'ses:Get*'
+              - 'ses:List*'
+              - 'shield:Describe*'
+              - 'shield:Get*'
+              - 'shield:List*'
+              - 'signer:Describe*'
+              - 'signer:Get*'
+              - 'signer:List*'
+              - 'sns:Get*'
+              - 'sns:List*'
+              - 'sqs:Get*'
+              - 'sqs:List*'
+              - 'ssm:Describe*'
+              - 'ssm:Get*'
+              - 'ssm:List*'
+              - 'sso:Describe*'
+              - 'sso:Get*'
+              - 'sso:List*'
+              - 'transcribe:Get*'
+              - 'transcribe:List*'
+              - 'transfer:Describe*'
+              - 'transfer:List*'
+              - 'translate:Describe*'
+              - 'translate:List*'
+              - 'waf:Get*'
+              - 'waf:List*'
+              - 'waf-regional:Get*'
+              - 'waf-regional:List*'
+              - 'wafv2:Get*'
+              - 'wafv2:List*'
+              - 'workdocs:Describe*'
+              - 'workdocs:Get*'
+              - 'workdocs:SearchResources'
+              - 'workmail:Describe*'
+              - 'workmail:Get*'
+              - 'workmail:List*'
+              - 'workspaces:Describe*'
+              - 'workspaces:List*'
+              - 'xray:Get*'
+              - 'xray:BatchGet*'
+            Resource: '*'
+          - Sid: ECADCostExplorerReadOnly
+            Effect: Allow
+            Action:
+              - 'ce:Describe*'
+              - 'ce:Get*'
+              - 'ce:List*'
+            Resource: '*'
+
+  # Política IAM Part 2 - Servicios adicionales
+  ECADReadOnlyPolicyPart2:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub '${RoleName}-Policy-Part2'
+      Description: 'ECAD ReadOnly Access - Part 2 (Servicios adicionales)'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: ECADReadOnlyAccessPart2
+            Effect: Allow
+            Action:
+              - 'codeartifact:Describe*'
+              - 'codeartifact:Get*'
+              - 'codeartifact:List*'
+              - 'codeguru-reviewer:Describe*'
+              - 'codeguru-reviewer:Get*'
+              - 'codeguru-reviewer:List*'
+              - 'comprehend:Describe*'
+              - 'comprehend:List*'
+              - 'datapipeline:Describe*'
+              - 'datapipeline:Get*'
+              - 'datapipeline:List*'
+              - 'dax:Describe*'
+              - 'dax:List*'
+              - 'devicefarm:Get*'
+              - 'devicefarm:List*'
+              - 'discovery:Describe*'
+              - 'discovery:List*'
+              - 'elasticmapreduce:Describe*'
+              - 'elasticmapreduce:List*'
+              - 'fsx:Describe*'
+              - 'fsx:List*'
+              - 'glacier:Describe*'
+              - 'glacier:Get*'
+              - 'glacier:List*'
+              - 'gamelift:Describe*'
+              - 'gamelift:List*'
+              - 'globalaccelerator:Describe*'
+              - 'globalaccelerator:List*'
+              - 'greengrass:Describe*'
+              - 'greengrass:Get*'
+              - 'greengrass:List*'
+              - 'groundstation:Describe*'
+              - 'groundstation:Get*'
+              - 'groundstation:List*'
+              - 'inspector:Describe*'
+              - 'inspector:Get*'
+              - 'inspector:List*'
+              - 'iotwireless:Get*'
+              - 'iotwireless:List*'
+              - 'iotsitewise:Describe*'
+              - 'iotsitewise:Get*'
+              - 'iotsitewise:List*'
+              - 'kafka:Describe*'
+              - 'kafka:Get*'
+              - 'kafka:List*'
+              - 'kendra:Describe*'
+              - 'kendra:List*'
+              - 'kinesisanalytics:Describe*'
+              - 'kinesisanalytics:List*'
+              - 'kinesisvideo:Describe*'
+              - 'kinesisvideo:Get*'
+              - 'kinesisvideo:List*'
+              - 'lakeformation:Describe*'
+              - 'lakeformation:Get*'
+              - 'lakeformation:List*'
+              - 'license-manager:Get*'
+              - 'license-manager:List*'
+              - 'memorydb:Describe*'
+              - 'memorydb:List*'
+              - 'mgh:Describe*'
+              - 'mgh:Get*'
+              - 'mgh:List*'
+              - 'mgn:Describe*'
+              - 'mgn:Get*'
+              - 'mgn:List*'
+              - 'outposts:Get*'
+              - 'outposts:List*'
+              - 'personalize:Describe*'
+              - 'personalize:List*'
+              - 'pi:Describe*'
+              - 'pi:Get*'
+              - 'pi:List*'
+              - 'polly:Describe*'
+              - 'polly:Get*'
+              - 'polly:List*'
+              - 'pricing:Describe*'
+              - 'pricing:Get*'
+              - 'pricing:List*'
+              - 'qldb:Describe*'
+              - 'qldb:Get*'
+              - 'qldb:List*'
+              - 'quicksight:Describe*'
+              - 'quicksight:Get*'
+              - 'quicksight:List*'
+              - 'redshift-data:Describe*'
+              - 'redshift-data:Get*'
+              - 'redshift-data:List*'
+              - 'redshift-serverless:Get*'
+              - 'redshift-serverless:List*'
+              - 'rekognition:Describe*'
+              - 'rekognition:Get*'
+              - 'rekognition:List*'
+              - 'resiliencehub:Describe*'
+              - 'resiliencehub:List*'
+              - 'resource-explorer-2:Get*'
+              - 'resource-explorer-2:List*'
+              - 'robomaker:Describe*'
+              - 'robomaker:Get*'
+              - 'robomaker:List*'
+              - 'route53domains:Get*'
+              - 'route53domains:List*'
+              - 'savingsplans:Describe*'
+              - 'savingsplans:List*'
+              - 'schemas:Describe*'
+              - 'schemas:Get*'
+              - 'schemas:List*'
+              - 'serverlessrepo:Get*'
+              - 'serverlessrepo:List*'
+              - 'snowball:Describe*'
+              - 'snowball:Get*'
+              - 'snowball:List*'
+              - 'ssm-contacts:Describe*'
+              - 'ssm-contacts:Get*'
+              - 'ssm-contacts:List*'
+              - 'ssm-incidents:Get*'
+              - 'ssm-incidents:List*'
+              - 'swf:Describe*'
+              - 'swf:Get*'
+              - 'swf:List*'
+              - 'synthetics:Describe*'
+              - 'synthetics:Get*'
+              - 'synthetics:List*'
+              - 'textract:Get*'
+              - 'textract:List*'
+              - 'trustedadvisor:Describe*'
+              - 'trustedadvisor:List*'
+              - 'verifiedpermissions:Get*'
+              - 'verifiedpermissions:List*'
+              - 'wellarchitected:Get*'
+              - 'wellarchitected:List*'
+            Resource: '*'
+
+  # Rol IAM para ECAD
+  ECADRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Description: 'Rol IAM para ECAD (AWS Cloud Architecture Diagnostic) - Permisos ReadOnly'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - !If
+            - EnableSameAccountAccess
+            - Effect: Allow
+              Principal:
+                AWS: !If
+                  - HasPrincipalArn
+                  - !Ref PrincipalArn
+                  - !If
+                    - HasPrincipalAccountId
+                    - !Sub 'arn:aws:iam::${PrincipalAccountId}:root'
+                    - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+              Action: 'sts:AssumeRole'
+              Condition: !If
+                - HasExternalId
+                - StringEquals:
+                    sts:ExternalId: !Ref ExternalId
+                - !Ref 'AWS::NoValue'
+            - Effect: Allow
+              Principal:
+                AWS: !If
+                  - HasPrincipalArn
+                  - !Ref PrincipalArn
+                  - !If
+                    - HasPrincipalAccountId
+                    - !Sub 'arn:aws:iam::${PrincipalAccountId}:root'
+                    - !Ref 'AWS::NoValue'
+              Action: 'sts:AssumeRole'
+              Condition: !If
+                - HasExternalId
+                - StringEquals:
+                    sts:ExternalId: !Ref ExternalId
+                - !Ref 'AWS::NoValue'
+      ManagedPolicyArns:
+        - !Ref ECADReadOnlyPolicyPart1
+        - !Ref ECADReadOnlyPolicyPart2
+      Tags:
+        - Key: Purpose
+          Value: ECAD-ReadOnly-Access
+        - Key: ManagedBy
+          Value: CloudFormation
+        - Key: Description
+          Value: Rol para diagnóstico de arquitectura AWS con permisos ReadOnly
+
+Conditions:
+  HasPrincipalAccountId: !Not [!Equals [!Ref PrincipalAccountId, '']]
+  HasPrincipalArn: !Not [!Equals [!Ref PrincipalArn, '']]
+  HasExternalId: !Not [!Equals [!Ref ExternalId, '']]
+
+Outputs:
+  RoleName:
+    Description: Nombre del rol IAM creado
+    Value: !Ref ECADRole
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleName'
+  
+  RoleArn:
+    Description: ARN del rol IAM creado
+    Value: !GetAtt ECADRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleArn'
+  
+  PolicyPart1Arn:
+    Description: ARN de la política Part 1
+    Value: !Ref ECADReadOnlyPolicyPart1
+    Export:
+      Name: !Sub '${AWS::StackName}-PolicyPart1Arn'
+  
+  PolicyPart2Arn:
+    Description: ARN de la política Part 2
+    Value: !Ref ECADReadOnlyPolicyPart2
+    Export:
+      Name: !Sub '${AWS::StackName}-PolicyPart2Arn'
+  
+  AssumeRoleCommand:
+    Description: Comando para asumir el rol (si se usa External ID)
+    Value: !If
+      - HasExternalId
+      - !Sub 'aws sts assume-role --role-arn ${ECADRole.Arn} --role-session-name ECAD-Session --external-id ${ExternalId}'
+      - !Sub 'aws sts assume-role --role-arn ${ECADRole.Arn} --role-session-name ECAD-Session'
+  
+  UsageInstructions:
+    Description: Instrucciones de uso
+    Value: !Sub |
+      Para usar este rol con ECAD:
+      1. Si usas External ID: aws sts assume-role --role-arn ${ECADRole.Arn} --role-session-name ECAD-Session --external-id ${ExternalId}
+      2. Si no usas External ID: aws sts assume-role --role-arn ${ECADRole.Arn} --role-session-name ECAD-Session
+      3. Configura las credenciales temporales en tu entorno
+      4. Ejecuta ECAD: python ecad.py
+

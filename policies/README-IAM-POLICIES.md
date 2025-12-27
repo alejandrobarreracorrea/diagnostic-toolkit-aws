@@ -31,7 +31,30 @@ Para cubrir todos los servicios AWS con permisos ReadOnly, ECAD utiliza **dos po
 
 ## 🚀 Cómo Implementar
 
-### Opción 1: Adjuntar Ambas Políticas al Rol/Usuario
+### ⭐ Opción 1: CloudFormation (Recomendado - Más Fácil)
+
+**Usa el template de CloudFormation para crear todo automáticamente:**
+
+```bash
+# Ver guía completa en: policies/README-CLOUDFORMATION.md
+
+# Desplegar stack básico
+aws cloudformation create-stack \
+  --stack-name ECAD-IAM-Role \
+  --template-body file://policies/ecad-iam-role-cloudformation.yaml \
+  --capabilities CAPABILITY_NAMED_IAM
+```
+
+El template crea automáticamente:
+- ✅ Rol IAM con el nombre que especifiques
+- ✅ Política Part 1 (servicios principales)
+- ✅ Política Part 2 (servicios adicionales)
+- ✅ Configuración para misma cuenta o cross-account
+- ✅ Soporte para External ID
+
+**📖 Ver documentación completa:** [`README-CLOUDFORMATION.md`](README-CLOUDFORMATION.md)
+
+### Opción 2: Adjuntar Ambas Políticas al Rol/Usuario (Manual)
 
 1. **Crear Política 1:**
    ```bash

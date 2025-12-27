@@ -64,6 +64,8 @@ if "%RUN_DIR%"=="" (
 )
 echo Run directory: %RUN_DIR%
 if not exist "%RUN_DIR%\raw" mkdir "%RUN_DIR%\raw"
+if "%ECAD_MAX_THREADS%"=="" set ECAD_MAX_THREADS=20
+if "%ECAD_MAX_PAGES%"=="" set ECAD_MAX_PAGES=100
 python -m collector.main --output-dir "%RUN_DIR%" --max-threads %ECAD_MAX_THREADS% --max-pages %ECAD_MAX_PAGES%
 goto :end
 

@@ -173,13 +173,15 @@ make demo
 
 ### Windows (Scripts Batch/PowerShell)
 
+**⚠️ IMPORTANTE:** En Windows, `make` no está disponible por defecto. Usa los scripts de Windows o el script interactivo `python ecad.py` que detecta automáticamente Windows.
+
 **Usando scripts batch (.bat):**
 ```cmd
 scripts\windows\ecad.bat install          # Instalar dependencias
 scripts\windows\ecad.bat collect          # Recolectar datos
-scripts\windows\ecad.bat analyze RUN_DIR=runs\run-20240101-120000
-scripts\windows\ecad.bat evidence RUN_DIR=runs\run-20240101-120000
-scripts\windows\ecad.bat reports RUN_DIR=runs\run-20240101-120000
+set RUN_DIR=runs\run-20240101-120000 && scripts\windows\ecad.bat analyze
+set RUN_DIR=runs\run-20240101-120000 && scripts\windows\ecad.bat evidence
+set RUN_DIR=runs\run-20240101-120000 && scripts\windows\ecad.bat reports
 scripts\windows\ecad.bat demo             # Ejecutar demo
 scripts\windows\ecad.bat clean            # Limpiar archivos temporales
 ```

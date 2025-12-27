@@ -10,6 +10,7 @@ import subprocess
 import json
 from pathlib import Path
 from datetime import datetime
+import platform
 
 def print_header():
     """Imprimir encabezado."""
@@ -48,14 +49,61 @@ def get_user_choice():
             print("\n\n👋 ¡Hasta luego!")
             sys.exit(0)
 
-def run_command(cmd, description):
+def get_make_command(base_cmd, run_dir=None):
+    """Obtener el comando correcto según el sistema operativo."""
+    is_windows = platform.system() == 'Windows'
+    
+    if not is_windows:
+        # Linux/macOS - usar make directamente
+        return base_cmd
+    
+    # Windows - usar scripts de Windows
+    # Extraer el comando (install, collect, analyze, etc.)
+    parts = base_cmd.split()
+    if len(parts) < 2:
+        return base_cmd
+    
+    cmd_name = parts[1]
+    script_bat = Path("scripts/windows/ecad.bat")
+    script_ps1 = Path("scripts/windows/ecad.ps1")
+    
+    # Preferir PowerShell si está disponible
+    if script_ps1.exists():
+        script_path = script_ps1.resolve()
+        if cmd_name in ["analyze", "evidence", "reports"] and run_dir:
+            run_dir_str = str(run_dir).replace('\\', '/')
+            return f'powershell -ExecutionPolicy Bypass -File "{script_path}" {cmd_name} -RunDir "{run_dir_str}"'
+        else:
+            return f'powershell -ExecutionPolicy Bypass -File "{script_path}" {cmd_name}'
+    
+    # Usar batch file
+    if script_bat.exists():
+        script_path = script_bat.resolve()
+        # La variable RUN_DIR se pasa como variable de entorno en run_command
+        return f'"{script_path}" {cmd_name}'
+    
+    # Si no hay scripts, intentar usar make si está disponible (chocolatey, etc)
+    return base_cmd
+
+def run_command(cmd, description, run_dir=None):
     """Ejecutar comando y mostrar resultado."""
     print(f"\n{'='*60}")
     print(f"  {description}")
     print(f"{'='*60}\n")
     
+    # Convertir comando make a comando del sistema
+    if cmd.startswith("make "):
+        actual_cmd = get_make_command(cmd, run_dir)
+    else:
+        actual_cmd = cmd
+    
+    # Preparar variables de entorno si hay run_dir
+    env = os.environ.copy()
+    if run_dir:
+        env['RUN_DIR'] = str(run_dir)
+    
     try:
-        result = subprocess.run(cmd, shell=True, check=True)
+        result = subprocess.run(actual_cmd, shell=True, check=True, env=env)
         print(f"\n✅ {description} completado exitosamente")
         return True
     except subprocess.CalledProcessError as e:
@@ -213,7 +261,7 @@ def run_demo():
         print("\n❌ Faltan dependencias. Instálalas primero (opción 8)")
         return False
     
-    return run_command("make demo", "Demo con fixtures")
+    return run_command("make demo", "Demo con fixtures", None)
 
 def run_collect():
     """Recolectar datos desde AWS."""
@@ -309,7 +357,7 @@ def run_collect():
         os.environ['ECAD_SERVICE_DENYLIST'] = service_denylist
     
     # Ejecutar
-    return run_command("make collect", "Recolección completa de datos AWS")
+    return run_command("make collect", "Recolección completa de datos AWS", None)
 
 def run_analyze():
     """Analizar un run."""
@@ -322,7 +370,7 @@ def run_analyze():
     print(f"\n📊 Analizando: {run_dir.name}")
     
     cmd = f"make analyze RUN_DIR={run_dir}"
-    return run_command(cmd, f"Análisis de {run_dir.name}")
+    return run_command(cmd, f"Análisis de {run_dir.name}", run_dir)
 
 def run_evidence():
     """Generar evidence pack."""
@@ -335,7 +383,7 @@ def run_evidence():
     print(f"\n📋 Generando evidence pack: {run_dir.name}")
     
     cmd = f"make evidence RUN_DIR={run_dir}"
-    return run_command(cmd, f"Evidence pack de {run_dir.name}")
+    return run_command(cmd, f"Evidence pack de {run_dir.name}", run_dir)
 
 def run_reports():
     """Generar reportes."""
@@ -348,7 +396,7 @@ def run_reports():
     print(f"\n📄 Generando reportes: {run_dir.name}")
     
     cmd = f"make reports RUN_DIR={run_dir}"
-    return run_command(cmd, f"Reportes de {run_dir.name}")
+    return run_command(cmd, f"Reportes de {run_dir.name}", run_dir)
 
 def show_inventory_console():
     """Mostrar inventario consolidado en consola."""
@@ -565,15 +613,15 @@ def run_complete():
     print(f"\n✅ Run creado: {latest_run.name}")
     
     # Paso 2: Analizar
-    if not run_command(f"make analyze RUN_DIR={latest_run}", "Análisis"):
+    if not run_command(f"make analyze RUN_DIR={latest_run}", "Análisis", latest_run):
         print("\n⚠️  Error en análisis, continuando...")
     
     # Paso 3: Evidence
-    if not run_command(f"make evidence RUN_DIR={latest_run}", "Evidence pack"):
+    if not run_command(f"make evidence RUN_DIR={latest_run}", "Evidence pack", latest_run):
         print("\n⚠️  Error en evidence pack, continuando...")
     
     # Paso 4: Reportes
-    if not run_command(f"make reports RUN_DIR={latest_run}", "Reportes"):
+    if not run_command(f"make reports RUN_DIR={latest_run}", "Reportes", latest_run):
         print("\n⚠️  Error en reportes, continuando...")
     
     print(f"\n✅ Flujo completo finalizado!")
@@ -624,7 +672,7 @@ def main():
             show_inventory_console()
         
         elif choice == '11':
-            run_command("make clean", "Limpieza de archivos temporales")
+            run_command("make clean", "Limpieza de archivos temporales", None)
         
         # Pausa antes de volver al menú
         if choice != '0':

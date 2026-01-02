@@ -558,11 +558,34 @@ def show_inventory_console():
               f"{row['ops_exitosas']:<8} {row['ops_fallidas']:<8} {row['recursos']:<10} {row['estado']:<15}")
     
     print("-" * 100)
+    total_ops = sum(r['ops_totales'] for r in table_data)
+    total_success = sum(r['ops_exitosas'] for r in table_data)
+    total_failed = sum(r['ops_fallidas'] for r in table_data)
+    total_resources = sum(r['recursos'] for r in table_data)
+    
     print(f"\nTotal: {len(table_data)} servicios")
-    print(f"Operaciones totales: {sum(r['ops_totales'] for r in table_data)}")
-    print(f"Operaciones exitosas: {sum(r['ops_exitosas'] for r in table_data)}")
-    print(f"Operaciones fallidas: {sum(r['ops_fallidas'] for r in table_data)}")
-    print(f"Recursos estimados: {sum(r['recursos'] for r in table_data)}")
+    print(f"Operaciones totales: {total_ops}")
+    print(f"Operaciones exitosas: {total_success} ({total_success/total_ops*100:.1f}%)" if total_ops > 0 else "Operaciones exitosas: 0")
+    print(f"Operaciones fallidas: {total_failed} ({total_failed/total_ops*100:.1f}%)" if total_ops > 0 else "Operaciones fallidas: 0")
+    print(f"Recursos estimados: {total_resources}")
+    
+    # Análisis rápido de errores si hay muchos
+    if total_failed > 0 and total_success / total_ops < 0.1 if total_ops > 0 else False:
+        print("\n" + "="*100)
+        print("⚠️  ANÁLISIS RÁPIDO DE ERRORES")
+        print("="*100)
+        print(f"\n   Se detectaron {total_failed} operaciones fallidas de {total_ops} totales.")
+        print(f"   Tasa de éxito: {total_success/total_ops*100:.1f}%")
+        print("\n   💡 CAUSAS COMUNES DE ERRORES:")
+        print("      1. Permisos IAM insuficientes (AccessDenied, UnauthorizedOperation)")
+        print("      2. Servicios no habilitados en la cuenta")
+        print("      3. Servicios no disponibles en la región seleccionada")
+        print("      4. Throttling (límites de tasa de API)")
+        print("      5. Operaciones que requieren parámetros específicos")
+        print("\n   🔍 RECOMENDACIÓN:")
+        print("      Ejecuta la opción 11 (VALIDAR) para ver un análisis detallado")
+        print("      de los tipos de errores y sus causas específicas.")
+        print("="*100)
     
     # Opción para exportar
     print("\n" + "="*100)
@@ -820,11 +843,19 @@ def validate_run():
     permission_errors = []
     throttling_errors = []
     validation_errors = []
+    service_unavailable_errors = []
+    resource_not_found_errors = []
+    endpoint_errors = []
+    network_errors = []
     other_errors = []
     
     permission_codes = ['AccessDenied', 'UnauthorizedOperation', 'Forbidden', 'AccessDeniedException']
     throttling_codes = ['Throttling', 'ThrottlingException', 'TooManyRequestsException', 'RateExceeded']
     validation_codes = ['ValidationException', 'InvalidParameterValue', 'MissingParameter']
+    service_unavailable_codes = ['ServiceUnavailable', 'ServiceUnavailableException', 'Unavailable']
+    resource_not_found_codes = ['ResourceNotFoundException', 'NoSuchEntity', 'NotFound', 'NoSuchBucket', 'NoSuchKey']
+    endpoint_codes = ['EndpointConnectionError', 'EndpointNotAvailable', 'UnknownEndpoint', 'InvalidEndpoint']
+    network_codes = ['ConnectionError', 'ConnectionTimeout', 'ReadTimeout', 'ConnectTimeout', 'Timeout']
     
     services_with_permission_errors = {}
     services_successful = {}
@@ -872,6 +903,14 @@ def validate_run():
                             throttling_errors.append(entry)
                         elif error_code in validation_codes:
                             validation_errors.append(entry)
+                        elif error_code in service_unavailable_codes:
+                            service_unavailable_errors.append(entry)
+                        elif error_code in resource_not_found_codes:
+                            resource_not_found_errors.append(entry)
+                        elif error_code in endpoint_codes:
+                            endpoint_errors.append(entry)
+                        elif error_code in network_codes:
+                            network_errors.append(entry)
                         else:
                             other_errors.append(entry)
         
@@ -1003,6 +1042,13 @@ def validate_run():
         print("   Estos errores son NORMALES - AWS limita la tasa de llamadas API")
         print("   El collector tiene retry automático, pero algunos pueden fallar")
         print("   💡 Si hay muchos, reduce ECAD_MAX_THREADS")
+        
+        # Análisis por servicio
+        service_throttling = Counter([e['service'] for e in throttling_errors])
+        if service_throttling:
+            print("\n   Top 5 servicios con más throttling:")
+            for i, (service, count) in enumerate(service_throttling.most_common(5), 1):
+                print(f"      {i}. {service:30s} - {count:3d} errores")
     
     if validation_errors:
         print("\n" + "="*80)
@@ -1010,6 +1056,95 @@ def validate_run():
         print("="*80)
         print("   Algunas operaciones requieren parámetros que no se pudieron inferir")
         print("   Estos errores son esperados y no afectan el inventario principal")
+        
+        # Análisis por servicio
+        service_validation = Counter([e['service'] for e in validation_errors])
+        if service_validation:
+            print("\n   Top 5 servicios con más errores de validación:")
+            for i, (service, count) in enumerate(service_validation.most_common(5), 1):
+                print(f"      {i}. {service:30s} - {count:3d} errores")
+    
+    if service_unavailable_errors:
+        print("\n" + "="*80)
+        print(f"🔴 SERVICIOS NO DISPONIBLES ({len(service_unavailable_errors)} errores)")
+        print("="*80)
+        print("   Estos errores indican que el servicio no está disponible en la región")
+        print("   o que el servicio está temporalmente fuera de servicio")
+        
+        # Análisis por servicio y región
+        service_region_unavailable = defaultdict(int)
+        for e in service_unavailable_errors:
+            key = f"{e['service']} (región específica)"
+            service_region_unavailable[key] += 1
+        
+        if service_region_unavailable:
+            print("\n   Servicios/regiones afectados:")
+            sorted_unavailable = sorted(service_region_unavailable.items(), key=lambda x: x[1], reverse=True)
+            for i, (service, count) in enumerate(sorted_unavailable[:10], 1):
+                print(f"      {i:2d}. {service:40s} - {count:3d} errores")
+        
+        print("\n   💡 CAUSAS POSIBLES:")
+        print("      - El servicio no está habilitado en la cuenta AWS")
+        print("      - El servicio no está disponible en esa región específica")
+        print("      - El servicio está temporalmente fuera de servicio")
+        print("      - Problemas de conectividad con el endpoint del servicio")
+    
+    if resource_not_found_errors:
+        print("\n" + "="*80)
+        print(f"🔍 RECURSOS NO ENCONTRADOS ({len(resource_not_found_errors)} errores)")
+        print("="*80)
+        print("   Estos errores indican que se intentó acceder a recursos que no existen")
+        print("   Esto es NORMAL si la cuenta no tiene esos recursos")
+        
+        # Análisis por servicio
+        service_not_found = Counter([e['service'] for e in resource_not_found_errors])
+        if service_not_found:
+            print("\n   Top 5 servicios con más recursos no encontrados:")
+            for i, (service, count) in enumerate(service_not_found.most_common(5), 1):
+                print(f"      {i}. {service:30s} - {count:3d} errores")
+        
+        print("\n   💡 NOTA: Estos errores son esperados si:")
+        print("      - La cuenta no tiene recursos de ese tipo")
+        print("      - Los recursos fueron eliminados")
+        print("      - Se intentó acceder a recursos específicos que no existen")
+    
+    if endpoint_errors:
+        print("\n" + "="*80)
+        print(f"🌐 ERRORES DE ENDPOINT ({len(endpoint_errors)} errores)")
+        print("="*80)
+        print("   Estos errores indican problemas con los endpoints de AWS")
+        
+        # Análisis por servicio
+        service_endpoint = Counter([e['service'] for e in endpoint_errors])
+        if service_endpoint:
+            print("\n   Top 5 servicios con errores de endpoint:")
+            for i, (service, count) in enumerate(service_endpoint.most_common(5), 1):
+                print(f"      {i}. {service:30s} - {count:3d} errores")
+        
+        print("\n   💡 CAUSAS POSIBLES:")
+        print("      - El servicio no está disponible en esa región")
+        print("      - El endpoint no está configurado correctamente")
+        print("      - Problemas de DNS o conectividad de red")
+        print("      - El servicio requiere configuración adicional (ej: VPC endpoints)")
+    
+    if network_errors:
+        print("\n" + "="*80)
+        print(f"📡 ERRORES DE RED/CONECTIVIDAD ({len(network_errors)} errores)")
+        print("="*80)
+        print("   Estos errores indican problemas de conectividad de red")
+        
+        # Análisis por servicio
+        service_network = Counter([e['service'] for e in network_errors])
+        if service_network:
+            print("\n   Top 5 servicios con errores de red:")
+            for i, (service, count) in enumerate(service_network.most_common(5), 1):
+                print(f"      {i}. {service:30s} - {count:3d} errores")
+        
+        print("\n   💡 CAUSAS POSIBLES:")
+        print("      - Problemas de conectividad de red")
+        print("      - Timeouts en las conexiones")
+        print("      - Firewall o proxy bloqueando conexiones")
+        print("      - Problemas con VPC endpoints o configuración de red")
     
     if other_errors:
         print("\n" + "="*80)
@@ -1042,31 +1177,147 @@ def validate_run():
                 example = error_by_service[error_code][0]
                 print(f"       Ejemplo: {example['service']}.{example['operation']}")
     
+    # Análisis de errores por región
+    if total_errors > 0:
+        print("\n" + "="*80)
+        print("🌍 ANÁLISIS DE ERRORES POR REGIÓN")
+        print("="*80)
+        
+        errors_by_region = defaultdict(lambda: {'total': 0, 'by_type': Counter()})
+        for service_name, service_data in idx.get("services", {}).items():
+            for region_name, region_data in service_data.get("regions", {}).items():
+                for op_info in region_data.get("operations", []):
+                    if not op_info.get("success", True) and not op_info.get("not_available", False):
+                        errors_by_region[region_name]['total'] += 1
+                        error = op_info.get("error", {})
+                        if isinstance(error, dict):
+                            error_code = error.get("code", "Unknown")
+                            errors_by_region[region_name]['by_type'][error_code] += 1
+        
+        if errors_by_region:
+            sorted_regions = sorted(errors_by_region.items(), key=lambda x: x[1]['total'], reverse=True)
+            print("\n   Top 10 regiones con más errores:")
+            for i, (region, data) in enumerate(sorted_regions[:10], 1):
+                pct = (data['total'] / total_errors * 100) if total_errors > 0 else 0
+                print(f"   {i:2d}. {region:20s} - {data['total']:4d} errores ({pct:5.1f}%)")
+                top_error = data['by_type'].most_common(1)
+                if top_error:
+                    print(f"       Error más común: {top_error[0][0]} ({top_error[0][1]} veces)")
+    
+    # Análisis de patrones de errores
+    if other_errors:
+        print("\n" + "="*80)
+        print("🔬 ANÁLISIS DE PATRONES DE ERRORES")
+        print("="*80)
+        
+        # Agrupar errores similares
+        error_patterns = defaultdict(list)
+        for e in other_errors:
+            # Normalizar mensajes similares
+            msg = e.get('message', '').lower()
+            code = e.get('code', 'Unknown')
+            pattern_key = f"{code}"
+            error_patterns[pattern_key].append(e)
+        
+        print(f"\n   Se encontraron {len(other_errors)} errores de otros tipos")
+        print(f"   Agrupados en {len(error_patterns)} patrones diferentes")
+        
+        # Mostrar patrones más comunes
+        sorted_patterns = sorted(error_patterns.items(), key=lambda x: len(x[1]), reverse=True)
+        print("\n   Top 10 patrones de errores:")
+        for i, (pattern, errors) in enumerate(sorted_patterns[:10], 1):
+            print(f"   {i:2d}. {pattern:40s} - {len(errors):4d} ocurrencias")
+            # Mostrar ejemplo
+            if errors:
+                example = errors[0]
+                print(f"       Ejemplo: {example['service']}.{example['operation']}")
+                if example.get('message'):
+                    msg_preview = example['message'][:80]
+                    print(f"       Mensaje: {msg_preview}...")
+    
     # Recomendaciones finales
     print("\n" + "="*80)
     print("💡 RECOMENDACIONES FINALES")
     print("="*80)
     
+    # Calcular distribución de tipos de errores
+    total_categorized_errors = (len(permission_errors) + len(throttling_errors) + 
+                                len(validation_errors) + len(service_unavailable_errors) + 
+                                len(resource_not_found_errors) + len(endpoint_errors) + 
+                                len(network_errors) + len(other_errors))
+    
+    if total_categorized_errors > 0:
+        print("\n   📊 DISTRIBUCIÓN DE TIPOS DE ERRORES:")
+        if permission_errors:
+            pct = (len(permission_errors) / total_categorized_errors * 100)
+            print(f"      - Permisos: {len(permission_errors):4d} ({pct:5.1f}%)")
+        if throttling_errors:
+            pct = (len(throttling_errors) / total_categorized_errors * 100)
+            print(f"      - Throttling: {len(throttling_errors):4d} ({pct:5.1f}%)")
+        if validation_errors:
+            pct = (len(validation_errors) / total_categorized_errors * 100)
+            print(f"      - Validación: {len(validation_errors):4d} ({pct:5.1f}%)")
+        if service_unavailable_errors:
+            pct = (len(service_unavailable_errors) / total_categorized_errors * 100)
+            print(f"      - Servicio no disponible: {len(service_unavailable_errors):4d} ({pct:5.1f}%)")
+        if resource_not_found_errors:
+            pct = (len(resource_not_found_errors) / total_categorized_errors * 100)
+            print(f"      - Recurso no encontrado: {len(resource_not_found_errors):4d} ({pct:5.1f}%)")
+        if endpoint_errors:
+            pct = (len(endpoint_errors) / total_categorized_errors * 100)
+            print(f"      - Endpoint: {len(endpoint_errors):4d} ({pct:5.1f}%)")
+        if network_errors:
+            pct = (len(network_errors) / total_categorized_errors * 100)
+            print(f"      - Red/Conectividad: {len(network_errors):4d} ({pct:5.1f}%)")
+        if other_errors:
+            pct = (len(other_errors) / total_categorized_errors * 100)
+            print(f"      - Otros: {len(other_errors):4d} ({pct:5.1f}%)")
+    
     if len(permission_errors) > total_errors * 0.5:
         print("\n   1. 🔴 PRIORIDAD ALTA: Más del 50% de errores son de permisos")
         print("      - Revisa y actualiza las políticas IAM")
         print("      - Ejecuta una nueva recolección después de corregir permisos")
+    elif len(permission_errors) > 0:
+        print("\n   1. ℹ️  Errores de permisos detectados pero no son la causa principal")
+        print("      - Las políticas IAM parecen estar bien configuradas")
+        print("      - Los errores de permisos pueden ser esperados para algunos servicios")
+    
+    if len(service_unavailable_errors) > total_errors * 0.3:
+        print("\n   2. ⚠️  Muchos errores de servicios no disponibles")
+        print("      - Verifica que los servicios estén habilitados en la cuenta")
+        print("      - Algunos servicios pueden no estar disponibles en ciertas regiones")
+        print("      - Revisa la configuración de regiones en la recolección")
+    
+    if len(endpoint_errors) > 0:
+        print("\n   3. ⚠️  Errores de endpoints detectados")
+        print("      - Verifica la configuración de red y conectividad")
+        print("      - Algunos servicios pueden requerir VPC endpoints")
+        print("      - Revisa la configuración de DNS y firewall")
+    
+    if len(throttling_errors) > total_errors * 0.3:
+        print("\n   4. ⚠️  Muchos errores de throttling")
+        print("      - Considera reducir ECAD_MAX_THREADS en la próxima recolección")
+        print("      - AWS está limitando la tasa de llamadas API")
+        print("      - El collector tiene retry automático, pero algunos pueden fallar")
     
     if success_rate < 50:
-        print("\n   2. ⚠️  El run tiene menos del 50% de éxito")
+        print("\n   5. ⚠️  El run tiene menos del 50% de éxito")
         print("      - Considera ejecutar una nueva recolección")
         print("      - Verifica las credenciales AWS (opción 7)")
-        print("      - Revisa los permisos IAM")
+        print("      - Revisa los tipos de errores identificados arriba")
     
     if total_resources == 0:
-        print("\n   3. ⚠️  No se encontraron recursos")
+        print("\n   6. ⚠️  No se encontraron recursos")
         print("      - Verifica que la cuenta AWS tenga recursos")
         print("      - Revisa que las regiones seleccionadas sean correctas")
+        print("      - Algunos servicios pueden no tener recursos en esta cuenta")
     
     if success_rate >= 50 and total_resources > 0:
         print("\n   ✅ El run tiene información suficiente para análisis")
         print("      - Puedes generar reportes (opción 5)")
         print("      - Puedes generar evidence pack (opción 4)")
+        if len(other_errors) > 0 or len(service_unavailable_errors) > 0:
+            print("      - Algunos errores son esperados (servicios no disponibles, recursos no encontrados)")
     
     print("\n" + "="*80)
     

@@ -1,0 +1,21 @@
+{
+  "total_permissions": 612,
+  "total_services": 337,
+  "results": {
+    "iam-policy-ecad-part1.json": {
+      "permission_count": 305,
+      "validation_status": true,
+      "analyzer_status": null
+    },
+    "iam-policy-ecad-part2.json": {
+      "permission_count": 284,
+      "validation_status": true,
+      "analyzer_status": null
+    },
+    "iam-policy-ecad-part3.json": {
+      "permission_count": 24,
+      "validation_status": true,
+      "analyzer_status": null
+    }
+  }
+}

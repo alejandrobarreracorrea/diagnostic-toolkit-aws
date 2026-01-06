@@ -1,6 +1,6 @@
 # Executive Summary - AWS Cloud Architecture Diagnostic
 
-**Fecha:** 2025-12-25  
+**Fecha:** 2026-01-02  
 **Account ID:** 123456789012  
 **Account Alias:** demo-account
 
@@ -14,27 +14,27 @@ Este reporte presenta los hallazgos del diagnóstico arquitectónico realizado e
 
 - **Servicios AWS Detectados:** 9
 - **Regiones Activas:** 1
-- **Total de Recursos Estimados:** 11
+- **Total de Recursos Estimados:** 6
 - **Hallazgos Identificados:** 6
 
 ### Top 5 Servicios por Recursos
 
 
-- **s3**: 2 recursos
-
 - **iam**: 2 recursos
 
-- **ec2**: 2 recursos
+- **lambda**: 2 recursos
 
-- **cloudwatch**: 1 recursos
+- **s3**: 2 recursos
 
-- **lambda**: 1 recursos
+- **autoscaling**: 0 recursos
+
+- **cloudformation**: 0 recursos
 
 
 ### Top 5 Regiones por Recursos
 
 
-- **us-east-1**: 11 recursos
+- **us-east-1**: 6 recursos
 
 
 ---
@@ -57,3 +57,4 @@ Este diagnóstico proporciona una base objetiva para:
 ---
 
 **Nota:** Este es un producto de diagnóstico técnico sin SLA ni soporte 24/7. Para consultas, contactar según modelo de engagement establecido.
+

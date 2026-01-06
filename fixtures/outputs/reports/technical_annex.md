@@ -1,6 +1,6 @@
 # Anexo Técnico - AWS Cloud Architecture Diagnostic
 
-**Fecha:** 2025-12-25
+**Fecha:** 2026-01-02
 
 ---
 
@@ -26,6 +26,34 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 
 
+### autoscaling
+
+- **Regiones:** us-east-1
+- **Operaciones Totales:** 1
+- **Operaciones Únicas:** 32
+
+#### Operaciones por Región
+
+
+- **us-east-1**: 1 operaciones
+
+
+
+
+### cloudformation
+
+- **Regiones:** us-east-1
+- **Operaciones Totales:** 1
+- **Operaciones Únicas:** 19
+
+#### Operaciones por Región
+
+
+- **us-east-1**: 1 operaciones
+
+
+
+
 ### cloudwatch
 
 - **Regiones:** us-east-1
@@ -40,7 +68,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 
 
-### s3
+### ec2
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 2
@@ -82,48 +110,6 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 
 
-### autoscaling
-
-- **Regiones:** us-east-1
-- **Operaciones Totales:** 1
-- **Operaciones Únicas:** 32
-
-#### Operaciones por Región
-
-
-- **us-east-1**: 1 operaciones
-
-
-
-
-### securityhub
-
-- **Regiones:** us-east-1
-- **Operaciones Totales:** 1
-- **Operaciones Únicas:** 16
-
-#### Operaciones por Región
-
-
-- **us-east-1**: 1 operaciones
-
-
-
-
-### cloudformation
-
-- **Regiones:** us-east-1
-- **Operaciones Totales:** 1
-- **Operaciones Únicas:** 19
-
-#### Operaciones por Región
-
-
-- **us-east-1**: 1 operaciones
-
-
-
-
 ### rds
 
 - **Regiones:** us-east-1
@@ -138,7 +124,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 
 
-### ec2
+### s3
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 2
@@ -148,6 +134,20 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 
 - **us-east-1**: 2 operaciones
+
+
+
+
+### securityhub
+
+- **Regiones:** us-east-1
+- **Operaciones Totales:** 1
+- **Operaciones Únicas:** 16
+
+#### Operaciones por Región
+
+
+- **us-east-1**: 1 operaciones
 
 
 
@@ -168,21 +168,21 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 ### Top Servicios por Recursos
 
 
-- **s3**: 2 recursos
-
 - **iam**: 2 recursos
 
-- **ec2**: 2 recursos
+- **lambda**: 2 recursos
 
-- **cloudwatch**: 1 recursos
+- **s3**: 2 recursos
 
-- **lambda**: 1 recursos
+- **autoscaling**: 0 recursos
 
-- **autoscaling**: 1 recursos
+- **cloudformation**: 0 recursos
 
-- **cloudformation**: 1 recursos
+- **cloudwatch**: 0 recursos
 
-- **rds**: 1 recursos
+- **ec2**: 0 recursos
+
+- **rds**: 0 recursos
 
 - **securityhub**: 0 recursos
 
@@ -190,12 +190,12 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 ### Top Regiones por Recursos
 
 
-- **us-east-1**: 11 recursos
+- **us-east-1**: 6 recursos
 
 
 ### Total de Recursos Estimados
 
-**11** recursos en total
+**6** recursos en total
 
 
 
@@ -237,3 +237,4 @@ Cada archivo `.json.gz` contiene:
 - Se aplicaron límites de paginación para evitar llamadas excesivas
 - Se implementó retry automático para manejo de throttling
 - Los datos están comprimidos en formato gzip para eficiencia de almacenamiento
+

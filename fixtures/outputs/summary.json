@@ -2,7 +2,7 @@
   "run_dir": "fixtures",
   "services_count": 9,
   "regions_count": 1,
-  "total_resources": 11,
+  "total_resources": 6,
   "findings_count": 6,
   "findings_by_severity": {
     "medium": 1,
@@ -12,36 +12,36 @@
   },
   "top_services": [
     {
-      "service": "s3",
-      "count": 2
-    },
-    {
       "service": "iam",
       "count": 2
     },
     {
-      "service": "ec2",
+      "service": "lambda",
       "count": 2
     },
     {
-      "service": "cloudwatch",
-      "count": 1
-    },
-    {
-      "service": "lambda",
-      "count": 1
+      "service": "s3",
+      "count": 2
     },
     {
       "service": "autoscaling",
-      "count": 1
+      "count": 0
     },
     {
       "service": "cloudformation",
-      "count": 1
+      "count": 0
+    },
+    {
+      "service": "cloudwatch",
+      "count": 0
+    },
+    {
+      "service": "ec2",
+      "count": 0
     },
     {
       "service": "rds",
-      "count": 1
+      "count": 0
     },
     {
       "service": "securityhub",
@@ -51,7 +51,7 @@
   "top_regions": [
     {
       "region": "us-east-1",
-      "count": 11
+      "count": 6
     }
   ]
 }

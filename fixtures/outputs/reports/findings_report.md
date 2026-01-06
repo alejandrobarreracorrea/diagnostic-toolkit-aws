@@ -1,6 +1,6 @@
 # Reporte de Hallazgos - AWS Cloud Architecture Diagnostic
 
-**Fecha:** 2025-12-25
+**Fecha:** 2026-01-02
 
 ---
 
@@ -25,18 +25,18 @@
 #### AWS Config no detectado (SEC-002)
 
 - **Severidad:** medium
-- **Impacto:** Falta de visibilidad de cambios de configuraci√≥n
+- **Impacto:** Falta de visibilidad de cambios de configuraciÛn
 - **Esfuerzo:** Medio
-- **Descripci√≥n:** AWS Config no est√° habilitado o no se pudo acceder. Config permite auditor√≠a y cumplimiento continuo.
-- **Recomendaci√≥n:** Habilitar AWS Config para auditor√≠a y cumplimiento continuo.
+- **Descripci√≥n:** AWS Config no est· habilitado o no se pudo acceder. Config permite auditorÌa y cumplimiento continuo.
+- **Recomendaci√≥n:** Habilitar AWS Config para auditorÌa y cumplimiento continuo.
 
 
 #### CloudTrail no detectado (SEC-003)
 
 - **Severidad:** high
-- **Impacto:** Falta de auditor√≠a de actividad de API
+- **Impacto:** Falta de auditorÌa de actividad de API
 - **Esfuerzo:** Bajo
-- **Descripci√≥n:** AWS CloudTrail no est√° habilitado o no se pudo acceder. CloudTrail es esencial para auditor√≠a y cumplimiento.
+- **Descripci√≥n:** AWS CloudTrail no est· habilitado o no se pudo acceder. CloudTrail es esencial para auditorÌa y cumplimiento.
 - **Recomendaci√≥n:** Habilitar CloudTrail en todas las regiones para registro de actividad de API.
 
 
@@ -46,13 +46,13 @@
 ### Reliability
 
 
-#### RDS detectado - Verificar configuraci√≥n Multi-AZ (REL-001)
+#### RDS detectado - Verificar configuraciÛn Multi-AZ (REL-001)
 
 - **Severidad:** info
 - **Impacto:** Posible falta de alta disponibilidad en bases de datos
 - **Esfuerzo:** Medio
-- **Descripci√≥n:** Se detect√≥ uso de RDS. Se recomienda verificar que las instancias cr√≠ticas est√©n configuradas con Multi-AZ para alta disponibilidad.
-- **Recomendaci√≥n:** Revisar configuraci√≥n de instancias RDS y habilitar Multi-AZ para bases de datos cr√≠ticas.
+- **Descripci√≥n:** Se detectÛ uso de RDS. Se recomienda verificar que las instancias crÌticas estÈn configuradas con Multi-AZ para alta disponibilidad.
+- **Recomendaci√≥n:** Revisar configuraciÛn de instancias RDS y habilitar Multi-AZ para bases de datos crÌticas.
 
 
 #### Auto Scaling detectado (REL-002)
@@ -60,8 +60,8 @@
 - **Severidad:** info
 - **Impacto:** Potencial mejora en confiabilidad y disponibilidad
 - **Esfuerzo:** Bajo
-- **Descripci√≥n:** Se detect√≥ uso de Auto Scaling Groups. Verificar configuraci√≥n de health checks y pol√≠ticas de escalado.
-- **Recomendaci√≥n:** Revisar configuraci√≥n de Auto Scaling Groups para asegurar escalado adecuado.
+- **Descripci√≥n:** Se detectÛ uso de Auto Scaling Groups. Verificar configuraciÛn de health checks y polÌticas de escalado.
+- **Recomendaci√≥n:** Revisar configuraciÛn de Auto Scaling Groups para asegurar escalado adecuado.
 
 
 
@@ -76,7 +76,7 @@
 - **Impacto:** Limitada visibilidad de costos
 - **Esfuerzo:** Bajo
 - **Descripci√≥n:** No se pudo acceder a Cost Explorer. Esto puede limitar la visibilidad de costos.
-- **Recomendaci√≥n:** Habilitar acceso a Cost Explorer para an√°lisis de costos detallado.
+- **Recomendaci√≥n:** Habilitar acceso a Cost Explorer para an·lisis de costos detallado.
 
 
 
@@ -88,10 +88,10 @@
 #### Systems Manager no detectado (OPS-002)
 
 - **Severidad:** low
-- **Impacto:** Falta de gesti√≥n centralizada de instancias
+- **Impacto:** Falta de gestiÛn centralizada de instancias
 - **Esfuerzo:** Medio
-- **Descripci√≥n:** AWS Systems Manager no est√° habilitado o no se pudo acceder. SSM proporciona gesti√≥n centralizada de instancias.
-- **Recomendaci√≥n:** Considerar habilitar Systems Manager para gesti√≥n centralizada de instancias EC2.
+- **Descripci√≥n:** AWS Systems Manager no est· habilitado o no se pudo acceder. SSM proporciona gestiÛn centralizada de instancias.
+- **Recomendaci√≥n:** Considerar habilitar Systems Manager para gestiÛn centralizada de instancias EC2.
 
 
 
@@ -103,12 +103,12 @@
 
 | ID | Dominio | Severidad | Impacto | Esfuerzo | T√≠tulo |
 |----|---------|-----------|---------|----------|--------|
-| SEC-002 | Security | medium | Falta de visibilidad de cambios de configuraci√≥n | Medio | AWS Config no detectado |
-| SEC-003 | Security | high | Falta de auditor√≠a de actividad de API | Bajo | CloudTrail no detectado |
-| REL-001 | Reliability | info | Posible falta de alta disponibilidad en bases de datos | Medio | RDS detectado - Verificar configuraci√≥n Multi-AZ |
+| SEC-002 | Security | medium | Falta de visibilidad de cambios de configuraciÛn | Medio | AWS Config no detectado |
+| SEC-003 | Security | high | Falta de auditorÌa de actividad de API | Bajo | CloudTrail no detectado |
+| REL-001 | Reliability | info | Posible falta de alta disponibilidad en bases de datos | Medio | RDS detectado - Verificar configuraciÛn Multi-AZ |
 | REL-002 | Reliability | info | Potencial mejora en confiabilidad y disponibilidad | Bajo | Auto Scaling detectado |
 | COST-001 | Cost Optimization | low | Limitada visibilidad de costos | Bajo | Cost Explorer no detectado o sin acceso |
-| OPS-002 | Operational Excellence | low | Falta de gesti√≥n centralizada de instancias | Medio | Systems Manager no detectado |
+| OPS-002 | Operational Excellence | low | Falta de gestiÛn centralizada de instancias | Medio | Systems Manager no detectado |
 
 
 ---
@@ -121,3 +121,4 @@ Los hallazgos est√°n priorizados considerando:
 - **Impacto**: Beneficio esperado
 
 Se recomienda abordar primero los hallazgos de **severidad alta** con **esfuerzo bajo**, seguidos de aquellos con **mayor impacto** en el negocio.
+

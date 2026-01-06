@@ -1,6 +1,6 @@
 # Roadmap de Mejoras - 30/60/90 Días
 
-**Fecha:** 2025-12-25
+**Fecha:** 2026-01-02
 
 ---
 
@@ -19,9 +19,9 @@ Este roadmap prioriza las mejoras identificadas en el diagnóstico arquitectóni
 
 - **Dominio:** Security
 - **Severidad:** high
-- **Impacto:** Falta de auditoría de actividad de API
+- **Impacto:** Falta de auditor�a de actividad de API
 - **Esfuerzo:** Bajo
-- **Descripción:** AWS CloudTrail no está habilitado o no se pudo acceder. CloudTrail es esencial para auditoría y cumplimiento.
+- **Descripción:** AWS CloudTrail no est� habilitado o no se pudo acceder. CloudTrail es esencial para auditor�a y cumplimiento.
 - **Recomendación:** Habilitar CloudTrail en todas las regiones para registro de actividad de API.
 
 
@@ -37,30 +37,30 @@ Este roadmap prioriza las mejoras identificadas en el diagnóstico arquitectóni
 
 - **Dominio:** Security
 - **Severidad:** medium
-- **Impacto:** Falta de visibilidad de cambios de configuración
+- **Impacto:** Falta de visibilidad de cambios de configuraci�n
 - **Esfuerzo:** Medio
-- **Descripción:** AWS Config no está habilitado o no se pudo acceder. Config permite auditoría y cumplimiento continuo.
-- **Recomendación:** Habilitar AWS Config para auditoría y cumplimiento continuo.
+- **Descripción:** AWS Config no est� habilitado o no se pudo acceder. Config permite auditor�a y cumplimiento continuo.
+- **Recomendación:** Habilitar AWS Config para auditor�a y cumplimiento continuo.
 
 
-### RDS detectado - Verificar configuración Multi-AZ (REL-001)
+### RDS detectado - Verificar configuraci�n Multi-AZ (REL-001)
 
 - **Dominio:** Reliability
 - **Severidad:** info
 - **Impacto:** Posible falta de alta disponibilidad en bases de datos
 - **Esfuerzo:** Medio
-- **Descripción:** Se detectó uso de RDS. Se recomienda verificar que las instancias críticas estén configuradas con Multi-AZ para alta disponibilidad.
-- **Recomendación:** Revisar configuración de instancias RDS y habilitar Multi-AZ para bases de datos críticas.
+- **Descripción:** Se detect� uso de RDS. Se recomienda verificar que las instancias cr�ticas est�n configuradas con Multi-AZ para alta disponibilidad.
+- **Recomendación:** Revisar configuraci�n de instancias RDS y habilitar Multi-AZ para bases de datos cr�ticas.
 
 
 ### Systems Manager no detectado (OPS-002)
 
 - **Dominio:** Operational Excellence
 - **Severidad:** low
-- **Impacto:** Falta de gestión centralizada de instancias
+- **Impacto:** Falta de gesti�n centralizada de instancias
 - **Esfuerzo:** Medio
-- **Descripción:** AWS Systems Manager no está habilitado o no se pudo acceder. SSM proporciona gestión centralizada de instancias.
-- **Recomendación:** Considerar habilitar Systems Manager para gestión centralizada de instancias EC2.
+- **Descripción:** AWS Systems Manager no est� habilitado o no se pudo acceder. SSM proporciona gesti�n centralizada de instancias.
+- **Recomendación:** Considerar habilitar Systems Manager para gesti�n centralizada de instancias EC2.
 
 
 
@@ -92,3 +92,4 @@ Se recomienda establecer métricas para medir el progreso:
 - **90 días:** % de proyectos de largo plazo iniciados
 
 Re-evaluar arquitectura después de 90 días para medir impacto de mejoras.
+

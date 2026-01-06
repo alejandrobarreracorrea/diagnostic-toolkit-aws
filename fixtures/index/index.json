@@ -18,7 +18,9 @@
           "successful": 1
         }
       },
-      "operations": "{'describe_auto_scaling_groups'}",
+      "operations": [
+        "describe_auto_scaling_groups"
+      ],
       "total_operations": 1,
       "successful_operations": 1,
       "failed_operations": 0
@@ -42,7 +44,9 @@
           "successful": 1
         }
       },
-      "operations": "{'describe_stacks'}",
+      "operations": [
+        "describe_stacks"
+      ],
       "total_operations": 1,
       "successful_operations": 1,
       "failed_operations": 0
@@ -58,14 +62,17 @@
               "paginated": false,
               "file": "cloudwatch\\us-east-1\\describe_alarms.json.gz",
               "error": null,
-              "not_available": false
+              "not_available": false,
+              "resource_count": 1
             }
           ],
           "count": 1,
           "successful": 1
         }
       },
-      "operations": "{'describe_alarms'}",
+      "operations": [
+        "describe_alarms"
+      ],
       "total_operations": 1,
       "successful_operations": 1,
       "failed_operations": 0
@@ -97,7 +104,10 @@
           "successful": 2
         }
       },
-      "operations": "{'describe_instances', 'describe_vpcs'}",
+      "operations": [
+        "describe_instances",
+        "describe_vpcs"
+      ],
       "total_operations": 2,
       "successful_operations": 2,
       "failed_operations": 0
@@ -130,7 +140,10 @@
           "successful": 2
         }
       },
-      "operations": "{'list_roles', 'list_users'}",
+      "operations": [
+        "list_roles",
+        "list_users"
+      ],
       "total_operations": 2,
       "successful_operations": 2,
       "failed_operations": 0
@@ -154,7 +167,9 @@
           "successful": 1
         }
       },
-      "operations": "{'list_functions'}",
+      "operations": [
+        "list_functions"
+      ],
       "total_operations": 1,
       "successful_operations": 1,
       "failed_operations": 0
@@ -178,7 +193,9 @@
           "successful": 1
         }
       },
-      "operations": "{'describe_db_instances'}",
+      "operations": [
+        "describe_db_instances"
+      ],
       "total_operations": 1,
       "successful_operations": 1,
       "failed_operations": 0
@@ -210,7 +227,10 @@
           "successful": 2
         }
       },
-      "operations": "{'get_bucket_location', 'list_buckets'}",
+      "operations": [
+        "get_bucket_location",
+        "list_buckets"
+      ],
       "total_operations": 2,
       "successful_operations": 2,
       "failed_operations": 0
@@ -236,7 +256,9 @@
           "failed": 1
         }
       },
-      "operations": "{'describe_hub'}",
+      "operations": [
+        "describe_hub"
+      ],
       "total_operations": 1,
       "successful_operations": 0,
       "failed_operations": 1

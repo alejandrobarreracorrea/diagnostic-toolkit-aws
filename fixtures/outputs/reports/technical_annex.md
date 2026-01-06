@@ -1,6 +1,6 @@
 # Anexo Técnico - AWS Cloud Architecture Diagnostic
 
-**Fecha:** 2026-01-02
+**Fecha:** 2026-01-06
 
 ---
 
@@ -30,7 +30,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 1
-- **Operaciones Únicas:** 32
+- **Operaciones Únicas:** 1
 
 #### Operaciones por Región
 
@@ -44,7 +44,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 1
-- **Operaciones Únicas:** 19
+- **Operaciones Únicas:** 1
 
 #### Operaciones por Región
 
@@ -58,7 +58,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 1
-- **Operaciones Únicas:** 19
+- **Operaciones Únicas:** 1
 
 #### Operaciones por Región
 
@@ -72,7 +72,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 2
-- **Operaciones Únicas:** 39
+- **Operaciones Únicas:** 2
 
 #### Operaciones por Región
 
@@ -86,7 +86,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 2
-- **Operaciones Únicas:** 28
+- **Operaciones Únicas:** 2
 
 #### Operaciones por Región
 
@@ -100,7 +100,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 1
-- **Operaciones Únicas:** 18
+- **Operaciones Únicas:** 1
 
 #### Operaciones por Región
 
@@ -114,7 +114,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 1
-- **Operaciones Únicas:** 25
+- **Operaciones Únicas:** 1
 
 #### Operaciones por Región
 
@@ -128,7 +128,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 2
-- **Operaciones Únicas:** 39
+- **Operaciones Únicas:** 2
 
 #### Operaciones por Región
 
@@ -142,7 +142,7 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **Regiones:** us-east-1
 - **Operaciones Totales:** 1
-- **Operaciones Únicas:** 16
+- **Operaciones Únicas:** 1
 
 #### Operaciones por Región
 
@@ -174,13 +174,13 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 
 - **s3**: 2 recursos
 
+- **ec2**: 1 recursos
+
 - **autoscaling**: 0 recursos
 
 - **cloudformation**: 0 recursos
 
 - **cloudwatch**: 0 recursos
-
-- **ec2**: 0 recursos
 
 - **rds**: 0 recursos
 
@@ -190,12 +190,12 @@ Este anexo contiene el inventario técnico completo de recursos AWS detectados d
 ### Top Regiones por Recursos
 
 
-- **us-east-1**: 6 recursos
+- **us-east-1**: 7 recursos
 
 
 ### Total de Recursos Estimados
 
-**6** recursos en total
+**7** recursos en total
 
 
 

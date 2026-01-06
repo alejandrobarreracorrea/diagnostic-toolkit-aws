@@ -117,9 +117,13 @@ def run_command(cmd, description, run_dir=None):
         return False
 
 def verify_aws_credentials():
-    """Verificar credenciales AWS."""
+    """Verificar credenciales AWS (incluyendo SSO)."""
     print("\n🔍 Verificando credenciales AWS...\n")
     
+    aws_cli_ok = False
+    boto3_ok = False
+    
+    # Verificar AWS CLI
     try:
         result = subprocess.run(
             ["aws", "sts", "get-caller-identity"],
@@ -129,35 +133,87 @@ def verify_aws_credentials():
         )
         
         if result.returncode == 0:
-            print("✅ Credenciales AWS funcionando correctamente")
-            print("\nInformación de la cuenta:")
+            aws_cli_ok = True
+            print("✅ AWS CLI: Credenciales funcionando correctamente")
+            print("\nInformación de la cuenta (AWS CLI):")
             print(result.stdout)
-            return True
         else:
-            print("❌ No se pueden acceder las credenciales AWS")
-            print("\nOpciones para configurar:")
-            print("  1. Ejecutar: aws configure")
-            print("  2. Variables de entorno:")
-            if os.name == 'nt':  # Windows
-                print("     set AWS_ACCESS_KEY_ID=tu-key")
-                print("     set AWS_SECRET_ACCESS_KEY=tu-secret")
-                print("  3. Archivo: %USERPROFILE%\\.aws\\credentials")
-            else:  # Linux/macOS
-                print("     export AWS_ACCESS_KEY_ID=tu-key")
-                print("     export AWS_SECRET_ACCESS_KEY=tu-secret")
-                print("  3. Archivo: ~/.aws/credentials")
-            return False
+            print("❌ AWS CLI: No se pueden acceder las credenciales")
+            if result.stderr:
+                print(f"   Error: {result.stderr.strip()}")
     except FileNotFoundError:
-        print("❌ AWS CLI no está instalado")
-        print("\nInstala con:")
-        if os.name == 'nt':  # Windows
-            print("  Windows: pip install awscli")
-        else:
-            print("  macOS: brew install awscli")
-            print("  Linux: pip install awscli")
-        return False
+        print("⚠️  AWS CLI no está instalado")
     except Exception as e:
-        print(f"❌ Error verificando credenciales: {e}")
+        print(f"❌ AWS CLI: Error verificando credenciales: {e}")
+    
+    # Verificar boto3
+    try:
+        import boto3
+        session = boto3.Session()
+        credentials = session.get_credentials()
+        
+        if credentials is None:
+            print("❌ boto3: No se encontraron credenciales")
+        else:
+            # Intentar usar las credenciales
+            sts = session.client('sts')
+            identity = sts.get_caller_identity()
+            boto3_ok = True
+            print("\n✅ boto3: Credenciales funcionando correctamente")
+            print("\nInformación de la cuenta (boto3):")
+            print(f"   Account: {identity.get('Account', 'N/A')}")
+            print(f"   User/Role: {identity.get('Arn', 'N/A')}")
+            
+            # Verificar si son credenciales SSO
+            if credentials.token:
+                print(f"   Tipo: Credenciales temporales (SSO/AssumeRole)")
+            else:
+                print(f"   Tipo: Credenciales permanentes")
+    except ImportError:
+        print("❌ boto3: No está instalado (pip install boto3)")
+    except Exception as e:
+        print(f"❌ boto3: Error verificando credenciales: {e}")
+        error_msg = str(e).lower()
+        if 'expired' in error_msg or 'expiredtoken' in error_msg:
+            print("\n💡 Las credenciales SSO han expirado. Ejecuta:")
+            print("   aws sso login")
+        elif 'no credentials' in error_msg or 'credentials' in error_msg:
+            print("\n💡 No se encontraron credenciales. Opciones:")
+            print("   1. Para SSO: aws sso login")
+            print("   2. Para credenciales estáticas: aws configure")
+    
+    # Resumen
+    print("\n" + "="*60)
+    if aws_cli_ok and boto3_ok:
+        print("✅ Todas las verificaciones pasaron - Listo para usar")
+        return True
+    elif aws_cli_ok and not boto3_ok:
+        print("⚠️  AWS CLI funciona pero boto3 no - Puede haber problemas")
+        print("\n💡 Solución para SSO:")
+        print("   1. Verifica que boto3 esté instalado: pip install boto3")
+        print("   2. Asegúrate de que las credenciales SSO no hayan expirado")
+        print("   3. Si expiraron, ejecuta: aws sso login")
+        return False
+    elif not aws_cli_ok and boto3_ok:
+        print("⚠️  boto3 funciona pero AWS CLI no - Debería funcionar")
+        return True
+    else:
+        print("❌ No se pudieron verificar las credenciales")
+        print("\n💡 Opciones para configurar:")
+        print("   Para SSO:")
+        print("     1. aws sso login")
+        print("     2. Verifica ~/.aws/config tiene el perfil SSO configurado")
+        print("   Para credenciales estáticas:")
+        print("     1. aws configure")
+        print("     2. Variables de entorno:")
+        if os.name == 'nt':  # Windows
+            print("        set AWS_ACCESS_KEY_ID=tu-key")
+            print("        set AWS_SECRET_ACCESS_KEY=tu-secret")
+            print("     3. Archivo: %USERPROFILE%\\.aws\\credentials")
+        else:  # Linux/macOS
+            print("        export AWS_ACCESS_KEY_ID=tu-key")
+            print("        export AWS_SECRET_ACCESS_KEY=tu-secret")
+            print("     3. Archivo: ~/.aws/credentials")
         return False
 
 def check_dependencies():
@@ -432,12 +488,74 @@ def show_inventory_console():
     print("="*100 + "\n")
     
     # Preparar datos para tabla
+    # Mapeo de operaciones a nombres de recursos más legibles
+    operation_to_resource_name = {
+        'DescribeInstances': 'EC2 Instance',
+        'DescribeNetworkInterfaces': 'NetworkInterface',
+        'DescribeVolumes': 'EC2 Volume',
+        'DescribeSecurityGroups': 'SecurityGroup',
+        'DescribeVpcs': 'VPC',
+        'DescribeSubnets': 'Subnet',
+        'DescribeRouteTables': 'RouteTable',
+        'DescribeLaunchTemplates': 'EC2 LaunchTemplate',
+        'DescribeNetworkAcls': 'NetworkAcl',
+        'DescribeFleets': 'EC2 EC2Fleet',
+        'DescribeAddresses': 'EC2 EIP',
+        'DescribeLoadBalancers': 'ELBv2 LoadBalancer',
+        'DescribeTargetGroups': 'ELBv2 TargetGroup',
+        'DescribeListeners': 'ELBv2 Listener',
+        'DescribeDBInstances': 'RDS DBInstance',
+        'DescribeDBClusters': 'RDS DBCluster',
+        'DescribeDBClusterSnapshots': 'RDS DBClusterSnapshot',
+        'DescribeDBSnapshots': 'RDS DBSnapshot',
+        'ListKeys': 'KMS Key',
+        'ListAliases': 'KMS Alias',
+        'ListRules': 'Events Rule',
+        'ListQueues': 'SQS Queue',
+        'ListAddons': 'EKS Addon',
+        'ListDeploymentConfigs': 'CodeDeploy DeploymentConfig',
+        'DescribeRepositories': 'ECR Repository',
+        'ListBackupPlans': 'Backup BackupPlan',
+        'ListDeploymentStrategies': 'AppConfig DeploymentStrategy',
+        'ListKeyspaces': 'Cassandra Keyspace',
+        'ListStacks': 'CloudFormation Stack',
+    }
+    
+    # Servicios que deben separarse por tipo de recurso
+    services_to_split = {
+        'ec2': ['DescribeInstances', 'DescribeNetworkInterfaces', 'DescribeVolumes', 'DescribeSecurityGroups', 'DescribeAddresses', 
+                'DescribeRouteTables', 'DescribeSubnets', 'DescribeLaunchTemplates', 'DescribeNetworkAcls', 
+                'DescribeNetworkInsightsPaths', 'DescribeTransitGatewayRouteTables', 'DescribeFleets',
+                'DescribeVpcs', 'DescribeInternetGateways', 'DescribeNatGateways', 'DescribeTransitGateways',
+                'DescribeTransitGatewayAttachments', 'DescribeCustomerGateways', 'DescribeDhcpOptions',
+                'DescribeFlowLogs', 'DescribeVpnConnections'],
+        'elbv2': ['DescribeLoadBalancers', 'DescribeTargetGroups', 'DescribeListeners'],
+        'rds': ['DescribeDBInstances', 'DescribeDBClusters', 'DescribeDBClusterSnapshots', 'DescribeDBSnapshots'],
+        'kms': ['ListKeys', 'ListAliases'],
+        'events': ['ListRules'],
+        'sqs': ['ListQueues'],
+        'eks': ['ListClusters', 'ListAddons'],
+        'cloudformation': ['ListStacks'],
+        'codedeploy': ['ListDeploymentConfigs'],
+        'ecr': ['DescribeRepositories'],
+        'backup': ['ListBackupPlans'],
+        'appconfig': ['ListDeploymentStrategies'],
+        'keyspaces': ['ListKeyspaces'],
+    }
+    
+    # Servicios a excluir completamente del inventario (no tienen recursos gestionables)
+    excluded_services = {
+        'support',  # AWS Support - servicio de soporte, no tiene recursos gestionables
+    }
+    
     table_data = []
     for service_name, service_data in sorted(services.items()):
+        # Saltar servicios excluidos
+        if service_name in excluded_services:
+            continue
         total_ops = service_data.get("total_operations", 0)
         successful_ops = 0
         failed_ops = 0
-        resource_count = 0
         
         # Usar el mismo filtro de operaciones principales que el inventory generator
         # Importar la misma lógica del inventory generator
@@ -446,10 +564,20 @@ def show_inventory_console():
             'apigateway': ['GetRestApis', 'GetApis'],  # Solo APIs principales, no GetSdkTypes
             'apigatewayv2': ['GetApis'],
             's3': ['ListBuckets'],
-            'ec2': ['DescribeInstances'],  # Solo instancias, no VPCs ni Security Groups
+            'ec2': ['DescribeInstances', 'DescribeNetworkInterfaces', 'DescribeVolumes', 'DescribeSecurityGroups', 'DescribeAddresses', 
+                    'DescribeRouteTables', 'DescribeSubnets', 'DescribeLaunchTemplates', 'DescribeNetworkAcls', 
+                    'DescribeNetworkInsightsPaths', 'DescribeTransitGatewayRouteTables', 'DescribeFleets',
+                    'DescribeVpcs', 'DescribeInternetGateways', 'DescribeNatGateways', 'DescribeTransitGateways',
+                    'DescribeTransitGatewayAttachments', 'DescribeCustomerGateways', 'DescribeDhcpOptions',
+                    'DescribeFlowLogs', 'DescribeVpnConnections'],  # Todos los recursos EC2
             'iam': ['ListUsers', 'ListRoles', 'ListGroups'],
-            'rds': ['DescribeDBInstances', 'DescribeDBClusters'],
-            'docdb': ['DescribeDBClusters', 'DescribeDBInstances'],  # Solo clusters e instancias, no snapshots ni parámetros
+            'rds': ['DescribeDBInstances', 'DescribeDBClusters', 'DescribeDBClusterSnapshots', 'DescribeDBSnapshots'],
+            'kms': ['ListKeys', 'ListAliases'],
+            'events': ['ListRules'],
+            'eks': ['ListClusters', 'ListAddons'],
+            'docdb': ['DescribeDBClusters'],  # Solo clusters (las instancias son parte de los clusters)
+            'neptune': ['DescribeDBClusters'],  # Solo clusters (las instancias son parte de los clusters, no contar snapshots)
+            'memorydb': ['DescribeClusters'],  # Solo clusters, no parámetros ni otros recursos
             'lambda': ['ListFunctions'],
             'cloudformation': ['ListStacks'],
             'ecs': ['ListClusters', 'ListServices'],
@@ -460,94 +588,162 @@ def show_inventory_console():
             'kinesis': ['ListStreams'],
             'redshift': ['DescribeClusters'],
             'elasticache': ['DescribeCacheClusters'],
-            'elbv2': ['DescribeLoadBalancers'],
+            'elbv2': ['DescribeLoadBalancers', 'DescribeTargetGroups', 'DescribeListeners'],
             'route53': ['ListHostedZones'],
             'cloudfront': ['ListDistributions'],
+            'cloudwatch': ['DescribeAlarms'],
+            'codedeploy': ['ListDeploymentConfigs'],
+            'ecr': ['DescribeRepositories'],
+            'amplify': ['ListApps'],
+            'amplifybackend': ['ListBackends'],  # Solo backends, no otros recursos auxiliares
             # Servicios de consulta/información que NO tienen recursos gestionables
             'pricing': [],  # Servicio de consulta de precios, no tiene recursos
             'ce': [],  # Cost Explorer - servicio de consulta, no tiene recursos
             'cur': [],  # Cost and Usage Report - servicio de reportes, no tiene recursos
         }
         
-        for region_name, region_data in service_data.get("regions", {}).items():
-            for op_info in region_data.get("operations", []):
-                op_name = op_info.get("operation", "")
+        # Si el servicio debe separarse por tipo de recurso
+        if service_name in services_to_split:
+            # Crear una entrada por cada tipo de recurso
+            for op_name_template in services_to_split[service_name]:
+                resource_count = 0
+                op_successful = 0
+                op_failed = 0
                 
-                if op_info.get("success"):
-                    successful_ops += 1
-                    # Solo contar recursos de operaciones principales
-                    if service_name in primary_operations:
-                        # Normalizar nombre de operación a PascalCase para comparar
-                        # Puede venir en PascalCase (ListStacks) o snake_case (list_stacks)
+                for region_name, region_data in service_data.get("regions", {}).items():
+                    for op_info in region_data.get("operations", []):
+                        op_name = op_info.get("operation", "")
+                        
+                        # Normalizar nombre de operación para comparar
+                        # Puede venir en PascalCase (DescribeNetworkInterfaces) o snake_case (describe_network_interfaces)
                         if '_' in op_name:
-                            # Es snake_case: list_stacks -> ListStacks
                             op_pascal = ''.join(word.capitalize() for word in op_name.split('_'))
                         else:
-                            # Ya está en PascalCase: ListStacks -> ListStacks
                             op_pascal = op_name
                         
-                        allowed_ops = primary_operations[service_name]
-                        # Comparar tanto el nombre original como el normalizado
-                        if op_name in allowed_ops or op_pascal in allowed_ops:
-                            resource_count += op_info.get("resource_count", 0) or 0
-                    else:
-                        # Heurística: solo contar operaciones List/Describe principales
-                        op_lower = op_name.lower()
-                        if (op_lower.startswith("list") or 
-                            op_lower.startswith("describe") or
-                            (op_lower.startswith("get") and any(x in op_lower for x in ["apis", "tables", "instances", "clusters", "functions", "buckets", "users", "roles"]))):
-                            resource_count += op_info.get("resource_count", 0) or 0
-                elif not op_info.get("not_available", False):  # Solo contar como fallida si no es "no disponible"
-                    failed_ops += 1
-        
-        # Determinar estado
-        if successful_ops > 0:
-            status = "✅ Activo"
-        elif failed_ops > 0:
-            # Verificar si los errores son reales o solo operaciones/endpoints no disponibles
-            has_real_errors = False
+                        # Normalizar también el template para comparación case-insensitive
+                        op_name_lower = op_name.lower().replace('_', '')
+                        op_pascal_lower = op_pascal.lower()
+                        template_lower = op_name_template.lower()
+                        
+                        # Verificar si esta operación coincide con el tipo de recurso
+                        # Comparar de múltiples formas para asegurar que funcione
+                        if (op_name == op_name_template or 
+                            op_pascal == op_name_template or
+                            op_name_lower == template_lower or
+                            op_pascal_lower == template_lower):
+                            if op_info.get("success"):
+                                op_successful += 1
+                                resource_count += op_info.get("resource_count", 0) or 0
+                            elif not op_info.get("not_available", False):
+                                op_failed += 1
+                
+                # Determinar estado para este tipo de recurso
+                if op_successful > 0:
+                    status = "✅ Activo"
+                elif op_failed > 0:
+                    status = "⚠️  Con Errores"
+                else:
+                    status = "❌ Sin Datos"
+                
+                # Nombre del recurso (usar mapeo si existe, sino usar nombre genérico)
+                resource_name = operation_to_resource_name.get(op_name_template, f"{service_name} {op_name_template}")
+                
+                table_data.append({
+                    "servicio": resource_name,
+                    "regiones": len(service_data.get("regions", {})),
+                    "ops_totales": op_successful + op_failed,
+                    "ops_exitosas": op_successful,
+                    "ops_fallidas": op_failed,
+                    "recursos": resource_count,
+                    "estado": status
+                })
+        else:
+            # Servicio normal: agregar todos los recursos juntos
+            resource_count = 0
+            
             for region_name, region_data in service_data.get("regions", {}).items():
                 for op_info in region_data.get("operations", []):
-                    # Si está marcado como "not_available", no es un error real
-                    if op_info.get("not_available", False):
-                        continue
+                    op_name = op_info.get("operation", "")
                     
-                    # Si no fue exitosa, verificar el tipo de error
-                    if not op_info.get("success", False):
-                        error = op_info.get("error", {})
-                        error_code = error.get("code", "") if isinstance(error, dict) else ""
-                        
-                        # Códigos de error que NO son errores reales (son esperados):
-                        # - OperationNotFound: operación no existe en el cliente
-                        # - EndpointNotAvailable: endpoint no disponible (servicio no habilitado/región no soportada)
-                        expected_error_codes = [
-                            "OperationNotFound",
-                            "EndpointNotAvailable"
-                        ]
-                        
-                        # Si el código de error NO está en la lista de esperados, es un error real
-                        if error_code and error_code not in expected_error_codes:
-                            has_real_errors = True
-                            break
-                if has_real_errors:
-                    break
+                    if op_info.get("success"):
+                        successful_ops += 1
+                        # Solo contar recursos de operaciones principales
+                        if service_name in primary_operations:
+                            # Normalizar nombre de operación a PascalCase para comparar
+                            # Puede venir en PascalCase (ListStacks) o snake_case (list_stacks)
+                            if '_' in op_name:
+                                # Es snake_case: list_stacks -> ListStacks
+                                op_pascal = ''.join(word.capitalize() for word in op_name.split('_'))
+                            else:
+                                # Ya está en PascalCase: ListStacks -> ListStacks
+                                op_pascal = op_name
+                            
+                            allowed_ops = primary_operations[service_name]
+                            # Comparar tanto el nombre original como el normalizado
+                            if op_name in allowed_ops or op_pascal in allowed_ops:
+                                resource_count += op_info.get("resource_count", 0) or 0
+                        else:
+                            # Heurística: solo contar operaciones List/Describe principales
+                            op_lower = op_name.lower()
+                            if (op_lower.startswith("list") or 
+                                op_lower.startswith("describe") or
+                                (op_lower.startswith("get") and any(x in op_lower for x in ["apis", "tables", "instances", "clusters", "functions", "buckets", "users", "roles"]))):
+                                resource_count += op_info.get("resource_count", 0) or 0
+                    elif not op_info.get("not_available", False):  # Solo contar como fallida si no es "no disponible"
+                        failed_ops += 1
             
-            if has_real_errors:
-                status = "⚠️  Con Errores"
+            # Determinar estado
+            if successful_ops > 0:
+                status = "✅ Activo"
+            elif failed_ops > 0:
+                # Verificar si los errores son reales o solo operaciones/endpoints no disponibles
+                has_real_errors = False
+                for region_name, region_data in service_data.get("regions", {}).items():
+                    for op_info in region_data.get("operations", []):
+                        # Si está marcado como "not_available", no es un error real
+                        if op_info.get("not_available", False):
+                            continue
+                        
+                        # Si no fue exitosa, verificar el tipo de error
+                        if not op_info.get("success", False):
+                            error = op_info.get("error", {})
+                            error_code = error.get("code", "") if isinstance(error, dict) else ""
+                            
+                            # Códigos de error que NO son errores reales (son esperados):
+                            # - OperationNotFound: operación no existe en el cliente
+                            # - EndpointNotAvailable: endpoint no disponible (servicio no habilitado/región no soportada)
+                            expected_error_codes = [
+                                "OperationNotFound",
+                                "EndpointNotAvailable"
+                            ]
+                            
+                            # Si el código de error NO está en la lista de esperados, es un error real
+                            if error_code and error_code not in expected_error_codes:
+                                has_real_errors = True
+                                break
+                    if has_real_errors:
+                        break
+                
+                if has_real_errors:
+                    status = "⚠️  Con Errores"
+                else:
+                    status = "ℹ️  No Disponible"  # Operaciones/endpoints no disponibles
             else:
-                status = "ℹ️  No Disponible"  # Operaciones/endpoints no disponibles
-        else:
-            status = "❌ Sin Datos"
-        
-        table_data.append({
-            "servicio": service_name,
-            "regiones": len(service_data.get("regions", {})),
-            "ops_totales": total_ops,
-            "ops_exitosas": successful_ops,
-            "ops_fallidas": failed_ops,
-            "recursos": resource_count,
-            "estado": status
-        })
+                status = "❌ Sin Datos"
+            
+            table_data.append({
+                "servicio": service_name,
+                "regiones": len(service_data.get("regions", {})),
+                "ops_totales": total_ops,
+                "ops_exitosas": successful_ops,
+                "ops_fallidas": failed_ops,
+                "recursos": resource_count,
+                "estado": status
+            })
+    
+    # Ordenar por cantidad de recursos (de mayor a menor), luego por nombre de servicio
+    table_data.sort(key=lambda x: (-x["recursos"], x["servicio"]))
     
     # Mostrar tabla
     print(f"{'#':<4} {'Servicio':<30} {'Reg':<4} {'Ops Tot':<8} {'Ops OK':<8} {'Ops Err':<8} {'Recursos':<10} {'Estado':<15}")
@@ -847,6 +1043,7 @@ def validate_run():
     resource_not_found_errors = []
     endpoint_errors = []
     network_errors = []
+    credential_expired_errors = []
     other_errors = []
     
     permission_codes = ['AccessDenied', 'UnauthorizedOperation', 'Forbidden', 'AccessDeniedException']
@@ -856,12 +1053,21 @@ def validate_run():
     resource_not_found_codes = ['ResourceNotFoundException', 'NoSuchEntity', 'NotFound', 'NoSuchBucket', 'NoSuchKey']
     endpoint_codes = ['EndpointConnectionError', 'EndpointNotAvailable', 'UnknownEndpoint', 'InvalidEndpoint']
     network_codes = ['ConnectionError', 'ConnectionTimeout', 'ReadTimeout', 'ConnectTimeout', 'Timeout']
+    credential_expired_codes = ['RequestExpired', 'ExpiredToken', 'TokenRefreshRequired']
     
     services_with_permission_errors = {}
     services_successful = {}
     total_resources = 0
     
+    # Servicios a excluir completamente del inventario (no tienen recursos gestionables)
+    excluded_services = {
+        'support',  # AWS Support - servicio de soporte, no tiene recursos gestionables
+    }
+    
     for service_name, service_data in idx.get("services", {}).items():
+        # Saltar servicios excluidos
+        if service_name in excluded_services:
+            continue
         service_perm_errors = 0
         service_total_errors = 0
         service_success = 0
@@ -911,6 +1117,8 @@ def validate_run():
                             endpoint_errors.append(entry)
                         elif error_code in network_codes:
                             network_errors.append(entry)
+                        elif error_code in credential_expired_codes:
+                            credential_expired_errors.append(entry)
                         else:
                             other_errors.append(entry)
         
@@ -1146,6 +1354,21 @@ def validate_run():
         print("      - Firewall o proxy bloqueando conexiones")
         print("      - Problemas con VPC endpoints o configuración de red")
     
+    if credential_expired_errors:
+        print("\n" + "="*80)
+        print(f"⏰ CREDENCIALES EXPIRADAS ({len(credential_expired_errors)} errores)")
+        print("="*80)
+        print("   ⚠️  IMPORTANTE: Las credenciales temporales de SSO expiraron durante la recolección")
+        print("   Esto explica por qué muchas operaciones fallaron con 'RequestExpired'")
+        print("\n   💡 SOLUCIÓN:")
+        print("      1. Re-autentica con AWS SSO para obtener nuevas credenciales")
+        print("      2. Re-ejecuta la recolección con las nuevas credenciales")
+        print("      3. Si usas credenciales temporales, asegúrate de que no expiren durante la recolección")
+        print("\n   Servicios afectados:")
+        service_expired = Counter([e['service'] for e in credential_expired_errors])
+        for i, (service, count) in enumerate(service_expired.most_common(10), 1):
+            print(f"      {i:2d}. {service:30s} - {count:4d} operaciones")
+    
     if other_errors:
         print("\n" + "="*80)
         print(f"⚠️  OTROS ERRORES ({len(other_errors)} errores)")
@@ -1184,7 +1407,15 @@ def validate_run():
         print("="*80)
         
         errors_by_region = defaultdict(lambda: {'total': 0, 'by_type': Counter()})
+        # Servicios a excluir completamente del inventario (no tienen recursos gestionables)
+        excluded_services = {
+            'support',  # AWS Support - servicio de soporte, no tiene recursos gestionables
+        }
+        
         for service_name, service_data in idx.get("services", {}).items():
+            # Saltar servicios excluidos
+            if service_name in excluded_services:
+                continue
             for region_name, region_data in service_data.get("regions", {}).items():
                 for op_info in region_data.get("operations", []):
                     if not op_info.get("success", True) and not op_info.get("not_available", False):

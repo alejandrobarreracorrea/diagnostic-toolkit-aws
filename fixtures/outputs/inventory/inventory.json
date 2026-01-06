@@ -6,38 +6,7 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "d",
-        "e",
-        "s",
-        "c",
-        "r",
-        "i",
-        "b",
-        "e",
-        "_",
-        "a",
-        "u",
-        "t",
-        "o",
-        "_",
-        "s",
-        "c",
-        "a",
-        "l",
-        "i",
-        "n",
-        "g",
-        "_",
-        "g",
-        "r",
-        "o",
-        "u",
-        "p",
-        "s",
-        "'",
-        "}"
+        "describe_auto_scaling_groups"
       ],
       "total_operations": 1,
       "resource_count": 0
@@ -48,25 +17,7 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "d",
-        "e",
-        "s",
-        "c",
-        "r",
-        "i",
-        "b",
-        "e",
-        "_",
-        "s",
-        "t",
-        "a",
-        "c",
-        "k",
-        "s",
-        "'",
-        "}"
+        "describe_stacks"
       ],
       "total_operations": 1,
       "resource_count": 0
@@ -77,25 +28,7 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "d",
-        "e",
-        "s",
-        "c",
-        "r",
-        "i",
-        "b",
-        "e",
-        "_",
-        "a",
-        "l",
-        "a",
-        "r",
-        "m",
-        "s",
-        "'",
-        "}"
+        "describe_alarms"
       ],
       "total_operations": 1,
       "resource_count": 0
@@ -106,48 +39,11 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "d",
-        "e",
-        "s",
-        "c",
-        "r",
-        "i",
-        "b",
-        "e",
-        "_",
-        "i",
-        "n",
-        "s",
-        "t",
-        "a",
-        "n",
-        "c",
-        "e",
-        "s",
-        "'",
-        ",",
-        " ",
-        "'",
-        "d",
-        "e",
-        "s",
-        "c",
-        "r",
-        "i",
-        "b",
-        "e",
-        "_",
-        "v",
-        "p",
-        "c",
-        "s",
-        "'",
-        "}"
+        "describe_instances",
+        "describe_vpcs"
       ],
       "total_operations": 2,
-      "resource_count": 0
+      "resource_count": 1
     },
     "iam": {
       "name": "iam",
@@ -155,34 +51,8 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "l",
-        "i",
-        "s",
-        "t",
-        "_",
-        "r",
-        "o",
-        "l",
-        "e",
-        "s",
-        "'",
-        ",",
-        " ",
-        "'",
-        "l",
-        "i",
-        "s",
-        "t",
-        "_",
-        "u",
-        "s",
-        "e",
-        "r",
-        "s",
-        "'",
-        "}"
+        "list_roles",
+        "list_users"
       ],
       "total_operations": 2,
       "resource_count": 2
@@ -193,24 +63,7 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "l",
-        "i",
-        "s",
-        "t",
-        "_",
-        "f",
-        "u",
-        "n",
-        "c",
-        "t",
-        "i",
-        "o",
-        "n",
-        "s",
-        "'",
-        "}"
+        "list_functions"
       ],
       "total_operations": 1,
       "resource_count": 2
@@ -221,31 +74,7 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "d",
-        "e",
-        "s",
-        "c",
-        "r",
-        "i",
-        "b",
-        "e",
-        "_",
-        "d",
-        "b",
-        "_",
-        "i",
-        "n",
-        "s",
-        "t",
-        "a",
-        "n",
-        "c",
-        "e",
-        "s",
-        "'",
-        "}"
+        "describe_db_instances"
       ],
       "total_operations": 1,
       "resource_count": 0
@@ -256,45 +85,8 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "g",
-        "e",
-        "t",
-        "_",
-        "b",
-        "u",
-        "c",
-        "k",
-        "e",
-        "t",
-        "_",
-        "l",
-        "o",
-        "c",
-        "a",
-        "t",
-        "i",
-        "o",
-        "n",
-        "'",
-        ",",
-        " ",
-        "'",
-        "l",
-        "i",
-        "s",
-        "t",
-        "_",
-        "b",
-        "u",
-        "c",
-        "k",
-        "e",
-        "t",
-        "s",
-        "'",
-        "}"
+        "get_bucket_location",
+        "list_buckets"
       ],
       "total_operations": 2,
       "resource_count": 2
@@ -305,22 +97,7 @@
         "us-east-1"
       ],
       "operations": [
-        "{",
-        "'",
-        "d",
-        "e",
-        "s",
-        "c",
-        "r",
-        "i",
-        "b",
-        "e",
-        "_",
-        "h",
-        "u",
-        "b",
-        "'",
-        "}"
+        "describe_hub"
       ],
       "total_operations": 1,
       "resource_count": 0
@@ -332,6 +109,10 @@
       "services": [
         {
           "service": "cloudformation",
+          "count": 1
+        },
+        {
+          "service": "cloudwatch",
           "count": 1
         },
         {
@@ -355,10 +136,10 @@
           "count": 2
         }
       ],
-      "total_resources": 9
+      "total_resources": 10
     }
   },
-  "total_resources": 6,
+  "total_resources": 7,
   "top_services": [
     {
       "service": "iam",
@@ -373,6 +154,10 @@
       "count": 2
     },
     {
+      "service": "ec2",
+      "count": 1
+    },
+    {
       "service": "autoscaling",
       "count": 0
     },
@@ -382,10 +167,6 @@
     },
     {
       "service": "cloudwatch",
-      "count": 0
-    },
-    {
-      "service": "ec2",
       "count": 0
     },
     {
@@ -400,7 +181,7 @@
   "top_regions": [
     {
       "region": "us-east-1",
-      "count": 6
+      "count": 7
     }
   ]
 }

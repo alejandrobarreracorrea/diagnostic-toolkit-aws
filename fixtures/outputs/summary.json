@@ -2,7 +2,7 @@
   "run_dir": "fixtures",
   "services_count": 9,
   "regions_count": 1,
-  "total_resources": 6,
+  "total_resources": 7,
   "findings_count": 6,
   "findings_by_severity": {
     "medium": 1,
@@ -24,6 +24,10 @@
       "count": 2
     },
     {
+      "service": "ec2",
+      "count": 1
+    },
+    {
       "service": "autoscaling",
       "count": 0
     },
@@ -33,10 +37,6 @@
     },
     {
       "service": "cloudwatch",
-      "count": 0
-    },
-    {
-      "service": "ec2",
       "count": 0
     },
     {
@@ -51,7 +51,7 @@
   "top_regions": [
     {
       "region": "us-east-1",
-      "count": 6
+      "count": 7
     }
   ]
 }

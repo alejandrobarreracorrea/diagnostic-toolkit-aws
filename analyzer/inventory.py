@@ -42,7 +42,23 @@ class InventoryGenerator:
         service_counts = Counter()
         region_counts = Counter()
         
+        # Servicios a excluir completamente del inventario
+        excluded_services = {
+            'support',  # AWS Support - servicio de soporte, no tiene recursos gestionables
+            'pricing',  # Servicio de consulta de precios
+            'ce',  # Cost Explorer
+            'cur',  # Cost and Usage Report
+            'health',  # AWS Health
+            'budgets',  # AWS Budgets
+            'servicequotas',  # Service Quotas
+            'account',  # AWS Account
+            'sts',  # Security Token Service
+        }
+        
         for service_name, service_data in index.get("services", {}).items():
+            # Saltar servicios excluidos
+            if service_name in excluded_services:
+                continue
             service_inventory = {
                 "name": service_name,
                 "regions": list(service_data.get("regions", {}).keys()),
@@ -59,30 +75,66 @@ class InventoryGenerator:
                 'apigateway': ['GetRestApis', 'GetApis'],  # APIs principales
                 'apigatewayv2': ['GetApis'],
                 's3': ['ListBuckets'],
-                'ec2': ['DescribeInstances'],  # Solo instancias, no VPCs ni Security Groups
+                'ec2': ['DescribeInstances', 'DescribeNetworkInterfaces', 'DescribeVolumes', 'DescribeSecurityGroups', 'DescribeAddresses',
+                        'DescribeRouteTables', 'DescribeSubnets', 'DescribeLaunchTemplates', 'DescribeNetworkAcls',
+                        'DescribeNetworkInsightsPaths', 'DescribeTransitGatewayRouteTables', 'DescribeFleets',
+                        'DescribeVpcs', 'DescribeInternetGateways', 'DescribeNatGateways', 'DescribeTransitGateways',
+                        'DescribeTransitGatewayAttachments', 'DescribeCustomerGateways', 'DescribeDhcpOptions',
+                        'DescribeFlowLogs', 'DescribeVpnConnections'],  # Varios recursos EC2
                 'iam': ['ListUsers', 'ListRoles', 'ListGroups'],
-                'rds': ['DescribeDBInstances', 'DescribeDBClusters'],
-                'docdb': ['DescribeDBClusters', 'DescribeDBInstances'],  # Solo clusters e instancias, no snapshots ni parámetros
+                'autoscaling': ['DescribeAutoScalingGroups'],
+                'rds': ['DescribeDBInstances', 'DescribeDBClusters', 'DescribeDBClusterSnapshots', 'DescribeDBSnapshots'],
+                'kms': ['ListKeys', 'ListAliases'],
+                'events': ['ListRules'],
+                'eks': ['ListClusters', 'ListAddons'],
+                'docdb': ['DescribeDBClusters'],  # Solo clusters (las instancias son parte de los clusters)
+                'neptune': ['DescribeDBClusters'],  # Solo clusters (las instancias son parte de los clusters, no contar snapshots)
+                'memorydb': ['DescribeClusters'],  # Solo clusters, no parámetros ni otros recursos
+                'timestream': ['ListDatabases'],  # Solo databases, no tablas individuales
+                'qldb': ['ListLedgers'],  # Solo ledgers
+                'opensearch': ['ListDomainNames'],  # Solo dominios
+                'redshift': ['DescribeClusters'],  # Solo clusters, no snapshots ni parámetros
+                'elasticache': ['DescribeCacheClusters', 'DescribeReplicationGroups'],  # Clusters y replication groups
                 'lambda': ['ListFunctions'],
                 'cloudformation': ['ListStacks'],
                 'ecs': ['ListClusters', 'ListServices'],
-                'eks': ['ListClusters'],
                 'dynamodb': ['ListTables'],
                 'sns': ['ListTopics'],
                 'sqs': ['ListQueues'],
                 'kinesis': ['ListStreams'],
-                'redshift': ['DescribeClusters'],
-                'elasticache': ['DescribeCacheClusters'],
-                'elbv2': ['DescribeLoadBalancers'],
+                'elbv2': ['DescribeLoadBalancers', 'DescribeTargetGroups', 'DescribeListeners'],
                 'route53': ['ListHostedZones'],
                 'cloudfront': ['ListDistributions'],
                 'wafv2': ['ListWebACLs'],
                 'shield': ['ListProtections'],
                 'guardduty': ['ListDetectors'],
                 'securityhub': ['GetFindings'],
-                'config': ['DescribeConfigurationRecorders'],
+                'config': ['ListDiscoveredResources', 'GetDiscoveredResourceCounts', 'SelectResourceConfig'],
                 'cloudtrail': ['ListTrails'],
-                'backup': ['ListBackupVaults'],
+                'backup': ['ListBackupVaults', 'ListBackupPlans'],
+                # Servicios de seguridad y compliance
+                'inspector': ['ListFindings'],  # Solo findings, no assessments individuales
+                'inspector2': ['ListFindings'],  # Solo findings
+                'macie': ['ListS3Buckets'],  # Solo buckets de Macie
+                'macie2': ['ListBuckets'],  # Solo buckets
+                'securityhub': ['GetFindings'],  # Ya está, pero asegurémonos que solo cuenta findings
+                # Servicios de networking adicionales
+                'directconnect': ['DescribeConnections'],  # Solo connections principales
+                'networkmanager': ['ListNetworks'],  # Solo networks
+                'globalaccelerator': ['ListAccelerators'],  # Solo accelerators
+                # Servicios de contenedores adicionales
+                'apprunner': ['ListServices'],  # Solo services
+                'lightsail': ['GetInstances', 'GetDatabases'],  # Instances y databases
+                # Servicios de desarrollo adicionales
+                'cloud9': ['ListEnvironments'],  # Solo environments
+                'xray': ['GetGroups'],  # Solo groups
+                # Servicios de media
+                'mediastore': ['ListContainers'],  # Solo containers
+                'mediastore-data': [],  # Servicio de datos, no recursos gestionables
+                'mediaconvert': ['ListJobs'],  # Solo jobs activos
+                'mediapackage': ['ListChannels'],  # Solo channels
+                'mediapackage-vod': ['ListPackagingGroups'],  # Solo packaging groups
+                'mediatailor': ['ListPlaybackConfigurations'],  # Solo configurations
                 'glacier': ['ListVaults'],
                 'efs': ['DescribeFileSystems'],
                 'fsx': ['DescribeFileSystems'],
@@ -95,10 +147,9 @@ class InventoryGenerator:
                 'codepipeline': ['ListPipelines'],
                 'codedeploy': ['ListApplications'],
                 'amplify': ['ListApps'],
+                'amplifybackend': ['ListBackends'],  # Solo backends, no otros recursos auxiliares
                 'appsync': ['ListGraphqlApis'],
                 'cognito-idp': ['ListUserPools'],
-                'kms': ['ListKeys'],
-                'secrets-manager': ['ListSecrets'],
                 'systems-manager': ['DescribeInstances'],
                 'organizations': ['ListAccounts'],
                 'servicecatalog': ['ListPortfolios'],
@@ -111,6 +162,18 @@ class InventoryGenerator:
                 'athena': ['ListDatabases', 'ListWorkGroups'],
                 'quicksight': ['ListDashboards'],
                 'sagemaker': ['ListNotebookInstances'],
+                # Servicios de base de datos adicionales
+                'rds-data': [],  # Servicio de datos, no tiene recursos gestionables directamente
+                'aurora': ['DescribeDBClusters', 'DescribeDBInstances'],  # Similar a RDS
+                # Servicios de almacenamiento adicionales
+                'storagegateway': ['ListGateways'],  # Solo gateways principales
+                'datasync': ['ListAgents', 'ListLocations'],  # Agents y locations
+                # Servicios de análisis adicionales
+                'kinesisanalytics': ['ListApplications'],  # Solo aplicaciones
+                'kinesis-video': ['ListStreams'],  # Solo streams
+                'kinesis-video-archived-media': [],  # Servicio de media, no recursos gestionables
+                'kinesis-video-media': [],  # Servicio de media, no recursos gestionables
+                'kinesis-video-signaling': [],  # Servicio de señalización, no recursos gestionables
                 'comprehend': ['ListEntitiesDetectionJobs'],
                 'rekognition': ['ListCollections'],
                 'transcribe': ['ListTranscriptionJobs'],
@@ -159,6 +222,28 @@ class InventoryGenerator:
                 'pricing': [],  # Servicio de consulta de precios, no tiene recursos
                 'ce': [],  # Cost Explorer - servicio de consulta, no tiene recursos
                 'cur': [],  # Cost and Usage Report - servicio de reportes, no tiene recursos
+                'support': [],  # AWS Support - servicio de soporte, no tiene recursos gestionables
+                'health': [],  # AWS Health - servicio de información de salud, no tiene recursos
+                'budgets': [],  # AWS Budgets - servicio de presupuestos, no tiene recursos gestionables directamente
+                'servicequotas': [],  # Service Quotas - servicio de consulta de cuotas, no tiene recursos
+                'account': [],  # AWS Account - servicio de información de cuenta, no tiene recursos
+                'sts': [],  # Security Token Service - servicio de tokens, no tiene recursos gestionables
+                'iam': ['ListUsers', 'ListRoles', 'ListGroups'],  # Ya está, pero asegurémonos
+                # Servicios de datos adicionales
+                'dataexchange': ['ListDataSets'],  # Solo datasets
+                'datapipeline': ['ListPipelines'],  # Solo pipelines
+                'databrew': ['ListDatasets'],  # Solo datasets
+                'forecast': ['ListDatasets'],  # Solo datasets
+                'frauddetector': ['GetDetectors'],  # Solo detectors
+                # Servicios de machine learning adicionales
+                'personalize': ['ListDatasets'],  # Solo datasets
+                'lookoutvision': ['ListProjects'],  # Solo projects
+                'lookoutmetrics': ['ListAnomalyDetectors'],  # Solo detectors
+                'lookoutequipment': ['ListDatasets'],  # Solo datasets
+                # Servicios de blockchain
+                'managedblockchain': ['ListNetworks'],  # Solo networks
+                # Servicios de quantum
+                'braket': ['ListDevices'],  # Solo devices
             }
             
             for region_name, region_data in service_data.get("regions", {}).items():

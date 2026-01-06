@@ -144,7 +144,7 @@ def add_permissions_to_policy(policy_file, new_permissions, max_size=6000):
     
     if not permissions_to_add:
         print(f"   ✅ {policy_file.name}: Todos los permisos ya están presentes")
-        return True
+        return set()  # Retornar set vacío en lugar de True
     
     # Intentar agregar a la primera statement (ECADReadOnlyAccess)
     main_statement = None
@@ -216,18 +216,22 @@ def main():
     # Archivos de políticas
     policy1_file = project_root / "policies" / "iam-policy-ecad-part1.json"
     policy2_file = project_root / "policies" / "iam-policy-ecad-part2.json"
+    policy3_file = project_root / "policies" / "iam-policy-ecad-part3.json"
     
-    # Distribuir permisos entre las dos políticas
-    # Dividir aproximadamente por la mitad
+    # Distribuir permisos entre las tres políticas
+    # Dividir aproximadamente en tercios
     perms_list = sorted(missing_perms)
-    mid_point = len(perms_list) // 2
+    third_point = len(perms_list) // 3
+    two_thirds_point = (len(perms_list) * 2) // 3
     
-    perms_part1 = set(perms_list[:mid_point])
-    perms_part2 = set(perms_list[mid_point:])
+    perms_part1 = set(perms_list[:third_point])
+    perms_part2 = set(perms_list[third_point:two_thirds_point])
+    perms_part3 = set(perms_list[two_thirds_point:])
     
     print(f"\n📦 Distribuyendo permisos:")
     print(f"   Part1: {len(perms_part1)} permisos")
     print(f"   Part2: {len(perms_part2)} permisos")
+    print(f"   Part3: {len(perms_part3)} permisos")
     
     # Agregar a part1
     print(f"\n📝 Actualizando {policy1_file.name}...")
@@ -242,16 +246,28 @@ def main():
     print(f"\n📝 Actualizando {policy2_file.name}...")
     remaining_part2 = add_permissions_to_policy(policy2_file, perms_part2)
     
+    # Si quedaron permisos sin agregar en part2, intentar agregarlos a part3
+    if remaining_part2:
+        print(f"\n   ⚠️  {len(remaining_part2)} permisos no se pudieron agregar a part2, intentando en part3...")
+        perms_part3.update(remaining_part2)
+    
+    # Agregar a part3
+    if perms_part3:
+        print(f"\n📝 Actualizando {policy3_file.name}...")
+        remaining_part3 = add_permissions_to_policy(policy3_file, perms_part3)
+    else:
+        remaining_part3 = set()
+    
     # Resumen
     print("\n" + "="*80)
     print("📊 RESUMEN")
     print("="*80)
     
-    if remaining_part2:
-        print(f"\n⚠️  {len(remaining_part2)} permisos no se pudieron agregar debido al límite de tamaño:")
-        for perm in sorted(remaining_part2):
+    if remaining_part3:
+        print(f"\n⚠️  {len(remaining_part3)} permisos no se pudieron agregar debido al límite de tamaño:")
+        for perm in sorted(remaining_part3):
             print(f"      - {perm}")
-        print("\n   💡 RECOMENDACIÓN: Considera crear una part3 o revisar los permisos duplicados.")
+        print("\n   💡 RECOMENDACIÓN: Considera revisar los permisos duplicados o crear políticas adicionales.")
     else:
         print("\n✅ Todos los permisos faltantes han sido agregados exitosamente.")
     

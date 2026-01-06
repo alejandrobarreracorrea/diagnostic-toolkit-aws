@@ -116,9 +116,18 @@ class Collector:
     
     def _create_session(self) -> boto3.Session:
         """Crear sesión AWS con AssumeRole si es necesario."""
+        # Respetar AWS_PROFILE si está configurado (útil para SSO)
+        profile_name = os.getenv("AWS_PROFILE")
+        
         if self.role_arn:
             logger.info(f"Usando AssumeRole: {self.role_arn}")
-            sts = boto3.client('sts')
+            # Crear sesión inicial (puede usar perfil SSO)
+            if profile_name:
+                initial_session = boto3.Session(profile_name=profile_name)
+            else:
+                initial_session = boto3.Session()
+            
+            sts = initial_session.client('sts')
             assume_role_kwargs = {
                 "RoleArn": self.role_arn,
                 "RoleSessionName": os.getenv("AWS_ROLE_SESSION_NAME", "ECAD-Session")
@@ -134,6 +143,11 @@ class Collector:
                 aws_secret_access_key=credentials['SecretAccessKey'],
                 aws_session_token=credentials['SessionToken']
             )
+        
+        # Sin AssumeRole: usar perfil SSO si está configurado
+        if profile_name:
+            logger.info(f"Usando perfil AWS: {profile_name}")
+            return boto3.Session(profile_name=profile_name)
         
         return boto3.Session()
     

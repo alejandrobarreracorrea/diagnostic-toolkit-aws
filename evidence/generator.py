@@ -680,6 +680,215 @@ class EvidenceGenerator:
         
         return len(seen_group_names)
     
+    def _analyze_alarm_actions(self, services: Dict) -> Dict[str, Any]:
+        """Analizar acciones de alarmas de CloudWatch."""
+        result = {
+            "total_alarms": 0,
+            "alarms_with_actions": 0,
+            "alarms_with_sns": 0,
+            "alarms_with_sqs": 0,
+            "alarms_without_actions": 0,
+            "percentage_with_actions": 0.0
+        }
+        
+        if "cloudwatch" not in services:
+            return result
+        
+        cloudwatch_data = services["cloudwatch"]
+        regions = cloudwatch_data.get("regions", {})
+        seen_alarm_names = set()
+        alarms_with_actions_set = set()
+        alarms_with_sns_set = set()
+        alarms_with_sqs_set = set()
+        
+        for region_name, region_data in regions.items():
+            operations = region_data.get("operations", [])
+            for op_info in operations:
+                op_name = op_info.get("operation", "").lower()
+                if "describealarms" in op_name and op_info.get("success", False):
+                    file_path = op_info.get("file")
+                    if file_path:
+                        full_path = self.raw_dir / file_path
+                        if full_path.exists():
+                            try:
+                                with gzip.open(full_path, 'rt', encoding='utf-8') as f:
+                                    data = json.load(f)
+                                
+                                response_data = data.get("data", {})
+                                if isinstance(response_data, dict):
+                                    # Manejar datos paginados
+                                    if "pages" in response_data and "data" in response_data:
+                                        pages = response_data.get("data", [])
+                                        for page in pages:
+                                            alarms = page.get("MetricAlarms", []) or page.get("CompositeAlarms", []) or page.get("Alarms", [])
+                                            for alarm in alarms:
+                                                alarm_name = alarm.get("AlarmName")
+                                                if alarm_name and alarm_name not in seen_alarm_names:
+                                                    seen_alarm_names.add(alarm_name)
+                                                    result["total_alarms"] += 1
+                                                    
+                                                    alarm_actions = alarm.get("AlarmActions", [])
+                                                    ok_actions = alarm.get("OKActions", [])
+                                                    insufficient_data_actions = alarm.get("InsufficientDataActions", [])
+                                                    all_actions = alarm_actions + ok_actions + insufficient_data_actions
+                                                    
+                                                    if all_actions:
+                                                        alarms_with_actions_set.add(alarm_name)
+                                                        for action in all_actions:
+                                                            if "sns" in action.lower() or "arn:aws:sns" in action:
+                                                                alarms_with_sns_set.add(alarm_name)
+                                                                break
+                                                            elif "sqs" in action.lower() or "arn:aws:sqs" in action:
+                                                                alarms_with_sqs_set.add(alarm_name)
+                                                                break
+                            except Exception as e:
+                                logger.debug(f"Error analizando alarmas: {e}")
+        
+        result["alarms_with_actions"] = len(alarms_with_actions_set)
+        result["alarms_with_sns"] = len(alarms_with_sns_set)
+        result["alarms_with_sqs"] = len(alarms_with_sqs_set)
+        result["alarms_without_actions"] = result["total_alarms"] - result["alarms_with_actions"]
+        if result["total_alarms"] > 0:
+            result["percentage_with_actions"] = (result["alarms_with_actions"] / result["total_alarms"]) * 100
+        
+        return result
+    
+    def _analyze_logs_retention_and_filters(self, services: Dict) -> Dict[str, Any]:
+        """Analizar retención de logs y metric filters."""
+        result = {
+            "total_log_groups": 0,
+            "log_groups_with_retention": 0,
+            "log_groups_without_retention": 0,
+            "metric_filters_count": 0,
+            "retention_periods": {},
+            "percentage_with_retention": 0.0
+        }
+        
+        if "logs" not in services:
+            return result
+        
+        logs_data = services["logs"]
+        regions = logs_data.get("regions", {})
+        seen_group_names = set()
+        seen_filter_names = set()
+        
+        for region_name, region_data in regions.items():
+            operations = region_data.get("operations", [])
+            for op_info in operations:
+                op_name = op_info.get("operation", "").lower()
+                
+                # Analizar log groups
+                if "describeloggroups" in op_name and op_info.get("success", False):
+                    file_path = op_info.get("file")
+                    if file_path:
+                        full_path = self.raw_dir / file_path
+                        if full_path.exists():
+                            try:
+                                with gzip.open(full_path, 'rt', encoding='utf-8') as f:
+                                    data = json.load(f)
+                                
+                                response_data = data.get("data", {})
+                                if isinstance(response_data, dict):
+                                    if "pages" in response_data and "data" in response_data:
+                                        pages = response_data.get("data", [])
+                                        for page in pages:
+                                            groups = page.get("logGroups", []) or page.get("LogGroups", [])
+                                            for group in groups:
+                                                group_name = group.get("logGroupName") or group.get("LogGroupName")
+                                                if group_name and group_name not in seen_group_names:
+                                                    seen_group_names.add(group_name)
+                                                    result["total_log_groups"] += 1
+                                                    
+                                                    retention = group.get("retentionInDays")
+                                                    if retention:
+                                                        result["log_groups_with_retention"] += 1
+                                                        result["retention_periods"][retention] = result["retention_periods"].get(retention, 0) + 1
+                                                    else:
+                                                        result["log_groups_without_retention"] += 1
+                                    else:
+                                        groups = response_data.get("logGroups", []) or response_data.get("LogGroups", [])
+                                        for group in groups:
+                                            group_name = group.get("logGroupName") or group.get("LogGroupName")
+                                            if group_name and group_name not in seen_group_names:
+                                                seen_group_names.add(group_name)
+                                                result["total_log_groups"] += 1
+                                                
+                                                retention = group.get("retentionInDays")
+                                                if retention:
+                                                    result["log_groups_with_retention"] += 1
+                                                    result["retention_periods"][retention] = result["retention_periods"].get(retention, 0) + 1
+                                                else:
+                                                    result["log_groups_without_retention"] += 1
+                            except Exception as e:
+                                logger.debug(f"Error analizando log groups: {e}")
+                
+                # Analizar metric filters
+                if "describemetricfilters" in op_name and op_info.get("success", False):
+                    file_path = op_info.get("file")
+                    if file_path:
+                        full_path = self.raw_dir / file_path
+                        if full_path.exists():
+                            try:
+                                with gzip.open(full_path, 'rt', encoding='utf-8') as f:
+                                    data = json.load(f)
+                                
+                                response_data = data.get("data", {})
+                                if isinstance(response_data, dict):
+                                    if "pages" in response_data and "data" in response_data:
+                                        pages = response_data.get("data", [])
+                                        for page in pages:
+                                            filters = page.get("metricFilters", []) or page.get("MetricFilters", [])
+                                            for filter_item in filters:
+                                                filter_name = filter_item.get("filterName")
+                                                if filter_name and filter_name not in seen_filter_names:
+                                                    seen_filter_names.add(filter_name)
+                                                    result["metric_filters_count"] += 1
+                                    else:
+                                        filters = response_data.get("metricFilters", []) or response_data.get("MetricFilters", [])
+                                        for filter_item in filters:
+                                            filter_name = filter_item.get("filterName")
+                                            if filter_name and filter_name not in seen_filter_names:
+                                                seen_filter_names.add(filter_name)
+                                                result["metric_filters_count"] += 1
+                            except Exception as e:
+                                logger.debug(f"Error analizando metric filters: {e}")
+        
+        if result["total_log_groups"] > 0:
+            result["percentage_with_retention"] = (result["log_groups_with_retention"] / result["total_log_groups"]) * 100
+        
+        return result
+    
+    def _check_cloudformation_stacksets(self, services: Dict) -> bool:
+        """Verificar si hay StackSets de CloudFormation."""
+        if "cloudformation" not in services:
+            return False
+        
+        cloudformation_data = services["cloudformation"]
+        regions = cloudformation_data.get("regions", {})
+        
+        for region_name, region_data in regions.items():
+            operations = region_data.get("operations", [])
+            for op_info in operations:
+                op_name = op_info.get("operation", "").lower()
+                if "liststacksets" in op_name and op_info.get("success", False):
+                    file_path = op_info.get("file")
+                    if file_path:
+                        full_path = self.raw_dir / file_path
+                        if full_path.exists():
+                            try:
+                                with gzip.open(full_path, 'rt', encoding='utf-8') as f:
+                                    data = json.load(f)
+                                
+                                response_data = data.get("data", {})
+                                if isinstance(response_data, dict):
+                                    summaries = response_data.get("Summaries", []) or response_data.get("StackSetSummaries", [])
+                                    if isinstance(summaries, list) and len(summaries) > 0:
+                                        return True
+                            except Exception as e:
+                                logger.debug(f"Error verificando StackSets: {e}")
+        
+        return False
+    
     def _check_ssm_in_use(self, services: Dict) -> bool:
         """Verificar si Systems Manager está realmente en uso."""
         if "ssm" not in services:
@@ -1089,14 +1298,44 @@ class EvidenceGenerator:
         
         # CloudWatch Alarms
         if cloudwatch_resources["alarms"] > 0:
+            alarm_analysis = self._analyze_alarm_actions(services)
             evidence.append({
                 "type": "service_present",
                 "service": "CloudWatch Alarms",
                 "status": "detected",
                 "description": f"CloudWatch Alarms está en uso ({cloudwatch_resources['alarms']} alarmas configuradas)"
             })
-            questions.append("¿Se están configurando alarmas para métricas críticas?")
-            questions.append("¿Las alarmas están configuradas con acciones SNS/SQS adecuadas?")
+            
+            # Respuesta basada en evidencia: Alarmas para métricas críticas
+            if alarm_analysis["total_alarms"] > 0:
+                evidence.append({
+                    "type": "finding",
+                    "category": "alarm_coverage",
+                    "finding": f"Se encontraron {alarm_analysis['total_alarms']} alarmas configuradas",
+                    "status": "positive" if alarm_analysis["total_alarms"] >= 10 else "warning",
+                    "details": f"Total de alarmas: {alarm_analysis['total_alarms']}"
+                })
+            
+            # Respuesta basada en evidencia: Acciones SNS/SQS
+            if alarm_analysis["alarms_with_actions"] > 0:
+                evidence.append({
+                    "type": "finding",
+                    "category": "alarm_actions",
+                    "finding": f"{alarm_analysis['alarms_with_actions']} de {alarm_analysis['total_alarms']} alarmas ({alarm_analysis['percentage_with_actions']:.1f}%) tienen acciones configuradas",
+                    "status": "positive" if alarm_analysis["percentage_with_actions"] >= 90 else "warning",
+                    "details": f"Alarmas con SNS: {alarm_analysis['alarms_with_sns']}, con SQS: {alarm_analysis['alarms_with_sqs']}, sin acciones: {alarm_analysis['alarms_without_actions']}"
+                })
+                if alarm_analysis["alarms_without_actions"] > 0:
+                    questions.append(f"¿Por qué {alarm_analysis['alarms_without_actions']} alarmas no tienen acciones configuradas?")
+            else:
+                evidence.append({
+                    "type": "finding",
+                    "category": "alarm_actions",
+                    "finding": "Ninguna alarma tiene acciones SNS/SQS configuradas",
+                    "status": "negative",
+                    "gap": "Falta de notificaciones automáticas cuando las alarmas se activan"
+                })
+                questions.append("¿Por qué las alarmas no tienen acciones SNS/SQS configuradas?")
         else:
             evidence.append({
                 "type": "service_missing",
@@ -1126,14 +1365,54 @@ class EvidenceGenerator:
         
         # CloudWatch Logs
         if cloudwatch_resources["log_groups"] > 0:
+            logs_analysis = self._analyze_logs_retention_and_filters(services)
             evidence.append({
                 "type": "service_present",
                 "service": "CloudWatch Logs",
                 "status": "detected",
                 "description": f"CloudWatch Logs está en uso ({cloudwatch_resources['log_groups']} log groups configurados)"
             })
-            questions.append("¿Se están usando métricas personalizadas desde logs?")
-            questions.append("¿Los logs están configurados con retención adecuada?")
+            
+            # Respuesta basada en evidencia: Métricas personalizadas desde logs
+            if logs_analysis["metric_filters_count"] > 0:
+                evidence.append({
+                    "type": "finding",
+                    "category": "metric_filters",
+                    "finding": f"Se encontraron {logs_analysis['metric_filters_count']} metric filters configurados",
+                    "status": "positive",
+                    "details": "Se están usando métricas personalizadas desde logs"
+                })
+            else:
+                evidence.append({
+                    "type": "finding",
+                    "category": "metric_filters",
+                    "finding": "No se encontraron metric filters configurados",
+                    "status": "warning",
+                    "gap": "No se están extrayendo métricas personalizadas desde logs"
+                })
+                questions.append("¿Se deberían configurar metric filters para extraer métricas personalizadas desde logs?")
+            
+            # Respuesta basada en evidencia: Retención de logs
+            if logs_analysis["total_log_groups"] > 0:
+                if logs_analysis["log_groups_with_retention"] > 0:
+                    evidence.append({
+                        "type": "finding",
+                        "category": "log_retention",
+                        "finding": f"{logs_analysis['log_groups_with_retention']} de {logs_analysis['total_log_groups']} log groups ({logs_analysis['percentage_with_retention']:.1f}%) tienen retención configurada",
+                        "status": "positive" if logs_analysis["percentage_with_retention"] >= 80 else "warning",
+                        "details": f"Períodos de retención: {dict(logs_analysis['retention_periods'])}"
+                    })
+                    if logs_analysis["log_groups_without_retention"] > 0:
+                        questions.append(f"¿Por qué {logs_analysis['log_groups_without_retention']} log groups no tienen retención configurada? (retención indefinida puede generar costos elevados)")
+                else:
+                    evidence.append({
+                        "type": "finding",
+                        "category": "log_retention",
+                        "finding": "Ningún log group tiene retención configurada",
+                        "status": "negative",
+                        "gap": "Retención indefinida puede generar costos elevados a largo plazo"
+                    })
+                    questions.append("¿Por qué los log groups no tienen retención configurada?")
         else:
             evidence.append({
                 "type": "service_missing",
@@ -1172,8 +1451,36 @@ class EvidenceGenerator:
                 "status": "detected",
                 "description": "CloudFormation está en uso"
             })
-            questions.append("¿Se está usando Infrastructure as Code para todos los recursos?")
-            questions.append("¿Se están usando StackSets para múltiples cuentas/regiones?")
+            
+            # Respuesta basada en evidencia: Infrastructure as Code
+            evidence.append({
+                "type": "finding",
+                "category": "iac_usage",
+                "finding": "CloudFormation está en uso, lo que indica uso de Infrastructure as Code",
+                "status": "positive",
+                "details": "Se encontraron stacks de CloudFormation activos"
+            })
+            questions.append("¿Todos los recursos críticos están gestionados mediante CloudFormation?")
+            
+            # Respuesta basada en evidencia: StackSets
+            stacksets_in_use = self._check_cloudformation_stacksets(services)
+            if stacksets_in_use:
+                evidence.append({
+                    "type": "finding",
+                    "category": "stacksets_usage",
+                    "finding": "StackSets están en uso",
+                    "status": "positive",
+                    "details": "Se encontraron StackSets configurados, lo que permite gestión centralizada en múltiples cuentas/regiones"
+                })
+            else:
+                evidence.append({
+                    "type": "finding",
+                    "category": "stacksets_usage",
+                    "finding": "No se encontraron StackSets configurados",
+                    "status": "info",
+                    "details": "StackSets permiten gestionar stacks en múltiples cuentas y regiones de forma centralizada"
+                })
+                questions.append("¿Se deberían usar StackSets para gestionar recursos en múltiples cuentas/regiones?")
         else:
             evidence.append({
                 "type": "service_missing",
@@ -1376,7 +1683,27 @@ class EvidenceGenerator:
                 status = evidence.get("status", "")
                 desc = evidence.get("description", "")
                 
-                if status == "detected":
+                if ev_type == "finding":
+                    # Findings basados en evidencia
+                    finding = evidence.get("finding", "")
+                    finding_status = evidence.get("status", "info")
+                    details = evidence.get("details", "")
+                    category = evidence.get("category", "N/A")
+                    
+                    if finding_status == "positive":
+                        lines.append(f"- ✅ **{category}**: {finding}")
+                    elif finding_status == "warning":
+                        lines.append(f"- ⚠️ **{category}**: {finding}")
+                    elif finding_status == "negative":
+                        lines.append(f"- ❌ **{category}**: {finding}")
+                    else:
+                        lines.append(f"- ℹ️ **{category}**: {finding}")
+                    
+                    if details:
+                        lines.append(f"  - *Detalles:* {details}")
+                    if "gap" in evidence:
+                        lines.append(f"  - *Gap:* {evidence['gap']}")
+                elif status == "detected":
                     lines.append(f"- ✅ **{evidence.get('service', 'N/A')}**: {desc}")
                 elif status == "not_detected":
                     lines.append(f"- ❌ **{evidence.get('service', 'N/A')}**: {desc}")

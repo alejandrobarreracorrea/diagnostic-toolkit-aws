@@ -12,7 +12,7 @@ import gzip
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Tuple
 from collections import defaultdict
 
 logging.basicConfig(
@@ -170,20 +170,28 @@ class EvidenceGenerator:
             
             response_data = data.get("data", {})
             if isinstance(response_data, dict):
-                # Verificar si hay ConfigurationRecorders
-                recorders = response_data.get("ConfigurationRecorders", [])
-                if isinstance(recorders, list):
-                    # Si hay recorders, verificar que al menos uno esté grabando
-                    if len(recorders) > 0:
-                        for recorder in recorders:
-                            # Si tiene recording=True, está habilitado
-                            if recorder.get("recording", False):
-                                return True
-                        # Si hay recorders pero ninguno está grabando, Config no está realmente activo
-                        return False
-                    else:
-                        # Lista vacía = Config no está habilitado
-                        return False
+                # Manejar datos paginados
+                if "pages" in response_data and "data" in response_data:
+                    pages = response_data.get("data", [])
+                    seen_recorder_names = set()
+                    for page in pages:
+                        if isinstance(page, dict):
+                            recorders = page.get("ConfigurationRecorders", [])
+                            if isinstance(recorders, list):
+                                for recorder in recorders:
+                                    recorder_name = recorder.get("name") or recorder.get("Name")
+                                    if recorder_name and recorder_name not in seen_recorder_names:
+                                        seen_recorder_names.add(recorder_name)
+                    # Si hay al menos un recorder único, Config está habilitado
+                    return len(seen_recorder_names) > 0
+                else:
+                    # Datos no paginados
+                    recorders = response_data.get("ConfigurationRecorders", [])
+                    if isinstance(recorders, list):
+                        # Si hay ConfigurationRecorders, Config está habilitado
+                        # La presencia de recorders ya indica que Config está configurado
+                        # Nota: El campo 'recording' puede no estar presente o tener estructura diferente
+                        return len(recorders) > 0
         except Exception as e:
             logger.debug(f"Error leyendo archivo Config: {e}")
         
@@ -261,6 +269,54 @@ class EvidenceGenerator:
             logger.debug(f"Error leyendo archivo GuardDuty: {e}")
         
         return False
+    
+    def _check_elastic_ips(self, services: Dict) -> Tuple[int, List[str]]:
+        """Verificar si hay Elastic IPs y devolver cantidad y lista de IPs públicas."""
+        if "ec2" not in services:
+            return 0, []
+        
+        eip_count = 0
+        public_ips = []
+        
+        ec2_data = services["ec2"]
+        regions = ec2_data.get("regions", {})
+        
+        for region_name, region_data in regions.items():
+            operations = region_data.get("operations", [])
+            for op_info in operations:
+                op_name = op_info.get("operation", "")
+                if "describeaddresses" in op_name.lower() and op_info.get("success", False):
+                    file_path = op_info.get("file")
+                    if file_path:
+                        full_path = self.raw_dir / file_path
+                        if full_path.exists():
+                            try:
+                                with gzip.open(full_path, 'rt', encoding='utf-8') as f:
+                                    data = json.load(f)
+                                
+                                response_data = data.get("data", {})
+                                if isinstance(response_data, dict):
+                                    # Manejar datos paginados
+                                    if "pages" in response_data and "data" in response_data:
+                                        pages = response_data.get("data", [])
+                                        for page in pages:
+                                            addresses = page.get("Addresses", [])
+                                            for addr in addresses:
+                                                public_ip = addr.get("PublicIp")
+                                                if public_ip:
+                                                    eip_count += 1
+                                                    public_ips.append(public_ip)
+                                    else:
+                                        addresses = response_data.get("Addresses", [])
+                                        for addr in addresses:
+                                            public_ip = addr.get("PublicIp")
+                                            if public_ip:
+                                                eip_count += 1
+                                                public_ips.append(public_ip)
+                            except Exception as e:
+                                logger.debug(f"Error leyendo archivo Elastic IPs: {e}")
+        
+        return eip_count, public_ips
     
     def _generate_security_evidence(self, index: Dict) -> Dict:
         """Generar evidencias de seguridad."""
@@ -376,19 +432,29 @@ class EvidenceGenerator:
             })
         
         # Verificar recursos públicos (requiere análisis más profundo de datos)
-        # Por ahora, solo indicamos que se debe revisar
+        eip_count, public_ips = self._check_elastic_ips(services)
+        
+        suggested_review = [
+            "EC2 instances con IPs públicas",
+            "RDS instances con publicly accessible",
+            "S3 buckets con políticas públicas",
+            "Load Balancers públicos"
+        ]
+        
+        if eip_count > 0:
+            suggested_review.insert(0, f"Elastic IPs: {eip_count} Elastic IPs encontradas (IPs públicas: {', '.join(public_ips[:5])}{'...' if len(public_ips) > 5 else ''})")
+        
         evidence.append({
             "type": "review_required",
             "category": "public_resources",
-            "description": "Revisar manualmente recursos con IPs públicas o acceso público",
-            "suggested_review": [
-                "EC2 instances con IPs públicas",
-                "RDS instances con publicly accessible",
-                "S3 buckets con políticas públicas",
-                "Load Balancers públicos"
-            ]
+            "description": f"Revisar manualmente recursos con IPs públicas o acceso público{f' ({eip_count} Elastic IPs detectadas)' if eip_count > 0 else ''}",
+            "suggested_review": suggested_review,
+            "elastic_ips_count": eip_count,
+            "elastic_ips": public_ips[:10] if eip_count > 0 else []  # Limitar a 10 para no hacer el JSON muy grande
         })
         questions.append("¿Qué recursos tienen acceso público y por qué?")
+        if eip_count > 0:
+            questions.append(f"¿Por qué hay {eip_count} Elastic IPs asignadas? ¿Están todas en uso?")
         questions.append("¿Se están usando Security Groups y NACLs correctamente?")
         
         return {

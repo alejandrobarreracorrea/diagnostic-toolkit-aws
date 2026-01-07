@@ -559,44 +559,52 @@ class EvidenceGenerator:
             "summary": f"{len([e for e in evidence if e.get('status') == 'detected'])} servicios de confiabilidad detectados"
         }
     
-    def _check_cloudwatch_in_use(self, services: Dict) -> bool:
-        """Verificar si CloudWatch está realmente en uso."""
-        if "cloudwatch" not in services and "logs" not in services:
-            return False
+    def _check_cloudwatch_resources_detailed(self, services: Dict) -> Dict[str, int]:
+        """Verificar recursos de CloudWatch y devolver conteos por subservicio."""
+        result = {
+            "alarms": 0,
+            "dashboards": 0,
+            "log_groups": 0
+        }
         
-        # Verificar si hay operaciones exitosas que indiquen uso real
-        for service_name in ["cloudwatch", "logs"]:
-            if service_name not in services:
-                continue
-            
-            service_data = services[service_name]
-            regions = service_data.get("regions", {})
+        if "cloudwatch" not in services and "logs" not in services:
+            return result
+        
+        # Verificar CloudWatch (alarmas y dashboards)
+        if "cloudwatch" in services:
+            cloudwatch_data = services["cloudwatch"]
+            regions = cloudwatch_data.get("regions", {})
             
             for region_name, region_data in regions.items():
                 operations = region_data.get("operations", [])
                 for op_info in operations:
                     op_name = op_info.get("operation", "").lower()
-                    # Operaciones que indican uso real de CloudWatch
-                    if op_name in ["describealarms", "listmetrics", "listdashboards"]:
-                        if op_info.get("success", False):
-                            # Verificar que haya recursos reales
-                            if service_name == "cloudwatch":
-                                return self._check_cloudwatch_resources(op_info, op_name)
-                            else:
-                                # Para logs, si la operación fue exitosa, asumimos que está en uso
-                                return True
+                    if op_info.get("success", False):
+                        if "describealarms" in op_name:
+                            alarms, dashboards, _ = self._check_cloudwatch_resources(op_info, op_name)
+                            result["alarms"] += alarms
+                        elif "listdashboards" in op_name:
+                            _, dashboards, _ = self._check_cloudwatch_resources(op_info, op_name)
+                            result["dashboards"] += dashboards
         
-        return False
+        # Verificar CloudWatch Logs
+        result["log_groups"] = self._check_cloudwatch_logs_resources(services)
+        
+        return result
     
-    def _check_cloudwatch_resources(self, op_info: Dict, operation_name: str) -> bool:
-        """Verificar si CloudWatch tiene recursos reales (alarmas, métricas, dashboards)."""
+    def _check_cloudwatch_resources(self, op_info: Dict, operation_name: str) -> Tuple[int, int, int]:
+        """Verificar recursos de CloudWatch y devolver conteos (alarmas, dashboards, log_groups)."""
+        alarms_count = 0
+        dashboards_count = 0
+        log_groups_count = 0
+        
         file_path = op_info.get("file")
         if not file_path:
-            return False
+            return alarms_count, dashboards_count, log_groups_count
         
         full_path = self.raw_dir / file_path
         if not full_path.exists():
-            return False
+            return alarms_count, dashboards_count, log_groups_count
         
         try:
             with gzip.open(full_path, 'rt', encoding='utf-8') as f:
@@ -605,24 +613,72 @@ class EvidenceGenerator:
             response_data = data.get("data", {})
             if isinstance(response_data, dict):
                 if "describealarms" in operation_name.lower():
-                    # Verificar si hay alarmas
-                    alarms = response_data.get("MetricAlarms", []) or response_data.get("CompositeAlarms", [])
-                    if isinstance(alarms, list) and len(alarms) > 0:
-                        return True
-                elif "listmetrics" in operation_name.lower():
-                    # Verificar si hay métricas
-                    metrics = response_data.get("Metrics", [])
-                    if isinstance(metrics, list) and len(metrics) > 0:
-                        return True
+                    # Manejar datos paginados
+                    if "pages" in response_data and "data" in response_data:
+                        pages = response_data.get("data", [])
+                        seen_alarm_names = set()
+                        for page in pages:
+                            alarms = page.get("MetricAlarms", []) or page.get("CompositeAlarms", []) or page.get("Alarms", [])
+                            for alarm in alarms:
+                                alarm_name = alarm.get("AlarmName")
+                                if alarm_name and alarm_name not in seen_alarm_names:
+                                    seen_alarm_names.add(alarm_name)
+                                    alarms_count += 1
+                    else:
+                        alarms = response_data.get("MetricAlarms", []) or response_data.get("CompositeAlarms", []) or response_data.get("Alarms", [])
+                        alarms_count = len(alarms) if isinstance(alarms, list) else 0
                 elif "listdashboards" in operation_name.lower():
-                    # Verificar si hay dashboards
-                    dashboards = response_data.get("DashboardEntries", [])
-                    if isinstance(dashboards, list) and len(dashboards) > 0:
-                        return True
+                    dashboards = response_data.get("DashboardEntries", []) or response_data.get("Dashboards", [])
+                    dashboards_count = len(dashboards) if isinstance(dashboards, list) else 0
         except Exception as e:
             logger.debug(f"Error leyendo archivo CloudWatch: {e}")
         
-        return False
+        return alarms_count, dashboards_count, log_groups_count
+    
+    def _check_cloudwatch_logs_resources(self, services: Dict) -> int:
+        """Verificar recursos de CloudWatch Logs y devolver conteo de log groups."""
+        seen_group_names = set()  # Deduplicar entre regiones
+        
+        if "logs" not in services:
+            return 0
+        
+        logs_data = services["logs"]
+        regions = logs_data.get("regions", {})
+        
+        for region_name, region_data in regions.items():
+            operations = region_data.get("operations", [])
+            for op_info in operations:
+                op_name = op_info.get("operation", "").lower()
+                if "describeloggroups" in op_name and op_info.get("success", False):
+                    file_path = op_info.get("file")
+                    if file_path:
+                        full_path = self.raw_dir / file_path
+                        if full_path.exists():
+                            try:
+                                with gzip.open(full_path, 'rt', encoding='utf-8') as f:
+                                    data = json.load(f)
+                                
+                                response_data = data.get("data", {})
+                                if isinstance(response_data, dict):
+                                    # Manejar datos paginados
+                                    if "pages" in response_data and "data" in response_data:
+                                        pages = response_data.get("data", [])
+                                        for page in pages:
+                                            groups = page.get("logGroups", []) or page.get("LogGroups", [])
+                                            for group in groups:
+                                                group_name = group.get("logGroupName") or group.get("LogGroupName")
+                                                if group_name and group_name not in seen_group_names:
+                                                    seen_group_names.add(group_name)
+                                    else:
+                                        groups = response_data.get("logGroups", []) or response_data.get("LogGroups", [])
+                                        for group in groups:
+                                            group_name = group.get("logGroupName") or group.get("LogGroupName")
+                                            if group_name and group_name not in seen_group_names:
+                                                seen_group_names.add(group_name)
+                            except Exception as e:
+                                logger.debug(f"Error leyendo archivo CloudWatch Logs: {e}")
+        
+        return len(seen_group_names)
     
     def _check_ssm_in_use(self, services: Dict) -> bool:
         """Verificar si Systems Manager está realmente en uso."""
@@ -1028,25 +1084,63 @@ class EvidenceGenerator:
         
         services = index.get("services", {})
         
-        # CloudWatch - Verificar si está realmente en uso
-        cloudwatch_in_use = self._check_cloudwatch_in_use(services)
-        if cloudwatch_in_use:
+        # CloudWatch - Verificar y segmentar por subservicios
+        cloudwatch_resources = self._check_cloudwatch_resources_detailed(services)
+        
+        # CloudWatch Alarms
+        if cloudwatch_resources["alarms"] > 0:
             evidence.append({
                 "type": "service_present",
-                "service": "CloudWatch",
+                "service": "CloudWatch Alarms",
                 "status": "detected",
-                "description": "CloudWatch está en uso"
+                "description": f"CloudWatch Alarms está en uso ({cloudwatch_resources['alarms']} alarmas configuradas)"
             })
-            questions.append("¿Se están usando métricas personalizadas?")
-            questions.append("¿Hay dashboards configurados?")
             questions.append("¿Se están configurando alarmas para métricas críticas?")
+            questions.append("¿Las alarmas están configuradas con acciones SNS/SQS adecuadas?")
         else:
             evidence.append({
                 "type": "service_missing",
-                "service": "CloudWatch",
+                "service": "CloudWatch Alarms",
                 "status": "not_detected",
-                "description": "CloudWatch no está en uso o no tiene recursos configurados",
-                "gap": "Falta de monitoreo y observabilidad"
+                "description": "CloudWatch Alarms no está en uso o no tiene alarmas configuradas",
+                "gap": "Falta de alertas y monitoreo proactivo"
+            })
+        
+        # CloudWatch Dashboards
+        if cloudwatch_resources["dashboards"] > 0:
+            evidence.append({
+                "type": "service_present",
+                "service": "CloudWatch Dashboards",
+                "status": "detected",
+                "description": f"CloudWatch Dashboards está en uso ({cloudwatch_resources['dashboards']} dashboards configurados)"
+            })
+            questions.append("¿Hay dashboards configurados para servicios críticos?")
+        else:
+            evidence.append({
+                "type": "service_missing",
+                "service": "CloudWatch Dashboards",
+                "status": "not_detected",
+                "description": "CloudWatch Dashboards no está en uso o no tiene dashboards configurados",
+                "gap": "Falta de visualización centralizada de métricas"
+            })
+        
+        # CloudWatch Logs
+        if cloudwatch_resources["log_groups"] > 0:
+            evidence.append({
+                "type": "service_present",
+                "service": "CloudWatch Logs",
+                "status": "detected",
+                "description": f"CloudWatch Logs está en uso ({cloudwatch_resources['log_groups']} log groups configurados)"
+            })
+            questions.append("¿Se están usando métricas personalizadas desde logs?")
+            questions.append("¿Los logs están configurados con retención adecuada?")
+        else:
+            evidence.append({
+                "type": "service_missing",
+                "service": "CloudWatch Logs",
+                "status": "not_detected",
+                "description": "CloudWatch Logs no está en uso o no tiene log groups configurados",
+                "gap": "Falta de centralización y análisis de logs"
             })
         
         # Systems Manager - Verificar si está realmente en uso

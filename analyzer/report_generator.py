@@ -130,7 +130,7 @@ class ReportGenerator:
             logger.warning(f"Template no encontrado: {template_file}")
             return
         
-        with open(template_file, 'r') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             template = Template(f.read())
         
         # Obtener servicios desde índice si no hay inventario
@@ -172,7 +172,7 @@ class ReportGenerator:
         
         output = template.render(**context)
         output_file = self.output_dir / "executive_summary.md"
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Resumen ejecutivo generado: {output_file}")
     
@@ -183,7 +183,7 @@ class ReportGenerator:
             logger.warning(f"Template no encontrado: {template_file}")
             return
         
-        with open(template_file, 'r') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             template = Template(f.read())
         
         findings = data.get("findings", {}).get("findings", [])
@@ -206,7 +206,7 @@ class ReportGenerator:
         
         output = template.render(**context)
         output_file = self.output_dir / "findings_report.md"
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Reporte de hallazgos generado: {output_file}")
     
@@ -217,7 +217,7 @@ class ReportGenerator:
             logger.warning(f"Template no encontrado: {template_file}")
             return
         
-        with open(template_file, 'r') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             template = Template(f.read())
         
         findings = data.get("findings", {}).get("findings", [])
@@ -236,7 +236,7 @@ class ReportGenerator:
         
         output = template.render(**context)
         output_file = self.output_dir / "roadmap_30_60_90.md"
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Roadmap generado: {output_file}")
     
@@ -247,7 +247,7 @@ class ReportGenerator:
             logger.warning(f"Template no encontrado: {template_file}")
             return
         
-        with open(template_file, 'r') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             template = Template(f.read())
         
         index = data.get("index", {})
@@ -284,7 +284,7 @@ class ReportGenerator:
         
         output = template.render(**context)
         output_file = self.output_dir / "technical_annex.md"
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Anexo técnico generado: {output_file}")
     
@@ -295,7 +295,7 @@ class ReportGenerator:
             logger.warning(f"Template no encontrado: {template_file}")
             return
         
-        with open(template_file, 'r') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             template = Template(f.read())
         
         findings = data.get("findings", {}).get("findings", [])
@@ -325,7 +325,7 @@ class ReportGenerator:
         
         output = template.render(**context)
         output_file = self.output_dir / "scorecard.md"
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Scorecard generado: {output_file}")
     
@@ -336,7 +336,7 @@ class ReportGenerator:
             logger.warning(f"Template no encontrado: {template_file}")
             return
         
-        with open(template_file, 'r') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             template = Template(f.read())
         
         index = data.get("index", {})
@@ -434,7 +434,7 @@ class ReportGenerator:
         
         output = template.render(**context)
         output_file = self.output_dir / "inventory_report.md"
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Reporte de inventario generado: {output_file}")
 

@@ -52,7 +52,7 @@ class EvidenceGenerator:
             logger.error(f"Índice no encontrado: {index_file}")
             return
         
-        with open(index_file, 'r') as f:
+        with open(index_file, 'r', encoding='utf-8') as f:
             index = json.load(f)
         
         # Generar evidencias por pilar
@@ -205,23 +205,28 @@ class EvidenceGenerator:
             
             response_data = data.get("data", {})
             if isinstance(response_data, dict):
-                # Verificar si hay Trails
-                trails = response_data.get("Trails", []) or response_data.get("trailList", [])
-                if isinstance(trails, list):
-                    # Si hay trails, verificar que al menos uno esté activo
-                    if len(trails) > 0:
-                        for trail in trails:
-                            # Un trail está activo si IsLogging=True o si es multi-región
-                            if trail.get("IsLogging") is True:
-                                return True
-                            # También considerar multi-región como habilitado
-                            if trail.get("IsMultiRegionTrail") is True:
-                                return True
-                        # Si hay trails pero ninguno está activo, CloudTrail no está realmente activo
-                        return False
-                    else:
-                        # Lista vacía = CloudTrail no está habilitado
-                        return False
+                # Manejar datos paginados
+                if "pages" in response_data and "data" in response_data:
+                    pages = response_data.get("data", [])
+                    seen_trail_names = set()
+                    for page in pages:
+                        if isinstance(page, dict):
+                            trails = page.get("Trails", []) or page.get("trailList", [])
+                            if isinstance(trails, list):
+                                for trail in trails:
+                                    trail_name = trail.get("Name")
+                                    if trail_name and trail_name not in seen_trail_names:
+                                        seen_trail_names.add(trail_name)
+                    # Si hay al menos un trail único, CloudTrail está habilitado
+                    return len(seen_trail_names) > 0
+                else:
+                    # Datos no paginados
+                    trails = response_data.get("Trails", []) or response_data.get("trailList", [])
+                    if isinstance(trails, list):
+                        # Si hay trails, CloudTrail está habilitado
+                        # La presencia de trails ya indica que CloudTrail está configurado
+                        # Nota: IsLogging puede no estar presente en ListTrails
+                        return len(trails) > 0
         except Exception as e:
             logger.debug(f"Error leyendo archivo CloudTrail: {e}")
         
@@ -1166,7 +1171,7 @@ class EvidenceGenerator:
         metadata_file = self.run_dir / "metadata.json"
         if metadata_file.exists():
             try:
-                with open(metadata_file, 'r') as f:
+                with open(metadata_file, 'r', encoding='utf-8') as f:
                     metadata = json.load(f)
                     return metadata.get("account_id", "N/A")
             except:
@@ -1177,14 +1182,14 @@ class EvidenceGenerator:
         """Guardar evidence pack en formato Markdown y JSON."""
         # JSON
         json_file = self.output_dir / "evidence_pack.json"
-        with open(json_file, 'w') as f:
-            json.dump(evidence_pack, f, indent=2, default=str)
+        with open(json_file, 'w', encoding='utf-8') as f:
+            json.dump(evidence_pack, f, indent=2, default=str, ensure_ascii=False)
         logger.info(f"Evidence pack JSON guardado: {json_file}")
         
         # Markdown
         md_file = self.output_dir / "evidence_pack.md"
         md_content = self._generate_markdown(evidence_pack)
-        with open(md_file, 'w') as f:
+        with open(md_file, 'w', encoding='utf-8') as f:
             f.write(md_content)
         logger.info(f"Evidence pack Markdown guardado: {md_file}")
     

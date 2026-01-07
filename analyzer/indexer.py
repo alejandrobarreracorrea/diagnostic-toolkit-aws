@@ -243,7 +243,8 @@ class DataIndexer:
                 'StackSummaries', 'stackSummaries', 'Stacks', 'stacks',  # CloudFormation
                 'BackupPlansList', 'BackupPlans', 'backupPlansList', 'backupPlans',  # Backup Plans
                 'BackupVaultList', 'BackupVaults', 'backupVaultList', 'backupVaults',  # Backup Vaults
-                'AutoScalingGroups', 'AutoScalingGroupNames', 'autoScalingGroups', 'autoScalingGroupNames'  # Auto Scaling Groups
+                'AutoScalingGroups', 'AutoScalingGroupNames', 'autoScalingGroups', 'autoScalingGroupNames',  # Auto Scaling Groups
+                'HostedZones', 'hostedZones', 'HostedZoneSummaries', 'hostedZoneSummaries'  # Route53 Hosted Zones
             ]
             
             # PRIMERO: Si es paginado, contar todas las páginas (esto es lo más común)

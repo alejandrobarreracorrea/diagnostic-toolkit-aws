@@ -1,0 +1,171 @@
+{
+  "operational_excellence": {
+    "OPS1": [],
+    "OPS2": [],
+    "OPS3": [],
+    "OPS4": [
+      "CloudWatch Alarms",
+      "CloudWatch Dashboards",
+      "CloudWatch Logs",
+      "alarm_coverage",
+      "alarm_actions",
+      "metric_filters",
+      "log_retention"
+    ],
+    "OPS5": [
+      "Systems Manager",
+      "CloudWatch Alarms",
+      "SNS",
+      "EventBridge",
+      "ssm_coverage_gap"
+    ],
+    "OPS6": [
+      "CloudWatch Alarms",
+      "SNS",
+      "EventBridge"
+    ]
+  },
+  "security": {
+    "SEC1": ["IAM", "Secrets Manager", "KMS"],
+    "SEC2": ["IAM"],
+    "SEC3": ["IAM"],
+    "SEC4": [
+      "CloudTrail",
+      "GuardDuty",
+      "Security Hub",
+      "CloudWatch Logs"
+    ],
+    "SEC5": [
+      "EC2",
+      "VPC",
+      "Security Groups",
+      "NACLs",
+      "public_resources"
+    ],
+    "SEC6": [
+      "EC2",
+      "Systems Manager",
+      "ssm_coverage_gap"
+    ],
+    "SEC7": [
+      "S3"
+    ],
+    "SEC8": [
+      "KMS",
+      "S3",
+      "EBS",
+      "RDS"
+    ],
+    "SEC9": [
+      "ACM",
+      "CloudFront",
+      "API Gateway",
+      "ELB"
+    ],
+    "SEC10": ["KMS"],
+    "SEC11": [
+      "Security Hub",
+      "GuardDuty",
+      "CloudWatch",
+      "EventBridge"
+    ]
+  },
+  "reliability": {
+    "REL1": [],
+    "REL2": [
+      "CloudFormation",
+      "iac_usage",
+      "stacksets_usage"
+    ],
+    "REL3": [
+      "Auto Scaling",
+      "ELB",
+      "ECS",
+      "Lambda"
+    ],
+    "REL4": [
+      "CloudWatch",
+      "CloudWatch Alarms",
+      "CloudWatch Logs"
+    ],
+    "REL5": [
+      "Backup",
+      "RDS",
+      "EBS",
+      "S3"
+    ],
+    "REL6": [
+      "Backup",
+      "RDS",
+      "Route 53",
+      "Multi-AZ",
+      "multiaz_coverage_gap"
+    ]
+  },
+  "performance_efficiency": {
+    "PERF1": [
+      "CloudWatch",
+      "X-Ray",
+      "CloudFormation"
+    ],
+    "PERF2": [
+      "EC2",
+      "Lambda",
+      "ECS",
+      "Fargate"
+    ],
+    "PERF3": [
+      "S3",
+      "EBS",
+      "EFS"
+    ],
+    "PERF4": [
+      "RDS",
+      "DynamoDB",
+      "ElastiCache",
+      "Redshift"
+    ],
+    "PERF5": [
+      "CloudWatch",
+      "X-Ray"
+    ]
+  },
+  "cost_optimization": {
+    "COST1": [],
+    "COST2": [
+      "Cost Explorer",
+      "Budgets",
+      "CloudWatch"
+    ],
+    "COST3": [
+      "CloudWatch",
+      "Trusted Advisor",
+      "trusted_advisor_info",
+      "trusted_advisor_recommendations"
+    ],
+    "COST4": [
+      "Reserved Instances",
+      "Savings Plans",
+      "Spot Instances"
+    ]
+  },
+  "sustainability": {
+    "SUS1": [
+      "CloudWatch",
+      "Cost Explorer"
+    ],
+    "SUS2": [
+      "Auto Scaling",
+      "Lambda",
+      "ECS Fargate"
+    ],
+    "SUS3": [
+      "CloudWatch",
+      "Cost Explorer",
+      "Trusted Advisor",
+      "trusted_advisor_info",
+      "trusted_advisor_recommendations"
+    ]
+  }
+}
+

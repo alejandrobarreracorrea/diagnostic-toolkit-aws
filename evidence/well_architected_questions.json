@@ -1,0 +1,295 @@
+{
+  "operational_excellence": {
+    "OPS1": {
+      "question": "¿Cómo determinas cuáles son tus prioridades?",
+      "best_practices": [
+        "Definir resultados de negocio y métricas de éxito",
+        "Priorizar trabajo basado en valor de negocio y riesgo",
+        "Revisar prioridades regularmente"
+      ]
+    },
+    "OPS2": {
+      "question": "¿Cómo estructuras tu organización para apoyar tus resultados de negocio?",
+      "best_practices": [
+        "Alinear la propiedad del equipo con las cargas de trabajo",
+        "Usar equipos pequeños y autónomos",
+        "Definir responsabilidades claras y rutas de escalación"
+      ]
+    },
+    "OPS3": {
+      "question": "¿Cómo tu cultura organizacional apoya tus resultados de negocio?",
+      "best_practices": [
+        "Promover mejora continua y aprendizaje",
+        "Usar postmortems sin culpa",
+        "Automatizar operaciones donde sea posible"
+      ]
+    },
+    "OPS4": {
+      "question": "¿Cómo monitoreas tu carga de trabajo para asegurar que opera como se espera?",
+      "best_practices": [
+        "Recopilar métricas, logs y trazas",
+        "Definir SLIs y SLOs",
+        "Usar dashboards y alarmas"
+      ]
+    },
+    "OPS5": {
+      "question": "¿Cómo respondes a eventos operacionales no planificados?",
+      "best_practices": [
+        "Crear y mantener runbooks",
+        "Automatizar respuesta a incidentes",
+        "Practicar simulaciones de incidentes"
+      ]
+    },
+    "OPS6": {
+      "question": "¿Cómo se gestiona la escalación al responder a eventos operacionales no planificados?",
+      "best_practices": [
+        "Definir políticas de escalación",
+        "Usar notificaciones automatizadas",
+        "Asegurar cobertura 24/7 donde se requiera"
+      ]
+    }
+  },
+  "security": {
+    "SEC1": {
+      "question": "¿Cómo gestionas credenciales y autenticación?",
+      "best_practices": [
+        "Usar roles IAM en lugar de credenciales de largo plazo",
+        "Habilitar MFA",
+        "Rotar credenciales automáticamente"
+      ]
+    },
+    "SEC2": {
+      "question": "¿Cómo gestionas identidades para personas y máquinas?",
+      "best_practices": [
+        "Centralizar gestión de identidades",
+        "Usar acceso federado",
+        "Separar identidades humanas y de máquinas"
+      ]
+    },
+    "SEC3": {
+      "question": "¿Cómo gestionas el acceso de menor privilegio?",
+      "best_practices": [
+        "Otorgar permisos basados en función de trabajo",
+        "Revisar permisos regularmente",
+        "Usar condiciones de políticas"
+      ]
+    },
+    "SEC4": {
+      "question": "¿Cómo detectas e investigas eventos de seguridad?",
+      "best_practices": [
+        "Habilitar CloudTrail",
+        "Usar GuardDuty y Security Hub",
+        "Centralizar logs de seguridad"
+      ]
+    },
+    "SEC5": {
+      "question": "¿Cómo proteges tus recursos de red?",
+      "best_practices": [
+        "Usar segmentación VPC",
+        "Aplicar security groups y NACLs",
+        "Limitar exposición pública"
+      ]
+    },
+    "SEC6": {
+      "question": "¿Cómo proteges tus recursos de cómputo?",
+      "best_practices": [
+        "Aplicar parches regularmente",
+        "Usar AMIs endurecidas",
+        "Monitorear comportamiento en tiempo de ejecución"
+      ]
+    },
+    "SEC7": {
+      "question": "¿Cómo clasificas tus datos?",
+      "best_practices": [
+        "Identificar datos sensibles",
+        "Etiquetar y catalogar datos",
+        "Aplicar políticas de clasificación de datos"
+      ]
+    },
+    "SEC8": {
+      "question": "¿Cómo proteges tus datos en reposo?",
+      "best_practices": [
+        "Cifrar datos usando AWS KMS",
+        "Restringir acceso a recursos cifrados",
+        "Rotar claves de cifrado"
+      ]
+    },
+    "SEC9": {
+      "question": "¿Cómo proteges tus datos en tránsito?",
+      "best_practices": [
+        "Usar TLS para todas las comunicaciones",
+        "Aplicar suites de cifrado seguras",
+        "Deshabilitar protocolos inseguros"
+      ]
+    },
+    "SEC10": {
+      "question": "¿Cómo gestionas tus claves de cifrado?",
+      "best_practices": [
+        "Separar deberes de gestión de claves",
+        "Usar claves gestionadas por el cliente",
+        "Rotar claves periódicamente"
+      ]
+    },
+    "SEC11": {
+      "question": "¿Cómo te preparas y respondes a incidentes de seguridad?",
+      "best_practices": [
+        "Crear planes de respuesta a incidentes",
+        "Probar procedimientos de respuesta",
+        "Automatizar acciones de contención"
+      ]
+    }
+  },
+  "reliability": {
+    "REL1": {
+      "question": "¿Cómo gestionas los límites de servicios de AWS?",
+      "best_practices": [
+        "Monitorear cuotas de servicios",
+        "Solicitar aumentos de límites proactivamente",
+        "Diseñar arquitecturas dentro de los límites"
+      ]
+    },
+    "REL2": {
+      "question": "¿Cómo gestionas el cambio?",
+      "best_practices": [
+        "Usar infraestructura como código",
+        "Implementar gestión de cambios",
+        "Automatizar despliegues"
+      ]
+    },
+    "REL3": {
+      "question": "¿Cómo se adapta tu sistema a cambios en la demanda?",
+      "best_practices": [
+        "Usar auto escalado",
+        "Diseñar cargas de trabajo sin estado",
+        "Implementar balanceo de carga"
+      ]
+    },
+    "REL4": {
+      "question": "¿Cómo monitoreas tus cargas de trabajo?",
+      "best_practices": [
+        "Usar métricas y alarmas de CloudWatch",
+        "Monitorear health checks",
+        "Rastrear KPIs de disponibilidad"
+      ]
+    },
+    "REL5": {
+      "question": "¿Cómo haces respaldo de tus datos?",
+      "best_practices": [
+        "Automatizar backups",
+        "Definir políticas de retención",
+        "Probar procedimientos de restauración"
+      ]
+    },
+    "REL6": {
+      "question": "¿Cómo pruebas la recuperación?",
+      "best_practices": [
+        "Realizar simulacros de recuperación ante desastres",
+        "Probar mecanismos de failover",
+        "Documentar resultados de recuperación"
+      ]
+    }
+  },
+  "performance_efficiency": {
+    "PERF1": {
+      "question": "¿Cómo seleccionas la arquitectura de mejor rendimiento?",
+      "best_practices": [
+        "Evaluar múltiples patrones de arquitectura",
+        "Hacer benchmarking de rendimiento",
+        "Usar servicios gestionados"
+      ]
+    },
+    "PERF2": {
+      "question": "¿Cómo seleccionas tu solución de cómputo?",
+      "best_practices": [
+        "Hacer coincidir tipos de cómputo con necesidades de carga de trabajo",
+        "Usar instancias de tamaño adecuado",
+        "Adoptar serverless donde sea apropiado"
+      ]
+    },
+    "PERF3": {
+      "question": "¿Cómo seleccionas tu solución de almacenamiento?",
+      "best_practices": [
+        "Elegir almacenamiento basado en patrones de acceso",
+        "Usar políticas de ciclo de vida",
+        "Monitorear IOPS y throughput"
+      ]
+    },
+    "PERF4": {
+      "question": "¿Cómo seleccionas tu solución de base de datos?",
+      "best_practices": [
+        "Elegir bases de datos basadas en modelo de datos",
+        "Optimizar indexación",
+        "Usar bases de datos gestionadas"
+      ]
+    },
+    "PERF5": {
+      "question": "¿Cómo monitoreas y mejoras el rendimiento?",
+      "best_practices": [
+        "Rastrear latencia y throughput",
+        "Usar pruebas de rendimiento",
+        "Ajustar cargas de trabajo continuamente"
+      ]
+    }
+  },
+  "cost_optimization": {
+    "COST1": {
+      "question": "¿Cómo consideras el costo al seleccionar servicios?",
+      "best_practices": [
+        "Comparar modelos de precios",
+        "Usar servicios gestionados",
+        "Evitar sobre-provisionamiento"
+      ]
+    },
+    "COST2": {
+      "question": "¿Cómo monitoreas el uso y el gasto?",
+      "best_practices": [
+        "Usar Cost Explorer",
+        "Establecer presupuestos y alertas",
+        "Rastrear etiquetas de asignación de costos"
+      ]
+    },
+    "COST3": {
+      "question": "¿Cómo reduces costos innecesarios?",
+      "best_practices": [
+        "Identificar recursos inactivos",
+        "Desmantelar activos no utilizados",
+        "Usar automatización para apagar recursos"
+      ]
+    },
+    "COST4": {
+      "question": "¿Cómo optimizas los modelos de precios?",
+      "best_practices": [
+        "Usar Savings Plans o Reserved Instances",
+        "Adoptar Spot Instances",
+        "Revisar compromisos regularmente"
+      ]
+    }
+  },
+  "sustainability": {
+    "SUS1": {
+      "question": "¿Cómo mides la sostenibilidad de tu carga de trabajo?",
+      "best_practices": [
+        "Medir utilización de recursos",
+        "Rastrear métricas de eficiencia energética",
+        "Usar dashboards de sostenibilidad"
+      ]
+    },
+    "SUS2": {
+      "question": "¿Cómo reduces el impacto ambiental de tu carga de trabajo?",
+      "best_practices": [
+        "Dimensionar recursos correctamente",
+        "Usar regiones eficientes",
+        "Minimizar capacidad inactiva"
+      ]
+    },
+    "SUS3": {
+      "question": "¿Cómo mejoras continuamente la sostenibilidad?",
+      "best_practices": [
+        "Revisar métricas de sostenibilidad",
+        "Optimizar arquitecturas regularmente",
+        "Adoptar servicios más nuevos y eficientes"
+      ]
+    }
+  }
+}
+

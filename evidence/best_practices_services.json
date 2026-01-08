@@ -1,0 +1,190 @@
+{
+  "operational_excellence": {
+    "OPS1": {
+      "Definir resultados de negocio y métricas de éxito": [],
+      "Priorizar trabajo basado en valor de negocio y riesgo": [],
+      "Revisar prioridades regularmente": []
+    },
+    "OPS2": {
+      "Alinear la propiedad del equipo con las cargas de trabajo": [],
+      "Usar equipos pequeños y autónomos": [],
+      "Definir responsabilidades claras y rutas de escalación": []
+    },
+    "OPS3": {
+      "Promover mejora continua y aprendizaje": [],
+      "Usar postmortems sin culpa": [],
+      "Automatizar operaciones donde sea posible": ["CloudFormation", "Systems Manager", "Lambda", "EventBridge"]
+    },
+    "OPS4": {
+      "Recopilar métricas, logs y trazas": ["CloudWatch", "CloudWatch Logs", "X-Ray"],
+      "Definir SLIs y SLOs": ["CloudWatch", "CloudWatch Alarms"],
+      "Usar dashboards y alarmas": ["CloudWatch Dashboards", "CloudWatch Alarms"]
+    },
+    "OPS5": {
+      "Crear y mantener runbooks": ["Systems Manager Documents"],
+      "Automatizar respuesta a incidentes": ["EventBridge", "Lambda", "Systems Manager", "CloudWatch Alarms"],
+      "Practicar simulaciones de incidentes": ["Systems Manager", "CloudFormation"]
+    },
+    "OPS6": {
+      "Definir políticas de escalación": ["CloudWatch Alarms", "EventBridge"],
+      "Usar notificaciones automatizadas": ["SNS", "EventBridge", "CloudWatch Alarms"],
+      "Asegurar cobertura 24/7 donde se requiera": ["SNS", "EventBridge", "CloudWatch Alarms"]
+    }
+  },
+  "security": {
+    "SEC1": {
+      "Usar roles IAM en lugar de credenciales de largo plazo": ["IAM Roles"],
+      "Habilitar MFA": ["IAM"],
+      "Rotar credenciales automáticamente": ["Secrets Manager", "IAM"]
+    },
+    "SEC2": {
+      "Centralizar gestión de identidades": ["IAM", "SSO", "Cognito"],
+      "Usar acceso federado": ["IAM Identity Center (SSO)", "Cognito"],
+      "Separar identidades humanas y de máquinas": ["IAM"]
+    },
+    "SEC3": {
+      "Otorgar permisos basados en función de trabajo": ["IAM"],
+      "Revisar permisos regularmente": ["IAM Access Analyzer", "IAM"],
+      "Usar condiciones de políticas": ["IAM"]
+    },
+    "SEC4": {
+      "Habilitar CloudTrail": ["CloudTrail"],
+      "Usar GuardDuty y Security Hub": ["GuardDuty", "Security Hub"],
+      "Centralizar logs de seguridad": ["CloudWatch Logs", "S3"]
+    },
+    "SEC5": {
+      "Usar segmentación VPC": ["VPC"],
+      "Aplicar security groups y NACLs": ["EC2 Security Groups", "VPC NACLs"],
+      "Limitar exposición pública": ["Security Groups", "NACLs", "VPC"]
+    },
+    "SEC6": {
+      "Aplicar parches regularmente": ["Systems Manager Patch Manager"],
+      "Usar AMIs endurecidas": ["EC2", "Systems Manager"],
+      "Monitorear comportamiento en tiempo de ejecución": ["GuardDuty", "Security Hub", "Inspector"]
+    },
+    "SEC7": {
+      "Identificar datos sensibles": ["Macie"],
+      "Etiquetar y catalogar datos": ["S3", "Data Catalog"],
+      "Aplicar políticas de clasificación de datos": ["Macie", "S3"]
+    },
+    "SEC8": {
+      "Cifrar datos usando AWS KMS": ["KMS"],
+      "Restringir acceso a recursos cifrados": ["KMS", "IAM"],
+      "Rotar claves de cifrado": ["KMS"]
+    },
+    "SEC9": {
+      "Usar TLS para todas las comunicaciones": ["ACM", "CloudFront", "API Gateway", "ELB"],
+      "Aplicar suites de cifrado seguras": ["ACM", "CloudFront"],
+      "Deshabilitar protocolos inseguros": ["Security Groups", "NACLs"]
+    },
+    "SEC10": {
+      "Separar deberes de gestión de claves": ["KMS"],
+      "Usar claves gestionadas por el cliente": ["KMS"],
+      "Rotar claves periódicamente": ["KMS"]
+    },
+    "SEC11": {
+      "Crear planes de respuesta a incidentes": ["Security Hub", "EventBridge"],
+      "Probar procedimientos de respuesta": ["Security Hub", "Lambda"],
+      "Automatizar acciones de contención": ["Security Hub", "EventBridge", "Lambda"]
+    }
+  },
+  "reliability": {
+    "REL1": {
+      "Monitorear cuotas de servicios": ["Service Quotas", "CloudWatch"],
+      "Solicitar aumentos de límites proactivamente": ["Service Quotas"],
+      "Diseñar arquitecturas dentro de los límites": []
+    },
+    "REL2": {
+      "Usar infraestructura como código": ["CloudFormation", "Terraform"],
+      "Implementar gestión de cambios": ["CloudFormation", "CodePipeline"],
+      "Automatizar despliegues": ["CodePipeline", "CodeDeploy", "CloudFormation"]
+    },
+    "REL3": {
+      "Usar auto escalado": ["Auto Scaling"],
+      "Diseñar cargas de trabajo sin estado": ["S3", "DynamoDB", "ElastiCache"],
+      "Implementar balanceo de carga": ["ELB", "ALB", "NLB"]
+    },
+    "REL4": {
+      "Usar métricas y alarmas de CloudWatch": ["CloudWatch", "CloudWatch Alarms"],
+      "Monitorear health checks": ["Route 53 Health Checks", "ELB Health Checks"],
+      "Rastrear KPIs de disponibilidad": ["CloudWatch", "Route 53"]
+    },
+    "REL5": {
+      "Automatizar backups": ["Backup", "RDS Automated Backups", "EBS Snapshots"],
+      "Definir políticas de retención": ["Backup", "S3 Lifecycle", "EBS Snapshots"],
+      "Probar procedimientos de restauración": ["Backup", "RDS", "EBS"]
+    },
+    "REL6": {
+      "Realizar simulacros de recuperación ante desastres": ["Backup", "RDS", "Multi-AZ"],
+      "Probar mecanismos de failover": ["Route 53", "RDS Multi-AZ", "ELB"],
+      "Documentar resultados de recuperación": []
+    }
+  },
+  "performance_efficiency": {
+    "PERF1": {
+      "Evaluar múltiples patrones de arquitectura": ["CloudFormation", "Well-Architected Tool"],
+      "Hacer benchmarking de rendimiento": ["CloudWatch", "X-Ray"],
+      "Usar servicios gestionados": ["RDS", "ElastiCache", "DynamoDB", "Lambda"]
+    },
+    "PERF2": {
+      "Hacer coincidir tipos de cómputo con necesidades de carga de trabajo": ["EC2", "Lambda", "ECS"],
+      "Usar instancias de tamaño adecuado": ["EC2", "Compute Optimizer"],
+      "Adoptar serverless donde sea apropiado": ["Lambda", "ECS Fargate", "API Gateway"]
+    },
+    "PERF3": {
+      "Elegir almacenamiento basado en patrones de acceso": ["S3", "EBS", "EFS"],
+      "Usar políticas de ciclo de vida": ["S3 Lifecycle", "EBS Snapshots"],
+      "Monitorear IOPS y throughput": ["CloudWatch", "EBS"]
+    },
+    "PERF4": {
+      "Elegir bases de datos basadas en modelo de datos": ["RDS", "DynamoDB", "ElastiCache", "Redshift"],
+      "Optimizar indexación": ["RDS", "DynamoDB"],
+      "Usar bases de datos gestionadas": ["RDS", "DynamoDB", "ElastiCache"]
+    },
+    "PERF5": {
+      "Rastrear latencia y throughput": ["CloudWatch", "X-Ray"],
+      "Usar pruebas de rendimiento": ["CloudWatch", "X-Ray"],
+      "Ajustar cargas de trabajo continuamente": ["CloudWatch", "Compute Optimizer"]
+    }
+  },
+  "cost_optimization": {
+    "COST1": {
+      "Comparar modelos de precios": ["Cost Explorer", "Pricing Calculator"],
+      "Usar servicios gestionados": ["RDS", "Lambda", "ECS Fargate"],
+      "Evitar sobre-provisionamiento": ["Compute Optimizer", "CloudWatch"]
+    },
+    "COST2": {
+      "Usar Cost Explorer": ["Cost Explorer"],
+      "Establecer presupuestos y alertas": ["Budgets", "CloudWatch"],
+      "Rastrear etiquetas de asignación de costos": ["Cost Explorer", "Cost Allocation Tags"]
+    },
+    "COST3": {
+      "Identificar recursos inactivos": ["Cost Explorer", "Trusted Advisor", "CloudWatch"],
+      "Desmantelar activos no utilizados": ["CloudWatch", "Trusted Advisor"],
+      "Usar automatización para apagar recursos": ["Lambda", "EventBridge", "CloudWatch"]
+    },
+    "COST4": {
+      "Usar Savings Plans o Reserved Instances": ["Reserved Instances", "Savings Plans"],
+      "Adoptar Spot Instances": ["EC2 Spot Instances"],
+      "Revisar compromisos regularmente": ["Cost Explorer", "Reserved Instances"]
+    }
+  },
+  "sustainability": {
+    "SUS1": {
+      "Medir utilización de recursos": ["CloudWatch", "Cost Explorer"],
+      "Rastrear métricas de eficiencia energética": ["CloudWatch", "Cost Explorer"],
+      "Usar dashboards de sostenibilidad": ["CloudWatch Dashboards"]
+    },
+    "SUS2": {
+      "Dimensionar recursos correctamente": ["Compute Optimizer", "CloudWatch"],
+      "Usar regiones eficientes": ["Well-Architected Tool"],
+      "Minimizar capacidad inactiva": ["Auto Scaling", "Lambda", "ECS Fargate"]
+    },
+    "SUS3": {
+      "Revisar métricas de sostenibilidad": ["CloudWatch", "Cost Explorer"],
+      "Optimizar arquitecturas regularmente": ["Compute Optimizer", "CloudWatch"],
+      "Adoptar servicios más nuevos y eficientes": ["Lambda", "ECS Fargate", "Graviton Instances"]
+    }
+  }
+}
+

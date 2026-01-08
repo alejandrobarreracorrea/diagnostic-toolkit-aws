@@ -1,0 +1,155 @@
+{
+  "operational_excellence": {
+    "OPS1": {
+      "services": [],
+      "description": "Pregunta organizacional, no tiene servicios específicos de AWS"
+    },
+    "OPS2": {
+      "services": [],
+      "description": "Pregunta organizacional, no tiene servicios específicos de AWS"
+    },
+    "OPS3": {
+      "services": [],
+      "description": "Pregunta organizacional, no tiene servicios específicos de AWS"
+    },
+    "OPS4": {
+      "services": ["CloudWatch", "CloudWatch Logs", "CloudWatch Alarms", "CloudWatch Dashboards"],
+      "description": "Monitoreo de cargas de trabajo"
+    },
+    "OPS5": {
+      "services": ["Systems Manager", "CloudWatch Alarms", "SNS", "EventBridge"],
+      "description": "Respuesta a eventos operacionales"
+    },
+    "OPS6": {
+      "services": ["CloudWatch Alarms", "SNS", "EventBridge"],
+      "description": "Gestión de escalación"
+    }
+  },
+  "security": {
+    "SEC1": {
+      "services": ["IAM", "Secrets Manager", "KMS"],
+      "description": "Gestión de credenciales y autenticación"
+    },
+    "SEC2": {
+      "services": ["IAM", "Cognito", "SSO"],
+      "description": "Gestión de identidades"
+    },
+    "SEC3": {
+      "services": ["IAM"],
+      "description": "Gestión de acceso de menor privilegio"
+    },
+    "SEC4": {
+      "services": ["CloudTrail", "GuardDuty", "Security Hub", "CloudWatch Logs"],
+      "description": "Detección e investigación de eventos de seguridad"
+    },
+    "SEC5": {
+      "services": ["EC2", "VPC", "Security Groups", "NACLs"],
+      "description": "Protección de recursos de red"
+    },
+    "SEC6": {
+      "services": ["EC2", "Systems Manager", "Inspector", "Security Hub"],
+      "description": "Protección de recursos de cómputo"
+    },
+    "SEC7": {
+      "services": ["Macie", "S3", "Data Catalog"],
+      "description": "Clasificación de datos"
+    },
+    "SEC8": {
+      "services": ["KMS", "S3", "EBS", "RDS"],
+      "description": "Protección de datos en reposo"
+    },
+    "SEC9": {
+      "services": ["ACM", "CloudFront", "API Gateway", "ELB"],
+      "description": "Protección de datos en tránsito"
+    },
+    "SEC10": {
+      "services": ["KMS"],
+      "description": "Gestión de claves de cifrado"
+    },
+    "SEC11": {
+      "services": ["Security Hub", "GuardDuty", "CloudWatch", "EventBridge"],
+      "description": "Preparación y respuesta a incidentes"
+    }
+  },
+  "reliability": {
+    "REL1": {
+      "services": ["Service Quotas", "CloudWatch"],
+      "description": "Gestión de límites de servicios"
+    },
+    "REL2": {
+      "services": ["CloudFormation", "Terraform", "CodePipeline", "CodeDeploy"],
+      "description": "Gestión de cambios"
+    },
+    "REL3": {
+      "services": ["Auto Scaling", "ELB", "ECS", "Lambda"],
+      "description": "Adaptación a cambios en demanda"
+    },
+    "REL4": {
+      "services": ["CloudWatch", "CloudWatch Alarms", "CloudWatch Logs"],
+      "description": "Monitoreo de cargas de trabajo"
+    },
+    "REL5": {
+      "services": ["Backup", "RDS", "EBS", "S3"],
+      "description": "Respaldo de datos"
+    },
+    "REL6": {
+      "services": ["Backup", "RDS", "Multi-AZ", "Route 53"],
+      "description": "Pruebas de recuperación"
+    }
+  },
+  "performance_efficiency": {
+    "PERF1": {
+      "services": ["CloudWatch", "X-Ray", "CloudFormation"],
+      "description": "Selección de arquitectura"
+    },
+    "PERF2": {
+      "services": ["EC2", "Lambda", "ECS", "Fargate"],
+      "description": "Selección de solución de cómputo"
+    },
+    "PERF3": {
+      "services": ["S3", "EBS", "EFS", "Storage Gateway"],
+      "description": "Selección de solución de almacenamiento"
+    },
+    "PERF4": {
+      "services": ["RDS", "DynamoDB", "ElastiCache", "Redshift"],
+      "description": "Selección de solución de base de datos"
+    },
+    "PERF5": {
+      "services": ["CloudWatch", "X-Ray", "CodeGuru"],
+      "description": "Monitoreo y mejora de rendimiento"
+    }
+  },
+  "cost_optimization": {
+    "COST1": {
+      "services": ["Cost Explorer", "Reserved Instances", "Savings Plans"],
+      "description": "Consideración de costos al seleccionar servicios"
+    },
+    "COST2": {
+      "services": ["Cost Explorer", "Budgets", "CloudWatch"],
+      "description": "Monitoreo de uso y gasto"
+    },
+    "COST3": {
+      "services": ["CloudWatch", "Trusted Advisor", "Cost Explorer"],
+      "description": "Reducción de costos innecesarios"
+    },
+    "COST4": {
+      "services": ["Reserved Instances", "Savings Plans", "Spot Instances"],
+      "description": "Optimización de modelos de precios"
+    }
+  },
+  "sustainability": {
+    "SUS1": {
+      "services": ["CloudWatch", "Cost Explorer"],
+      "description": "Medición de sostenibilidad"
+    },
+    "SUS2": {
+      "services": ["Auto Scaling", "Lambda", "ECS Fargate"],
+      "description": "Reducción de impacto ambiental"
+    },
+    "SUS3": {
+      "services": ["CloudWatch", "Cost Explorer", "Trusted Advisor"],
+      "description": "Mejora continua de sostenibilidad"
+    }
+  }
+}
+

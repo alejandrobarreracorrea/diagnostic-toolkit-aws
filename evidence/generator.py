@@ -4198,6 +4198,26 @@ class EvidenceGenerator:
         services = index.get("services", {})
         regions = index.get("regions", [])
         
+        # Cost Explorer - Verificar si está disponible (SUS1, SUS3)
+        if "ce" in services or "cost-explorer" in services:
+            evidence.append({
+                "type": "service_present",
+                "service": "Cost Explorer",
+                "status": "detected",
+                "description": "Cost Explorer está accesible"
+            })
+            questions.append("¿Se están usando Cost Explorer para medir utilización de recursos y eficiencia energética?")
+            questions.append("¿Se están rastreando métricas de sostenibilidad con Cost Explorer?")
+        else:
+            evidence.append({
+                "type": "service_missing",
+                "service": "Cost Explorer",
+                "status": "not_detected",
+                "description": "Cost Explorer no accesible",
+                "gap": "Limitada visibilidad de métricas de sostenibilidad"
+            })
+            questions.append("¿Por qué no se está usando Cost Explorer para medir sostenibilidad?")
+        
         # Trusted Advisor - Verificar si está disponible (SUS3)
         trusted_advisor_info_sus = self._check_trusted_advisor(services)
         if trusted_advisor_info_sus["available"]:

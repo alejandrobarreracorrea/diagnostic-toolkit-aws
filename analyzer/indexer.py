@@ -244,7 +244,8 @@ class DataIndexer:
                 'BackupPlansList', 'BackupPlans', 'backupPlansList', 'backupPlans',  # Backup Plans
                 'BackupVaultList', 'BackupVaults', 'backupVaultList', 'backupVaults',  # Backup Vaults
                 'AutoScalingGroups', 'AutoScalingGroupNames', 'autoScalingGroups', 'autoScalingGroupNames',  # Auto Scaling Groups
-                'HostedZones', 'hostedZones', 'HostedZoneSummaries', 'hostedZoneSummaries'  # Route53 Hosted Zones
+                'HostedZones', 'hostedZones', 'HostedZoneSummaries', 'hostedZoneSummaries',  # Route53 Hosted Zones
+                'ResourceRecordSets', 'resourceRecordSets'  # Route53 Resource Record Sets
             ]
             
             # PRIMERO: Si es paginado, contar todas las páginas (esto es lo más común)
@@ -601,6 +602,7 @@ class DataIndexer:
                                                           'Arn',  # IAM OIDC/SAML Providers
                                                           'Arn',  # Resource Explorer 2 Indexes
                                                           'Id', 'HostedZoneId',  # Route53 Hosted Zones
+                                                          'Name', 'Type',  # Route53 Resource Record Sets (usar Name+Type como ID único)
                                                           'Id', 'ResolverRuleId',  # Route53 Resolver Rules
                                                           'ResolverRuleId',  # Route53 Resolver Rule Associations
                                                           'KeyId', 'KeyArn',  # KMS

@@ -159,7 +159,9 @@ class OperationExecutor:
             # Cachear resultados de List* para uso posterior
             if operation_name.lower().startswith('list'):
                 cache_key = f"{service_name}:{region}:{operation_name}"
-                self._list_results_cache[cache_key] = result.get("data", [])
+                # Extraer items individuales de resultados paginados
+                items = self._extract_items_from_result(result)
+                self._list_results_cache[cache_key] = items
             
             return {
                 "success": True,
@@ -294,7 +296,7 @@ class OperationExecutor:
             list_results = self._list_results_cache[cache_key]
             for item in list_results:
                 # Heurísticas comunes para extraer IDs
-                id_value = self._extract_id_from_item(item, param_name)
+                id_value = self._extract_id_from_item(item, param_name, service_name)
                 if id_value:
                     inferred_values.append(id_value)
         
@@ -340,7 +342,39 @@ class OperationExecutor:
         
         return None
     
-    def _extract_id_from_item(self, item: Any, param_name: str) -> Optional[str]:
+    def _extract_items_from_result(self, result: Dict) -> List[Dict]:
+        """Extraer items individuales de un resultado (puede ser paginado o no)."""
+        items = []
+        data = result.get("data", {})
+        
+        # Si es paginado, extraer items de cada página
+        if isinstance(data, dict) and "data" in data and "pages" in data:
+            pages = data.get("data", [])
+            for page in pages:
+                if isinstance(page, dict):
+                    # Buscar listas comunes de items
+                    for key in ["HostedZones", "HostedZoneSummaries", "Items", "Results", "Values"]:
+                        if key in page and isinstance(page[key], list):
+                            items.extend(page[key])
+                    # Si no hay lista, el page mismo puede ser un item
+                    if not any(key in page for key in ["HostedZones", "HostedZoneSummaries", "Items", "Results", "Values"]):
+                        items.append(page)
+        # Si no es paginado pero tiene estructura de lista
+        elif isinstance(data, dict):
+            # Buscar listas comunes de items
+            for key in ["HostedZones", "HostedZoneSummaries", "Items", "Results", "Values"]:
+                if key in data and isinstance(data[key], list):
+                    items.extend(data[key])
+            # Si no hay lista, el data mismo puede ser un item
+            if not items and data:
+                items.append(data)
+        # Si data es una lista directamente
+        elif isinstance(data, list):
+            items = data
+        
+        return items
+    
+    def _extract_id_from_item(self, item: Any, param_name: str, service_name: str = "") -> Optional[str]:
         """Extraer ID desde un item de resultado de List operation."""
         if not isinstance(item, dict):
             return None
@@ -349,7 +383,14 @@ class OperationExecutor:
         if param_name in item:
             value = item[param_name]
             if isinstance(value, (str, int)):
-                return str(value)
+                value_str = str(value)
+                # Lógica específica para Route 53: el HostedZoneId puede venir con formato /hostedzone/Z1234567890
+                if service_name == "route53" and param_name.lower() in ["hostedzoneid", "hostedzone"]:
+                    if "/hostedzone/" in value_str:
+                        # Extraer solo el ID después de /hostedzone/
+                        value_str = value_str.split("/hostedzone/")[-1]
+                    return value_str
+                return value_str
         
         # Heurísticas comunes
         id_variants = [
@@ -368,7 +409,13 @@ class OperationExecutor:
             if variant in item:
                 value = item[variant]
                 if isinstance(value, (str, int)):
-                    return str(value)
+                    value_str = str(value)
+                    # Lógica específica para Route 53
+                    if service_name == "route53" and "hostedzone" in variant.lower():
+                        if "/hostedzone/" in value_str:
+                            value_str = value_str.split("/hostedzone/")[-1]
+                        return value_str
+                    return value_str
         
         return None
     

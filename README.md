@@ -342,7 +342,10 @@ Este proyecto está licenciado bajo la [MIT License](LICENSE).
 - ✅ **Uso privado permitido**: Puedes usar el software en proyectos privados
 - ⚠️ **Requisito**: Debes incluir el aviso de copyright y la licencia en todas las copias
 
-Para más detalles, consulta el archivo [LICENSE](LICENSE) en la raíz del repositorio.
+Para más detalles, consulta:
+- [LICENSE](LICENSE) - Texto completo de la licencia
+- [NOTICES.md](NOTICES.md) - Licencias de dependencias de terceros
+- [docs/LEGAL.md](docs/LEGAL.md) - Consideraciones legales y de licenciamiento
 
 ## Contribuir
 

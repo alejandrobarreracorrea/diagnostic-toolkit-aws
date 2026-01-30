@@ -10,7 +10,7 @@ ECAD es un producto de diagnóstico técnico para clientes B2B en AWS que propor
 - **Análisis Offline**: Procesamiento sin conexión a AWS usando datos pre-recolectados
 - **Evidence Pack**: Generación automática de evidencias para Well-Architected Framework
 - **Reportes Ejecutivos**: Reportes y roadmaps listos para presentar a clientes
-- **Modo Demo**: Ejecución con datos de ejemplo sin necesidad de credenciales AWS
+- **Modo Demo**: Ejecución con datos de ejemplo sin necesidad 0de credenciales AWS
 
 ## Estructura del Repositorio
 
@@ -41,25 +41,6 @@ Ver estructura detallada en [`docs/STRUCTURE.md`](docs/STRUCTURE.md)
 - Python 3.9+
 - Credenciales AWS con permisos ReadOnly (ver `docs/security.md`)
 - 10GB+ de espacio en disco (dependiendo del tamaño del entorno)
-
-## 🔐 Configuración de Permisos IAM
-
-### Opción Rápida: CloudFormation (Recomendado)
-
-Crea automáticamente el rol IAM y las políticas necesarias:
-
-```bash
-aws cloudformation create-stack \
-  --stack-name ECAD-IAM-Role \
-  --template-body file://policies/ecad-iam-role-cloudformation.yaml \
-  --capabilities CAPABILITY_NAMED_IAM
-```
-
-**📖 Ver guía completa:** [`policies/README-CLOUDFORMATION.md`](policies/README-CLOUDFORMATION.md)
-
-### Opción Manual: Políticas IAM
-
-Si prefieres crear las políticas manualmente, ver: [`policies/README-IAM-POLICIES.md`](policies/README-IAM-POLICIES.md)
 
 ## Instalación Rápida
 
@@ -192,15 +173,13 @@ make demo
 
 ### Windows (Scripts Batch/PowerShell)
 
-**⚠️ IMPORTANTE:** En Windows, `make` no está disponible por defecto. Usa los scripts de Windows o el script interactivo `python ecad.py` que detecta automáticamente Windows.
-
 **Usando scripts batch (.bat):**
 ```cmd
 scripts\windows\ecad.bat install          # Instalar dependencias
 scripts\windows\ecad.bat collect          # Recolectar datos
-set RUN_DIR=runs\run-20240101-120000 && scripts\windows\ecad.bat analyze
-set RUN_DIR=runs\run-20240101-120000 && scripts\windows\ecad.bat evidence
-set RUN_DIR=runs\run-20240101-120000 && scripts\windows\ecad.bat reports
+scripts\windows\ecad.bat analyze RUN_DIR=runs\run-20240101-120000
+scripts\windows\ecad.bat evidence RUN_DIR=runs\run-20240101-120000
+scripts\windows\ecad.bat reports RUN_DIR=runs\run-20240101-120000
 scripts\windows\ecad.bat demo             # Ejecutar demo
 scripts\windows\ecad.bat clean            # Limpiar archivos temporales
 ```
@@ -353,4 +332,26 @@ Para soporte técnico:
 
 ## Licencia
 
-Ver archivo LICENSE para información de licencia.
+Este proyecto está licenciado bajo la [MIT License](LICENSE).
+
+### Resumen de la Licencia MIT
+
+- ✅ **Uso comercial permitido**: Puedes usar este software en proyectos comerciales
+- ✅ **Modificación permitida**: Puedes modificar el código según tus necesidades
+- ✅ **Distribución permitida**: Puedes distribuir el software original o modificado
+- ✅ **Uso privado permitido**: Puedes usar el software en proyectos privados
+- ⚠️ **Requisito**: Debes incluir el aviso de copyright y la licencia en todas las copias
+
+Para más detalles, consulta el archivo [LICENSE](LICENSE) en la raíz del repositorio.
+
+## Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -am 'Agrega nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+Al contribuir, aceptas que tus contribuciones serán licenciadas bajo la misma licencia MIT del proyecto.

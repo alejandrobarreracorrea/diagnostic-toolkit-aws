@@ -2,6 +2,9 @@
 """
 ECAD - Script Interactivo Principal
 Ejecuta el kit completo con menú interactivo
+
+Copyright (c) 2024 AWS Cloud Architecture Diagnostic Contributors
+Licensed under the MIT License (see LICENSE file)
 """
 
 import os

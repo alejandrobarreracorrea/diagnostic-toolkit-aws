@@ -10,10 +10,13 @@ import argparse
 import json
 import gzip
 import logging
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
 from collections import defaultdict
+
+from jinja2 import Environment, FileSystemLoader
 
 logging.basicConfig(
     level=logging.INFO,
@@ -112,7 +115,9 @@ class EvidenceGenerator:
         
         # Guardar evidence pack
         self._save_evidence_pack(evidence_pack)
-        
+        # Generar reporte web (HTML estático)
+        self._generate_web_report(evidence_pack)
+
         logger.info(f"Evidence pack generado en: {self.output_dir}")
     
     def _generate_pillar_evidence(
@@ -4345,7 +4350,106 @@ class EvidenceGenerator:
         with open(md_file, 'w', encoding='utf-8') as f:
             f.write(md_content)
         logger.info(f"Evidence pack Markdown guardado: {md_file}")
-    
+
+    # Colores y slugs por pilar para el reporte web
+    _PILLAR_WEB = {
+        "Operational Excellence": {"color": "#2563eb", "slug": "operational-excellence"},
+        "Security": {"color": "#dc2626", "slug": "security"},
+        "Reliability": {"color": "#059669", "slug": "reliability"},
+        "Performance Efficiency": {"color": "#ea580c", "slug": "performance-efficiency"},
+        "Cost Optimization": {"color": "#0d9488", "slug": "cost-optimization"},
+        "Sustainability": {"color": "#16a34a", "slug": "sustainability"},
+    }
+    _STATUS_MAP = {
+        "compliant": ("success", "Excelente", "compliant"),
+        "partially_compliant": ("warning", "Parcial", "partial"),
+        "not_compliant": ("danger", "Crítico", "not-compliant"),
+        "not_applicable": ("info", "N/A", "na"),
+    }
+
+    def _generate_web_report(self, evidence_pack: Dict) -> None:
+        """Generar reporte HTML estático para presentación web del evidence pack."""
+        web_dir = self.run_dir / "outputs" / "web"
+        web_dir.mkdir(parents=True, exist_ok=True)
+        template_dir = Path(__file__).parent / "templates"
+        if not template_dir.exists():
+            logger.warning(f"Directorio de plantillas web no encontrado: {template_dir}")
+            return
+        env = Environment(loader=FileSystemLoader(str(template_dir)))
+        template = env.get_template("web_report.html")
+
+        pillar_summaries = []
+        for pillar in self.PILLARS:
+            data = evidence_pack["pillars"].get(pillar, {})
+            questions = data.get("well_architected_questions", [])
+            worst = "compliant"
+            for q in questions:
+                st = q.get("compliance", {}).get("status", "not_applicable")
+                if st == "not_compliant":
+                    worst = "not_compliant"
+                    break
+                if st == "partially_compliant":
+                    worst = "partially_compliant"
+            badge_class, status_label, _ = self._STATUS_MAP.get(
+                worst, ("info", "N/A", "na")
+            )
+            info = self._PILLAR_WEB.get(pillar, {"color": "#6b7280", "slug": re.sub(r"[^a-z0-9]+", "-", pillar.lower()).strip("-")})
+            pillar_summaries.append({
+                "name": pillar,
+                "summary": data.get("summary", ""),
+                "badge_class": badge_class,
+                "status_label": status_label,
+                "color": info["color"],
+                "slug": info["slug"],
+            })
+
+        # Enriquecer preguntas y evidencias para la plantilla
+        pillars_for_template = {}
+        for pillar in self.PILLARS:
+            data = evidence_pack["pillars"].get(pillar, {})
+            questions = list(data.get("well_architected_questions", []))
+            for q in questions:
+                comp = q.get("compliance", {})
+                st = comp.get("status", "not_applicable")
+                badge_class, compliance_label, compliance_class = self._STATUS_MAP.get(
+                    st, ("info", "N/A", "na")
+                )
+                q["badge_class"] = badge_class
+                q["compliance_label"] = compliance_label
+                q["compliance_class"] = compliance_class
+                rel = list(q.get("related_evidences", []))
+                for ev in rel:
+                    ev["status_class"] = self._evidence_status_class(ev)
+                    ev["finding_label"] = self._evidence_finding_label(ev)
+                q["related_evidences"] = rel
+            pillars_for_template[pillar] = {**data, "well_architected_questions": questions}
+
+        ctx = {
+            "metadata": evidence_pack["metadata"],
+            "pillar_summaries": pillar_summaries,
+            "pillars": pillars_for_template,
+        }
+        html = template.render(**ctx)
+        out_file = web_dir / "index.html"
+        with open(out_file, "w", encoding="utf-8") as f:
+            f.write(html)
+        logger.info(f"Reporte web guardado: {out_file}")
+
+    def _evidence_status_class(self, ev: Dict) -> str:
+        """Mapear estado de evidencia a clase CSS."""
+        if ev.get("type") == "finding":
+            s = ev.get("status", "info")
+            return {"positive": "ok", "warning": "warn", "negative": "fail"}.get(s, "info")
+        return "ok" if ev.get("status") == "detected" else "fail"
+
+    def _evidence_finding_label(self, ev: Dict) -> str:
+        """Texto corto para evidencia tipo finding en la web."""
+        if ev.get("type") != "finding":
+            return ev.get("description", "")
+        cat = ev.get("category", "N/A")
+        finding = ev.get("finding", "")
+        return f"{cat}: {finding}" if cat else finding
+
     def _generate_markdown(self, evidence_pack: Dict) -> str:
         """Generar contenido Markdown del evidence pack."""
         lines = []

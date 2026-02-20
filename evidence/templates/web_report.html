@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Well-Architected Evidence Pack — {{ metadata.account_id }}</title>
+  <style>
+    :root {
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --info: #6b7280;
+      --bg: #fafafa;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    .hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+      color: #fff;
+      padding: 2.5rem 0 3rem;
+      margin-bottom: 2rem;
+    }
+    .hero h1 { margin: 0 0 .5rem; font-size: 1.75rem; font-weight: 700; }
+    .hero .meta { opacity: .85; font-size: .95rem; }
+    .hero .meta span + span::before { content: " · "; }
+    .pillar-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .pillar-card {
+      display: block;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--pillar-color, var(--info));
+      transition: transform .15s, box-shadow .15s;
+    }
+    .pillar-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .pillar-card .name { font-weight: 600; font-size: .9rem; margin-bottom: .25rem; }
+    .pillar-card .badge {
+      display: inline-block;
+      font-size: .7rem;
+      padding: .2rem .5rem;
+      border-radius: 999px;
+      font-weight: 500;
+      margin-top: .35rem;
+    }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-info { background: #e5e7eb; color: #374151; }
+    .pillar-card .summary { font-size: .8rem; color: var(--text-muted); margin-top: .35rem; }
+    .nav-pillars {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      padding: .75rem 0;
+      margin-bottom: 2rem;
+    }
+    .nav-pillars .container { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+    .nav-pillars a {
+      padding: .5rem 1rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--text);
+      border: 2px solid transparent;
+    }
+    .nav-pillars a:hover { background: var(--bg); }
+    .nav-pillars a[data-color] { border-color: var(--pillar-color); color: var(--pillar-color); }
+    .section-pillar {
+      margin-bottom: 3rem;
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.5rem;
+      border-top: 4px solid var(--pillar-color, var(--info));
+    }
+    .section-pillar h2 { margin: 0 0 .5rem; font-size: 1.5rem; }
+    .section-pillar .pillar-summary { color: var(--text-muted); margin-bottom: 1.5rem; font-size: .95rem; }
+    .accordion { margin-top: 1rem; }
+    .accordion details {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: .75rem;
+      overflow: hidden;
+    }
+    .accordion details[open] { border-color: var(--pillar-color, #e5e7eb); }
+    .accordion summary {
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .accordion summary::-webkit-details-marker { display: none; }
+    .accordion summary::after { content: "▼"; font-size: .7rem; opacity: .6; margin-left: auto; }
+    .accordion details[open] summary::after { transform: rotate(180deg); }
+    .accordion .q-id { font-size: .8rem; color: var(--text-muted); flex-shrink: 0; }
+    .accordion .content { padding: 0 1.25rem 1.25rem; border-top: 1px solid #f3f4f6; }
+    .accordion .compliance-msg { margin: 1rem 0 .75rem; padding: .75rem; border-radius: 8px; font-size: .9rem; }
+    .accordion .compliance-msg.status-compliant { background: #d1fae5; color: #065f46; }
+    .accordion .compliance-msg.status-partial { background: #fef3c7; color: #92400e; }
+    .accordion .compliance-msg.status-not-compliant { background: #fee2e2; color: #991b1b; }
+    .accordion .compliance-msg.status-na { background: #f3f4f6; color: #4b5563; }
+    .accordion ul.evidences, .accordion ul.practices { margin: .5rem 0; padding-left: 1.25rem; }
+    .accordion ul.evidences li { margin: .35rem 0; font-size: .9rem; }
+    .accordion .ev-ok { color: var(--success); }
+    .accordion .ev-warn { color: var(--warning); }
+    .accordion .ev-fail { color: var(--danger); }
+    .accordion .ev-info { color: var(--info); }
+    .accordion .practices { font-size: .9rem; color: var(--text-muted); }
+    .footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <h1>Well-Architected Evidence Pack</h1>
+      <p class="meta">
+        <span>Account ID: {{ metadata.account_id }}</span>
+        <span>Generado: {{ metadata.generated_at }}</span>
+      </p>
+      <div class="pillar-cards">
+        {% for p in pillar_summaries %}
+        <a class="pillar-card" href="#pillar-{{ p.slug }}" style="--pillar-color: {{ p.color }}">
+          <span class="name">{{ p.name }}</span>
+          <span class="badge badge-{{ p.badge_class }}">{{ p.status_label }}</span>
+          <p class="summary">{{ p.summary }}</p>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav-pillars">
+    <div class="container">
+      {% for p in pillar_summaries %}
+      <a href="#pillar-{{ p.slug }}" data-color style="--pillar-color: {{ p.color }}">{{ p.name }}</a>
+      {% endfor %}
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+    {% for p in pillar_summaries %}
+    <section id="pillar-{{ p.slug }}" class="section-pillar" style="--pillar-color: {{ p.color }}">
+      <h2>{{ p.name }}</h2>
+      <p class="pillar-summary">{{ pillars[p.name].summary }}</p>
+      <div class="accordion">
+        {% for q in pillars[p.name].well_architected_questions %}
+        <details>
+          <summary>
+            <span class="q-id">{{ q.id }}</span>
+            <span>{{ q.question }}</span>
+            <span class="badge badge-{{ q.badge_class }}">{{ q.compliance_label }}</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-{{ q.compliance_class }}">{{ q.compliance.message }}</div>
+            {% if q.related_evidences %}
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              {% for ev in q.related_evidences %}
+              <li class="ev-{{ ev.status_class }}">
+                {% if ev.type == 'finding' %}{{ ev.finding_label }}{% else %}{{ ev.description }}{% endif %}
+                {% if ev.gap %}<br><em>Gap: {{ ev.gap }}</em>{% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            {% if q.best_practices %}
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              {% for bp in q.best_practices %}<li>{{ bp.practice }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </details>
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">AWS Cloud Architecture Diagnostic (ECAD) — Evidence Pack generado a partir de datos de cuenta.</div>
+  </footer>
+</body>
+</html>

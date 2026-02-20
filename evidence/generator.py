@@ -12,7 +12,7 @@ import gzip
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 from collections import defaultdict
 
 logging.basicConfig(

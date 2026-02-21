@@ -38,6 +38,7 @@ def print_menu():
     print(" 10. 📊 INVENTARIO - Mostrar inventario consolidado en consola")
     print(" 11. 🔍 VALIDAR - Validar run y analizar errores")
     print(" 12. 🧹 LIMPIAR - Limpiar archivos temporales")
+    print(" 13. 🛡️  MODELO DE MADUREZ - Resumen del Modelo de Madurez en Seguridad AWS")
     print("  0. ❌ SALIR")
     print()
 
@@ -45,11 +46,11 @@ def get_user_choice():
     """Obtener selección del usuario."""
     while True:
         try:
-            choice = input("Tu opción (0-12): ").strip()
-            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']:
+            choice = input("Tu opción (0-13): ").strip()
+            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']:
                 return choice
             else:
-                print("❌ Opción inválida. Selecciona 0-11\n")
+                print("❌ Opción inválida. Selecciona 0-13\n")
         except KeyboardInterrupt:
             print("\n\n👋 ¡Hasta luego!")
             sys.exit(0)
@@ -1557,6 +1558,64 @@ def validate_run():
     
     return True
 
+def show_maturity_summary():
+    """Mostrar resumen del Modelo de Madurez en Seguridad de AWS en consola."""
+    run_dir = select_run()
+    if not run_dir:
+        print("\n❌ No se seleccionó ningún run")
+        return False
+    index_file = run_dir / "index" / "index.json"
+    if not index_file.exists():
+        print(f"\n❌ No se encontró índice en {run_dir.name}. Ejecuta primero ANALIZAR (3).")
+        return False
+    evidence_file = run_dir / "outputs" / "evidence" / "evidence_pack.json"
+    security_maturity = None
+    if evidence_file.exists():
+        try:
+            with open(evidence_file, "r", encoding="utf-8") as f:
+                pack = json.load(f)
+            security_maturity = pack.get("security_maturity")
+        except Exception:
+            pass
+    if not security_maturity or not security_maturity.get("results"):
+        try:
+            with open(index_file, "r", encoding="utf-8") as f:
+                index = json.load(f)
+            from evidence.security_maturity import evaluate as evaluate_maturity
+            security_maturity = evaluate_maturity(index, run_dir=run_dir)
+        except Exception as e:
+            print(f"\n❌ Error evaluando modelo de madurez: {e}")
+            return False
+    print("\n" + "="*70)
+    print("  Modelo de Madurez en Seguridad de AWS (resumen)")
+    print("  Fuente: https://maturitymodel.security.aws.dev/es/")
+    print("="*70 + "\n")
+    phases = security_maturity.get("phases", [])
+    summary = security_maturity.get("summary", {})
+    for phase in phases:
+        pid = phase["id"]
+        name = phase["name"]
+        s = summary.get(pid, {})
+        met = s.get("met", 0)
+        not_met = s.get("not_met", 0)
+        partial = s.get("partial", 0)
+        ne = s.get("not_evaluable", 0)
+        total = s.get("total", 0)
+        print(f"  {name}")
+        print(f"    Cumple: {met}  |  No cumple: {not_met}  |  Parcial: {partial}  |  No evaluable: {ne}  (total: {total})")
+        print()
+    web_path = run_dir / "outputs" / "web" / "index.html"
+    if web_path.exists():
+        print("  Ver reporte completo (todas las capacidades y detalles):")
+        print(f"    {web_path}")
+        print("  Abre el archivo y usa la pestaña «Modelo de Madurez».")
+    else:
+        print("  Para generar el reporte web con el detalle completo, ejecuta:")
+        print(f"    make evidence RUN_DIR={run_dir}")
+        print(f"    make reports RUN_DIR={run_dir}")
+    print("="*70 + "\n")
+    return True
+
 def main():
     """Función principal."""
     print_header()
@@ -1604,6 +1663,9 @@ def main():
         
         elif choice == '12':
             run_command("make clean", "Limpieza de archivos temporales", None)
+        
+        elif choice == '13':
+            show_maturity_summary()
         
         # Pausa antes de volver al menú
         if choice != '0':

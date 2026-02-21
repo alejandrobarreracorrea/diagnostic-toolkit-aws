@@ -1,7 +1,7 @@
 {
   "metadata": {
     "run_dir": "fixtures",
-    "generated_at": "2026-01-06T20:34:31.408946",
+    "generated_at": "2026-02-21T14:55:27.401269",
     "account_id": "123456789012"
   },
   "pillars": {
@@ -9,28 +9,365 @@
       "evidence": [
         {
           "type": "service_missing",
-          "service": "CloudWatch",
+          "service": "CloudWatch Alarms",
           "status": "not_detected",
-          "description": "CloudWatch no est\u00e1 en uso o no tiene recursos configurados",
-          "gap": "Falta de monitoreo y observabilidad"
+          "description": "CloudWatch Alarms no está en uso o no tiene alarmas configuradas",
+          "gap": "Falta de alertas y monitoreo proactivo"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudWatch Dashboards",
+          "status": "not_detected",
+          "description": "CloudWatch Dashboards no está en uso o no tiene dashboards configurados",
+          "gap": "Falta de visualización centralizada de métricas"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudWatch Logs",
+          "status": "not_detected",
+          "description": "CloudWatch Logs no está en uso o no tiene log groups configurados",
+          "gap": "Falta de centralización y análisis de logs"
         },
         {
           "type": "service_missing",
           "service": "Systems Manager",
           "status": "not_detected",
-          "description": "Systems Manager no est\u00e1 en uso o no tiene recursos configurados",
-          "gap": "Falta de gesti\u00f3n centralizada de instancias"
+          "description": "Systems Manager no está en uso o no tiene instancias gestionadas",
+          "gap": "Falta de gestión centralizada de instancias"
         },
         {
           "type": "service_missing",
           "service": "CloudFormation",
           "status": "not_detected",
-          "description": "CloudFormation no est\u00e1 en uso o no tiene stacks activos",
+          "description": "CloudFormation no está en uso o no tiene stacks activos",
           "gap": "Posible falta de Infrastructure as Code"
+        },
+        {
+          "type": "service_missing",
+          "service": "SNS",
+          "status": "not_detected",
+          "description": "SNS no está en uso o no tiene topics/subscriptions configurados",
+          "gap": "Falta de notificaciones automatizadas para alarmas y eventos"
+        },
+        {
+          "type": "service_missing",
+          "service": "EventBridge",
+          "status": "not_detected",
+          "description": "EventBridge no está en uso o no tiene rules/event buses configurados",
+          "gap": "Falta de automatización de respuestas a eventos"
         }
       ],
-      "questions": [],
-      "summary": "0 servicios operacionales detectados"
+      "questions": [
+        "¿Por qué no se está usando Systems Manager para gestionar instancias EC2?",
+        "¿Por qué no se está usando CloudFormation para gestionar infraestructura como código?",
+        "¿Por qué no se está usando SNS para notificaciones automatizadas?",
+        "¿Por qué no se está usando EventBridge para automatizar respuestas a eventos?"
+      ],
+      "summary": "0 servicios operacionales detectados",
+      "well_architected_questions": [
+        {
+          "id": "OPS1",
+          "question": "¿Cómo determinas cuáles son tus prioridades?",
+          "best_practices": [
+            {
+              "practice": "Definir resultados de negocio y métricas de éxito",
+              "services": []
+            },
+            {
+              "practice": "Priorizar trabajo basado en valor de negocio y riesgo",
+              "services": []
+            },
+            {
+              "practice": "Revisar prioridades regularmente",
+              "services": []
+            }
+          ],
+          "related_services": [],
+          "compliance": {
+            "status": "not_applicable",
+            "message": "Pregunta organizacional, no aplica a servicios de AWS",
+            "detected_services": [],
+            "missing_services": []
+          },
+          "description": "Pregunta organizacional, no tiene servicios específicos de AWS",
+          "related_evidences": []
+        },
+        {
+          "id": "OPS2",
+          "question": "¿Cómo estructuras tu organización para apoyar tus resultados de negocio?",
+          "best_practices": [
+            {
+              "practice": "Alinear la propiedad del equipo con las cargas de trabajo",
+              "services": []
+            },
+            {
+              "practice": "Usar equipos pequeños y autónomos",
+              "services": []
+            },
+            {
+              "practice": "Definir responsabilidades claras y rutas de escalación",
+              "services": []
+            }
+          ],
+          "related_services": [],
+          "compliance": {
+            "status": "not_applicable",
+            "message": "Pregunta organizacional, no aplica a servicios de AWS",
+            "detected_services": [],
+            "missing_services": []
+          },
+          "description": "Pregunta organizacional, no tiene servicios específicos de AWS",
+          "related_evidences": []
+        },
+        {
+          "id": "OPS3",
+          "question": "¿Cómo tu cultura organizacional apoya tus resultados de negocio?",
+          "best_practices": [
+            {
+              "practice": "Promover mejora continua y aprendizaje",
+              "services": []
+            },
+            {
+              "practice": "Usar postmortems sin culpa",
+              "services": []
+            },
+            {
+              "practice": "Automatizar operaciones donde sea posible",
+              "services": [
+                "CloudFormation",
+                "Systems Manager",
+                "Lambda",
+                "EventBridge"
+              ]
+            }
+          ],
+          "related_services": [],
+          "compliance": {
+            "status": "not_applicable",
+            "message": "Pregunta organizacional, no aplica a servicios de AWS",
+            "detected_services": [],
+            "missing_services": []
+          },
+          "description": "Pregunta organizacional, no tiene servicios específicos de AWS",
+          "related_evidences": []
+        },
+        {
+          "id": "OPS4",
+          "question": "¿Cómo monitoreas tu carga de trabajo para asegurar que opera como se espera?",
+          "best_practices": [
+            {
+              "practice": "Recopilar métricas, logs y trazas",
+              "services": [
+                "CloudWatch",
+                "CloudWatch Logs",
+                "X-Ray"
+              ]
+            },
+            {
+              "practice": "Definir SLIs y SLOs",
+              "services": [
+                "CloudWatch",
+                "CloudWatch Alarms"
+              ]
+            },
+            {
+              "practice": "Usar dashboards y alarmas",
+              "services": [
+                "CloudWatch Dashboards",
+                "CloudWatch Alarms"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch",
+            "CloudWatch Logs",
+            "CloudWatch Alarms",
+            "CloudWatch Dashboards"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudWatch",
+              "CloudWatch Logs",
+              "CloudWatch Alarms",
+              "CloudWatch Dashboards"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Monitoreo de cargas de trabajo",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Alarms",
+              "status": "not_detected",
+              "description": "CloudWatch Alarms no está en uso o no tiene alarmas configuradas",
+              "gap": "Falta de alertas y monitoreo proactivo"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Dashboards",
+              "status": "not_detected",
+              "description": "CloudWatch Dashboards no está en uso o no tiene dashboards configurados",
+              "gap": "Falta de visualización centralizada de métricas"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Logs",
+              "status": "not_detected",
+              "description": "CloudWatch Logs no está en uso o no tiene log groups configurados",
+              "gap": "Falta de centralización y análisis de logs"
+            }
+          ]
+        },
+        {
+          "id": "OPS5",
+          "question": "¿Cómo respondes a eventos operacionales no planificados?",
+          "best_practices": [
+            {
+              "practice": "Crear y mantener runbooks",
+              "services": [
+                "Systems Manager Documents"
+              ]
+            },
+            {
+              "practice": "Automatizar respuesta a incidentes",
+              "services": [
+                "EventBridge",
+                "Lambda",
+                "Systems Manager",
+                "CloudWatch Alarms"
+              ]
+            },
+            {
+              "practice": "Practicar simulaciones de incidentes",
+              "services": [
+                "Systems Manager",
+                "CloudFormation"
+              ]
+            }
+          ],
+          "related_services": [
+            "Systems Manager",
+            "CloudWatch Alarms",
+            "SNS",
+            "EventBridge"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Systems Manager",
+              "CloudWatch Alarms",
+              "SNS",
+              "EventBridge"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Respuesta a eventos operacionales",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Alarms",
+              "status": "not_detected",
+              "description": "CloudWatch Alarms no está en uso o no tiene alarmas configuradas",
+              "gap": "Falta de alertas y monitoreo proactivo"
+            },
+            {
+              "type": "service_missing",
+              "service": "Systems Manager",
+              "status": "not_detected",
+              "description": "Systems Manager no está en uso o no tiene instancias gestionadas",
+              "gap": "Falta de gestión centralizada de instancias"
+            },
+            {
+              "type": "service_missing",
+              "service": "SNS",
+              "status": "not_detected",
+              "description": "SNS no está en uso o no tiene topics/subscriptions configurados",
+              "gap": "Falta de notificaciones automatizadas para alarmas y eventos"
+            },
+            {
+              "type": "service_missing",
+              "service": "EventBridge",
+              "status": "not_detected",
+              "description": "EventBridge no está en uso o no tiene rules/event buses configurados",
+              "gap": "Falta de automatización de respuestas a eventos"
+            }
+          ]
+        },
+        {
+          "id": "OPS6",
+          "question": "¿Cómo se gestiona la escalación al responder a eventos operacionales no planificados?",
+          "best_practices": [
+            {
+              "practice": "Definir políticas de escalación",
+              "services": [
+                "CloudWatch Alarms",
+                "EventBridge"
+              ]
+            },
+            {
+              "practice": "Usar notificaciones automatizadas",
+              "services": [
+                "SNS",
+                "EventBridge",
+                "CloudWatch Alarms"
+              ]
+            },
+            {
+              "practice": "Asegurar cobertura 24/7 donde se requiera",
+              "services": [
+                "SNS",
+                "EventBridge",
+                "CloudWatch Alarms"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch Alarms",
+            "SNS",
+            "EventBridge"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudWatch Alarms",
+              "SNS",
+              "EventBridge"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Gestión de escalación",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Alarms",
+              "status": "not_detected",
+              "description": "CloudWatch Alarms no está en uso o no tiene alarmas configuradas",
+              "gap": "Falta de alertas y monitoreo proactivo"
+            },
+            {
+              "type": "service_missing",
+              "service": "SNS",
+              "status": "not_detected",
+              "description": "SNS no está en uso o no tiene topics/subscriptions configurados",
+              "gap": "Falta de notificaciones automatizadas para alarmas y eventos"
+            },
+            {
+              "type": "service_missing",
+              "service": "EventBridge",
+              "status": "not_detected",
+              "description": "EventBridge no está en uso o no tiene rules/event buses configurados",
+              "gap": "Falta de automatización de respuestas a eventos"
+            }
+          ]
+        }
+      ]
     },
     "Security": {
       "evidence": [
@@ -38,60 +375,839 @@
           "type": "service_missing",
           "service": "Security Hub",
           "status": "not_detected",
-          "description": "AWS Security Hub no est\u00e1 habilitado",
+          "description": "AWS Security Hub no está habilitado",
           "gap": "Falta de visibilidad centralizada del estado de seguridad"
         },
         {
           "type": "service_missing",
           "service": "AWS Config",
           "status": "not_detected",
-          "description": "AWS Config no est\u00e1 habilitado",
-          "gap": "Falta de auditor\u00eda de cambios de configuraci\u00f3n"
+          "description": "AWS Config no está habilitado",
+          "gap": "Falta de auditoría de cambios de configuración"
         },
         {
           "type": "service_missing",
           "service": "CloudTrail",
           "status": "not_detected",
-          "description": "AWS CloudTrail no est\u00e1 habilitado",
-          "gap": "CR\u00cdTICO: Falta de auditor\u00eda de actividad de API"
+          "description": "AWS CloudTrail no está habilitado",
+          "gap": "CRÍTICO: Falta de auditoría de actividad de API"
         },
         {
           "type": "service_present",
           "service": "IAM",
           "status": "detected",
-          "description": "IAM est\u00e1 accesible"
+          "description": "IAM está accesible"
+        },
+        {
+          "type": "service_missing",
+          "service": "Secrets Manager",
+          "status": "not_detected",
+          "description": "AWS Secrets Manager no está en uso o no tiene secrets",
+          "gap": "Falta de gestión centralizada de credenciales"
+        },
+        {
+          "type": "service_missing",
+          "service": "KMS",
+          "status": "not_detected",
+          "description": "AWS KMS no está en uso o no tiene keys",
+          "gap": "Falta de gestión de claves de cifrado"
+        },
+        {
+          "type": "service_missing",
+          "service": "RDS",
+          "status": "not_detected",
+          "description": "RDS no está en uso o no tiene recursos activos",
+          "gap": "Falta de bases de datos gestionadas"
+        },
+        {
+          "type": "service_missing",
+          "service": "EBS",
+          "status": "not_detected",
+          "description": "EBS no está en uso o no tiene volumes",
+          "gap": "Falta de almacenamiento persistente para instancias EC2"
+        },
+        {
+          "type": "service_missing",
+          "service": "S3",
+          "status": "not_detected",
+          "description": "S3 no está en uso o no tiene buckets",
+          "gap": "Falta de almacenamiento de objetos"
+        },
+        {
+          "type": "service_missing",
+          "service": "ACM",
+          "status": "not_detected",
+          "description": "ACM no está en uso o no tiene certificados",
+          "gap": "Falta de gestión de certificados SSL/TLS"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudFront",
+          "status": "not_detected",
+          "description": "CloudFront no está en uso o no tiene distribuciones",
+          "gap": "Falta de CDN y protección de datos en tránsito"
+        },
+        {
+          "type": "service_missing",
+          "service": "API Gateway",
+          "status": "not_detected",
+          "description": "API Gateway no está en uso o no tiene APIs",
+          "gap": "Falta de gestión de APIs y protección de datos en tránsito"
+        },
+        {
+          "type": "service_missing",
+          "service": "ELB",
+          "status": "not_detected",
+          "description": "ELB no está en uso o no tiene load balancers",
+          "gap": "Falta de balanceo de carga y protección de datos en tránsito"
         },
         {
           "type": "service_missing",
           "service": "GuardDuty",
           "status": "not_detected",
-          "description": "Amazon GuardDuty no est\u00e1 habilitado",
-          "gap": "Falta de detecci\u00f3n de amenazas"
+          "description": "Amazon GuardDuty no está habilitado",
+          "gap": "Falta de detección de amenazas"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudWatch Logs",
+          "status": "not_detected",
+          "description": "CloudWatch Logs no está en uso o no tiene log groups",
+          "gap": "Falta de centralización de logs de seguridad"
         },
         {
           "type": "review_required",
           "category": "public_resources",
-          "description": "Revisar manualmente recursos con IPs p\u00fablicas o acceso p\u00fablico",
+          "description": "Revisar manualmente recursos con IPs públicas o acceso público",
           "suggested_review": [
-            "EC2 instances con IPs p\u00fablicas",
+            "EC2 instances con IPs públicas",
             "RDS instances con publicly accessible",
-            "S3 buckets con pol\u00edticas p\u00fablicas",
-            "Load Balancers p\u00fablicos"
-          ]
+            "S3 buckets con políticas públicas",
+            "Load Balancers públicos"
+          ],
+          "elastic_ips_count": 0,
+          "elastic_ips": []
+        },
+        {
+          "type": "service_missing",
+          "service": "Systems Manager",
+          "status": "not_detected",
+          "description": "Systems Manager no está en uso o no tiene instancias gestionadas",
+          "gap": "Falta de gestión centralizada y hardening de instancias EC2"
+        },
+        {
+          "type": "service_missing",
+          "service": "EventBridge",
+          "status": "not_detected",
+          "description": "EventBridge no está en uso o no tiene rules/event buses configurados",
+          "gap": "Falta de automatización de respuestas a incidentes de seguridad"
         }
       ],
       "questions": [
-        "\u00bfPor qu\u00e9 no se est\u00e1 usando Security Hub?",
-        "\u00bfQu\u00e9 herramienta alternativa se usa para monitoreo de seguridad?",
-        "\u00bfC\u00f3mo se auditan los cambios de configuraci\u00f3n sin Config?",
-        "\u00bfPor qu\u00e9 no se est\u00e1 usando CloudTrail? (CR\u00cdTICO)",
-        "\u00bfSe est\u00e1 usando MFA para usuarios con privilegios?",
-        "\u00bfSe revisan regularmente las pol\u00edticas IAM?",
-        "\u00bfSe usan roles en lugar de usuarios para aplicaciones?",
-        "\u00bfQu\u00e9 recursos tienen acceso p\u00fablico y por qu\u00e9?",
-        "\u00bfSe est\u00e1n usando Security Groups y NACLs correctamente?"
+        "¿Por qué no se está usando Security Hub?",
+        "¿Qué herramienta alternativa se usa para monitoreo de seguridad?",
+        "¿Cómo se auditan los cambios de configuración sin Config?",
+        "¿Por qué no se está usando CloudTrail? (CRÍTICO)",
+        "¿Se está usando MFA para usuarios con privilegios?",
+        "¿Se revisan regularmente las políticas IAM?",
+        "¿Se usan roles en lugar de usuarios para aplicaciones?",
+        "¿Cómo se están gestionando las credenciales sin Secrets Manager?",
+        "¿Cómo se está gestionando el cifrado sin KMS?",
+        "¿Cómo se están gestionando los certificados SSL/TLS sin ACM?",
+        "¿Se está usando algún CDN alternativo?",
+        "¿Cómo se están gestionando las APIs sin API Gateway?",
+        "¿Cómo se está gestionando el balanceo de carga sin ELB?",
+        "¿Cómo se están centralizando los logs de seguridad sin CloudWatch Logs?",
+        "¿Qué recursos tienen acceso público y por qué?",
+        "¿Se están usando Security Groups y NACLs correctamente?",
+        "¿Por qué no se está usando Systems Manager para gestionar y proteger instancias EC2?",
+        "¿Por qué no se está usando EventBridge para automatizar respuestas a incidentes de seguridad?"
       ],
-      "summary": "1 servicios de seguridad detectados"
+      "summary": "1 servicios de seguridad detectados",
+      "well_architected_questions": [
+        {
+          "id": "SEC1",
+          "question": "¿Cómo gestionas credenciales y autenticación?",
+          "best_practices": [
+            {
+              "practice": "Usar roles IAM en lugar de credenciales de largo plazo",
+              "services": [
+                "IAM Roles"
+              ]
+            },
+            {
+              "practice": "Habilitar MFA",
+              "services": [
+                "IAM"
+              ]
+            },
+            {
+              "practice": "Rotar credenciales automáticamente",
+              "services": [
+                "Secrets Manager",
+                "IAM"
+              ]
+            }
+          ],
+          "related_services": [
+            "IAM",
+            "Secrets Manager",
+            "KMS"
+          ],
+          "compliance": {
+            "status": "partially_compliant",
+            "message": "Parcialmente cumplido: 1/3 servicios detectados",
+            "detected_services": [
+              "IAM"
+            ],
+            "missing_services": [
+              "Secrets Manager",
+              "KMS"
+            ],
+            "compliance_percentage": 33.33333333333333
+          },
+          "description": "Gestión de credenciales y autenticación",
+          "related_evidences": [
+            {
+              "type": "service_present",
+              "service": "IAM",
+              "status": "detected",
+              "description": "IAM está accesible"
+            },
+            {
+              "type": "service_missing",
+              "service": "Secrets Manager",
+              "status": "not_detected",
+              "description": "AWS Secrets Manager no está en uso o no tiene secrets",
+              "gap": "Falta de gestión centralizada de credenciales"
+            },
+            {
+              "type": "service_missing",
+              "service": "KMS",
+              "status": "not_detected",
+              "description": "AWS KMS no está en uso o no tiene keys",
+              "gap": "Falta de gestión de claves de cifrado"
+            }
+          ]
+        },
+        {
+          "id": "SEC2",
+          "question": "¿Cómo gestionas identidades para personas y máquinas?",
+          "best_practices": [
+            {
+              "practice": "Centralizar gestión de identidades",
+              "services": [
+                "IAM",
+                "SSO",
+                "Cognito"
+              ]
+            },
+            {
+              "practice": "Usar acceso federado",
+              "services": [
+                "IAM Identity Center (SSO)",
+                "Cognito"
+              ]
+            },
+            {
+              "practice": "Separar identidades humanas y de máquinas",
+              "services": [
+                "IAM"
+              ]
+            }
+          ],
+          "related_services": [
+            "IAM",
+            "Cognito",
+            "SSO"
+          ],
+          "compliance": {
+            "status": "partially_compliant",
+            "message": "Parcialmente cumplido: 1/3 servicios detectados",
+            "detected_services": [
+              "IAM"
+            ],
+            "missing_services": [
+              "Cognito",
+              "SSO"
+            ],
+            "compliance_percentage": 33.33333333333333
+          },
+          "description": "Gestión de identidades",
+          "related_evidences": [
+            {
+              "type": "service_present",
+              "service": "IAM",
+              "status": "detected",
+              "description": "IAM está accesible"
+            }
+          ]
+        },
+        {
+          "id": "SEC3",
+          "question": "¿Cómo gestionas el acceso de menor privilegio?",
+          "best_practices": [
+            {
+              "practice": "Otorgar permisos basados en función de trabajo",
+              "services": [
+                "IAM"
+              ]
+            },
+            {
+              "practice": "Revisar permisos regularmente",
+              "services": [
+                "IAM Access Analyzer",
+                "IAM"
+              ]
+            },
+            {
+              "practice": "Usar condiciones de políticas",
+              "services": [
+                "IAM"
+              ]
+            }
+          ],
+          "related_services": [
+            "IAM"
+          ],
+          "compliance": {
+            "status": "compliant",
+            "message": "Completamente cumplido: 1/1 servicios detectados",
+            "detected_services": [
+              "IAM"
+            ],
+            "missing_services": [],
+            "compliance_percentage": 100.0
+          },
+          "description": "Gestión de acceso de menor privilegio",
+          "related_evidences": [
+            {
+              "type": "service_present",
+              "service": "IAM",
+              "status": "detected",
+              "description": "IAM está accesible"
+            }
+          ]
+        },
+        {
+          "id": "SEC4",
+          "question": "¿Cómo detectas e investigas eventos de seguridad?",
+          "best_practices": [
+            {
+              "practice": "Habilitar CloudTrail",
+              "services": [
+                "CloudTrail"
+              ]
+            },
+            {
+              "practice": "Usar GuardDuty y Security Hub",
+              "services": [
+                "GuardDuty",
+                "Security Hub"
+              ]
+            },
+            {
+              "practice": "Centralizar logs de seguridad",
+              "services": [
+                "CloudWatch Logs",
+                "S3"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudTrail",
+            "GuardDuty",
+            "Security Hub",
+            "CloudWatch Logs"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudTrail",
+              "GuardDuty",
+              "Security Hub",
+              "CloudWatch Logs"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Detección e investigación de eventos de seguridad",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Security Hub",
+              "status": "not_detected",
+              "description": "AWS Security Hub no está habilitado",
+              "gap": "Falta de visibilidad centralizada del estado de seguridad"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudTrail",
+              "status": "not_detected",
+              "description": "AWS CloudTrail no está habilitado",
+              "gap": "CRÍTICO: Falta de auditoría de actividad de API"
+            },
+            {
+              "type": "service_missing",
+              "service": "GuardDuty",
+              "status": "not_detected",
+              "description": "Amazon GuardDuty no está habilitado",
+              "gap": "Falta de detección de amenazas"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Logs",
+              "status": "not_detected",
+              "description": "CloudWatch Logs no está en uso o no tiene log groups",
+              "gap": "Falta de centralización de logs de seguridad"
+            }
+          ]
+        },
+        {
+          "id": "SEC5",
+          "question": "¿Cómo proteges tus recursos de red?",
+          "best_practices": [
+            {
+              "practice": "Usar segmentación VPC",
+              "services": [
+                "VPC"
+              ]
+            },
+            {
+              "practice": "Aplicar security groups y NACLs",
+              "services": [
+                "EC2 Security Groups",
+                "VPC NACLs"
+              ]
+            },
+            {
+              "practice": "Limitar exposición pública",
+              "services": [
+                "Security Groups",
+                "NACLs",
+                "VPC"
+              ]
+            }
+          ],
+          "related_services": [
+            "EC2",
+            "VPC",
+            "Security Groups",
+            "NACLs"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "EC2",
+              "VPC",
+              "Security Groups",
+              "NACLs"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Protección de recursos de red",
+          "related_evidences": [
+            {
+              "type": "review_required",
+              "category": "public_resources",
+              "description": "Revisar manualmente recursos con IPs públicas o acceso público",
+              "suggested_review": [
+                "EC2 instances con IPs públicas",
+                "RDS instances con publicly accessible",
+                "S3 buckets con políticas públicas",
+                "Load Balancers públicos"
+              ],
+              "elastic_ips_count": 0,
+              "elastic_ips": []
+            }
+          ]
+        },
+        {
+          "id": "SEC6",
+          "question": "¿Cómo proteges tus recursos de cómputo?",
+          "best_practices": [
+            {
+              "practice": "Aplicar parches regularmente",
+              "services": [
+                "Systems Manager Patch Manager"
+              ]
+            },
+            {
+              "practice": "Usar AMIs endurecidas",
+              "services": [
+                "EC2",
+                "Systems Manager"
+              ]
+            },
+            {
+              "practice": "Monitorear comportamiento en tiempo de ejecución",
+              "services": [
+                "GuardDuty",
+                "Security Hub",
+                "Inspector"
+              ]
+            }
+          ],
+          "related_services": [
+            "EC2",
+            "Systems Manager",
+            "Inspector",
+            "Security Hub"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "EC2",
+              "Systems Manager",
+              "Inspector",
+              "Security Hub"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Protección de recursos de cómputo",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Systems Manager",
+              "status": "not_detected",
+              "description": "Systems Manager no está en uso o no tiene instancias gestionadas",
+              "gap": "Falta de gestión centralizada y hardening de instancias EC2"
+            }
+          ]
+        },
+        {
+          "id": "SEC7",
+          "question": "¿Cómo clasificas tus datos?",
+          "best_practices": [
+            {
+              "practice": "Identificar datos sensibles",
+              "services": [
+                "Macie"
+              ]
+            },
+            {
+              "practice": "Etiquetar y catalogar datos",
+              "services": [
+                "S3",
+                "Data Catalog"
+              ]
+            },
+            {
+              "practice": "Aplicar políticas de clasificación de datos",
+              "services": [
+                "Macie",
+                "S3"
+              ]
+            }
+          ],
+          "related_services": [
+            "Macie",
+            "S3",
+            "Data Catalog"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Macie",
+              "S3",
+              "Data Catalog"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Clasificación de datos",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "S3",
+              "status": "not_detected",
+              "description": "S3 no está en uso o no tiene buckets",
+              "gap": "Falta de almacenamiento de objetos"
+            }
+          ]
+        },
+        {
+          "id": "SEC8",
+          "question": "¿Cómo proteges tus datos en reposo?",
+          "best_practices": [
+            {
+              "practice": "Cifrar datos usando AWS KMS",
+              "services": [
+                "KMS"
+              ]
+            },
+            {
+              "practice": "Restringir acceso a recursos cifrados",
+              "services": [
+                "KMS",
+                "IAM"
+              ]
+            },
+            {
+              "practice": "Rotar claves de cifrado",
+              "services": [
+                "KMS"
+              ]
+            }
+          ],
+          "related_services": [
+            "KMS",
+            "S3",
+            "EBS",
+            "RDS"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "KMS",
+              "S3",
+              "EBS",
+              "RDS"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Protección de datos en reposo",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "KMS",
+              "status": "not_detected",
+              "description": "AWS KMS no está en uso o no tiene keys",
+              "gap": "Falta de gestión de claves de cifrado"
+            },
+            {
+              "type": "service_missing",
+              "service": "RDS",
+              "status": "not_detected",
+              "description": "RDS no está en uso o no tiene recursos activos",
+              "gap": "Falta de bases de datos gestionadas"
+            },
+            {
+              "type": "service_missing",
+              "service": "EBS",
+              "status": "not_detected",
+              "description": "EBS no está en uso o no tiene volumes",
+              "gap": "Falta de almacenamiento persistente para instancias EC2"
+            },
+            {
+              "type": "service_missing",
+              "service": "S3",
+              "status": "not_detected",
+              "description": "S3 no está en uso o no tiene buckets",
+              "gap": "Falta de almacenamiento de objetos"
+            }
+          ]
+        },
+        {
+          "id": "SEC9",
+          "question": "¿Cómo proteges tus datos en tránsito?",
+          "best_practices": [
+            {
+              "practice": "Usar TLS para todas las comunicaciones",
+              "services": [
+                "ACM",
+                "CloudFront",
+                "API Gateway",
+                "ELB"
+              ]
+            },
+            {
+              "practice": "Aplicar suites de cifrado seguras",
+              "services": [
+                "ACM",
+                "CloudFront"
+              ]
+            },
+            {
+              "practice": "Deshabilitar protocolos inseguros",
+              "services": [
+                "Security Groups",
+                "NACLs"
+              ]
+            }
+          ],
+          "related_services": [
+            "ACM",
+            "CloudFront",
+            "API Gateway",
+            "ELB"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "ACM",
+              "CloudFront",
+              "API Gateway",
+              "ELB"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Protección de datos en tránsito",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "ACM",
+              "status": "not_detected",
+              "description": "ACM no está en uso o no tiene certificados",
+              "gap": "Falta de gestión de certificados SSL/TLS"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudFront",
+              "status": "not_detected",
+              "description": "CloudFront no está en uso o no tiene distribuciones",
+              "gap": "Falta de CDN y protección de datos en tránsito"
+            },
+            {
+              "type": "service_missing",
+              "service": "API Gateway",
+              "status": "not_detected",
+              "description": "API Gateway no está en uso o no tiene APIs",
+              "gap": "Falta de gestión de APIs y protección de datos en tránsito"
+            },
+            {
+              "type": "service_missing",
+              "service": "ELB",
+              "status": "not_detected",
+              "description": "ELB no está en uso o no tiene load balancers",
+              "gap": "Falta de balanceo de carga y protección de datos en tránsito"
+            }
+          ]
+        },
+        {
+          "id": "SEC10",
+          "question": "¿Cómo gestionas tus claves de cifrado?",
+          "best_practices": [
+            {
+              "practice": "Separar deberes de gestión de claves",
+              "services": [
+                "KMS"
+              ]
+            },
+            {
+              "practice": "Usar claves gestionadas por el cliente",
+              "services": [
+                "KMS"
+              ]
+            },
+            {
+              "practice": "Rotar claves periódicamente",
+              "services": [
+                "KMS"
+              ]
+            }
+          ],
+          "related_services": [
+            "KMS"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/1 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "KMS"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Gestión de claves de cifrado",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "KMS",
+              "status": "not_detected",
+              "description": "AWS KMS no está en uso o no tiene keys",
+              "gap": "Falta de gestión de claves de cifrado"
+            }
+          ]
+        },
+        {
+          "id": "SEC11",
+          "question": "¿Cómo te preparas y respondes a incidentes de seguridad?",
+          "best_practices": [
+            {
+              "practice": "Crear planes de respuesta a incidentes",
+              "services": [
+                "Security Hub",
+                "EventBridge"
+              ]
+            },
+            {
+              "practice": "Probar procedimientos de respuesta",
+              "services": [
+                "Security Hub",
+                "Lambda"
+              ]
+            },
+            {
+              "practice": "Automatizar acciones de contención",
+              "services": [
+                "Security Hub",
+                "EventBridge",
+                "Lambda"
+              ]
+            }
+          ],
+          "related_services": [
+            "Security Hub",
+            "GuardDuty",
+            "CloudWatch",
+            "EventBridge"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Security Hub",
+              "GuardDuty",
+              "CloudWatch",
+              "EventBridge"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Preparación y respuesta a incidentes",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Security Hub",
+              "status": "not_detected",
+              "description": "AWS Security Hub no está habilitado",
+              "gap": "Falta de visibilidad centralizada del estado de seguridad"
+            },
+            {
+              "type": "service_missing",
+              "service": "GuardDuty",
+              "status": "not_detected",
+              "description": "Amazon GuardDuty no está habilitado",
+              "gap": "Falta de detección de amenazas"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Logs",
+              "status": "not_detected",
+              "description": "CloudWatch Logs no está en uso o no tiene log groups",
+              "gap": "Falta de centralización de logs de seguridad"
+            },
+            {
+              "type": "service_missing",
+              "service": "EventBridge",
+              "status": "not_detected",
+              "description": "EventBridge no está en uso o no tiene rules/event buses configurados",
+              "gap": "Falta de automatización de respuestas a incidentes de seguridad"
+            }
+          ]
+        }
+      ]
     },
     "Reliability": {
       "evidence": [
@@ -100,39 +1216,834 @@
           "service": "Auto Scaling",
           "status": "not_detected",
           "description": "EC2 detectado pero Auto Scaling no",
-          "gap": "Falta de escalado autom\u00e1tico y recuperaci\u00f3n"
+          "gap": "Falta de escalado automático y recuperación"
         },
         {
           "type": "service_missing",
           "service": "RDS",
           "status": "not_detected",
-          "description": "RDS no est\u00e1 en uso o no tiene instancias activas",
+          "description": "RDS no está en uso o no tiene recursos activos",
           "gap": "Falta de bases de datos gestionadas"
         },
         {
           "type": "service_missing",
           "service": "Load Balancer",
           "status": "not_detected",
-          "description": "Load Balancers no est\u00e1n en uso o no hay balanceadores activos",
-          "gap": "Falta de distribuci\u00f3n de carga"
+          "description": "Load Balancers no están en uso o no hay balanceadores activos",
+          "gap": "Falta de distribución de carga"
         },
         {
           "type": "service_missing",
           "service": "Route 53",
           "status": "not_detected",
-          "description": "Route 53 no est\u00e1 en uso o no tiene hosted zones activas",
-          "gap": "Falta de gesti\u00f3n de DNS"
+          "description": "Route 53 no está en uso o no tiene hosted zones activas",
+          "gap": "Falta de gestión de DNS"
+        },
+        {
+          "type": "service_missing",
+          "service": "EBS",
+          "status": "not_detected",
+          "description": "EBS no está en uso o no tiene volumes",
+          "gap": "Falta de almacenamiento persistente para backups"
+        },
+        {
+          "type": "service_missing",
+          "service": "S3",
+          "status": "not_detected",
+          "description": "S3 no está en uso o no tiene buckets",
+          "gap": "Falta de almacenamiento de objetos para backups"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudWatch Logs",
+          "status": "not_detected",
+          "description": "CloudWatch Logs no está en uso o no tiene log groups",
+          "gap": "Falta de monitoreo de logs de aplicaciones"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudFormation",
+          "status": "not_detected",
+          "description": "CloudFormation no está en uso o no tiene stacks activos",
+          "gap": "Falta de gestión de cambios mediante Infrastructure as Code"
+        },
+        {
+          "type": "service_missing",
+          "service": "Multi-AZ",
+          "status": "not_detected",
+          "description": "Multi-AZ no está configurado en ningún recurso",
+          "gap": "Falta de alta disponibilidad mediante Multi-AZ"
         }
       ],
       "questions": [
-        "\u00bfPor qu\u00e9 no se est\u00e1 usando Auto Scaling para EC2?"
+        "¿Por qué no se está usando Auto Scaling para EC2?",
+        "¿Cómo se están monitoreando los logs de aplicaciones sin CloudWatch Logs?",
+        "¿Por qué no se está usando CloudFormation para gestionar cambios de infraestructura?",
+        "¿Se debería configurar Multi-AZ para recursos críticos?"
       ],
-      "summary": "0 servicios de confiabilidad detectados"
+      "summary": "0 servicios de confiabilidad detectados",
+      "well_architected_questions": [
+        {
+          "id": "REL1",
+          "question": "¿Cómo gestionas los límites de servicios de AWS?",
+          "best_practices": [
+            {
+              "practice": "Monitorear cuotas de servicios",
+              "services": [
+                "Service Quotas",
+                "CloudWatch"
+              ]
+            },
+            {
+              "practice": "Solicitar aumentos de límites proactivamente",
+              "services": [
+                "Service Quotas"
+              ]
+            },
+            {
+              "practice": "Diseñar arquitecturas dentro de los límites",
+              "services": []
+            }
+          ],
+          "related_services": [
+            "Service Quotas",
+            "CloudWatch"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/2 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Service Quotas",
+              "CloudWatch"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Gestión de límites de servicios",
+          "related_evidences": []
+        },
+        {
+          "id": "REL2",
+          "question": "¿Cómo gestionas el cambio?",
+          "best_practices": [
+            {
+              "practice": "Usar infraestructura como código",
+              "services": [
+                "CloudFormation",
+                "Terraform"
+              ]
+            },
+            {
+              "practice": "Implementar gestión de cambios",
+              "services": [
+                "CloudFormation",
+                "CodePipeline"
+              ]
+            },
+            {
+              "practice": "Automatizar despliegues",
+              "services": [
+                "CodePipeline",
+                "CodeDeploy",
+                "CloudFormation"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudFormation",
+            "Terraform",
+            "CodePipeline",
+            "CodeDeploy"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudFormation",
+              "Terraform",
+              "CodePipeline",
+              "CodeDeploy"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Gestión de cambios",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "CloudFormation",
+              "status": "not_detected",
+              "description": "CloudFormation no está en uso o no tiene stacks activos",
+              "gap": "Falta de gestión de cambios mediante Infrastructure as Code"
+            }
+          ]
+        },
+        {
+          "id": "REL3",
+          "question": "¿Cómo se adapta tu sistema a cambios en la demanda?",
+          "best_practices": [
+            {
+              "practice": "Usar auto escalado",
+              "services": [
+                "Auto Scaling"
+              ]
+            },
+            {
+              "practice": "Diseñar cargas de trabajo sin estado",
+              "services": [
+                "S3",
+                "DynamoDB",
+                "ElastiCache"
+              ]
+            },
+            {
+              "practice": "Implementar balanceo de carga",
+              "services": [
+                "ELB",
+                "ALB",
+                "NLB"
+              ]
+            }
+          ],
+          "related_services": [
+            "Auto Scaling",
+            "ELB",
+            "ECS",
+            "Lambda"
+          ],
+          "compliance": {
+            "status": "partially_compliant",
+            "message": "Parcialmente cumplido: 1/4 servicios detectados",
+            "detected_services": [
+              "ELB"
+            ],
+            "missing_services": [
+              "Auto Scaling",
+              "ECS",
+              "Lambda"
+            ],
+            "compliance_percentage": 25.0
+          },
+          "description": "Adaptación a cambios en demanda",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Auto Scaling",
+              "status": "not_detected",
+              "description": "EC2 detectado pero Auto Scaling no",
+              "gap": "Falta de escalado automático y recuperación"
+            }
+          ]
+        },
+        {
+          "id": "REL4",
+          "question": "¿Cómo monitoreas tus cargas de trabajo?",
+          "best_practices": [
+            {
+              "practice": "Usar métricas y alarmas de CloudWatch",
+              "services": [
+                "CloudWatch",
+                "CloudWatch Alarms"
+              ]
+            },
+            {
+              "practice": "Monitorear health checks",
+              "services": [
+                "Route 53 Health Checks",
+                "ELB Health Checks"
+              ]
+            },
+            {
+              "practice": "Rastrear KPIs de disponibilidad",
+              "services": [
+                "CloudWatch",
+                "Route 53"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch",
+            "CloudWatch Alarms",
+            "CloudWatch Logs"
+          ],
+          "compliance": {
+            "status": "partially_compliant",
+            "message": "Parcialmente cumplido: 1/3 servicios detectados",
+            "detected_services": [
+              "CloudWatch Alarms"
+            ],
+            "missing_services": [
+              "CloudWatch",
+              "CloudWatch Logs"
+            ],
+            "compliance_percentage": 33.33333333333333
+          },
+          "description": "Monitoreo de cargas de trabajo",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "CloudWatch Logs",
+              "status": "not_detected",
+              "description": "CloudWatch Logs no está en uso o no tiene log groups",
+              "gap": "Falta de monitoreo de logs de aplicaciones"
+            }
+          ]
+        },
+        {
+          "id": "REL5",
+          "question": "¿Cómo haces respaldo de tus datos?",
+          "best_practices": [
+            {
+              "practice": "Automatizar backups",
+              "services": [
+                "Backup",
+                "RDS Automated Backups",
+                "EBS Snapshots"
+              ]
+            },
+            {
+              "practice": "Definir políticas de retención",
+              "services": [
+                "Backup",
+                "S3 Lifecycle",
+                "EBS Snapshots"
+              ]
+            },
+            {
+              "practice": "Probar procedimientos de restauración",
+              "services": [
+                "Backup",
+                "RDS",
+                "EBS"
+              ]
+            }
+          ],
+          "related_services": [
+            "Backup",
+            "RDS",
+            "EBS",
+            "S3"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Backup",
+              "RDS",
+              "EBS",
+              "S3"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Respaldo de datos",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "RDS",
+              "status": "not_detected",
+              "description": "RDS no está en uso o no tiene recursos activos",
+              "gap": "Falta de bases de datos gestionadas"
+            },
+            {
+              "type": "service_missing",
+              "service": "EBS",
+              "status": "not_detected",
+              "description": "EBS no está en uso o no tiene volumes",
+              "gap": "Falta de almacenamiento persistente para backups"
+            },
+            {
+              "type": "service_missing",
+              "service": "S3",
+              "status": "not_detected",
+              "description": "S3 no está en uso o no tiene buckets",
+              "gap": "Falta de almacenamiento de objetos para backups"
+            }
+          ]
+        },
+        {
+          "id": "REL6",
+          "question": "¿Cómo pruebas la recuperación?",
+          "best_practices": [
+            {
+              "practice": "Realizar simulacros de recuperación ante desastres",
+              "services": [
+                "Backup",
+                "RDS",
+                "Multi-AZ"
+              ]
+            },
+            {
+              "practice": "Probar mecanismos de failover",
+              "services": [
+                "Route 53",
+                "RDS Multi-AZ",
+                "ELB"
+              ]
+            },
+            {
+              "practice": "Documentar resultados de recuperación",
+              "services": []
+            }
+          ],
+          "related_services": [
+            "Backup",
+            "RDS",
+            "Multi-AZ",
+            "Route 53"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Backup",
+              "RDS",
+              "Multi-AZ",
+              "Route 53"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Pruebas de recuperación",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "RDS",
+              "status": "not_detected",
+              "description": "RDS no está en uso o no tiene recursos activos",
+              "gap": "Falta de bases de datos gestionadas"
+            },
+            {
+              "type": "service_missing",
+              "service": "Route 53",
+              "status": "not_detected",
+              "description": "Route 53 no está en uso o no tiene hosted zones activas",
+              "gap": "Falta de gestión de DNS"
+            },
+            {
+              "type": "service_missing",
+              "service": "Multi-AZ",
+              "status": "not_detected",
+              "description": "Multi-AZ no está configurado en ningún recurso",
+              "gap": "Falta de alta disponibilidad mediante Multi-AZ"
+            }
+          ]
+        }
+      ]
     },
     "Performance Efficiency": {
-      "evidence": [],
-      "questions": [],
-      "summary": "0 servicios de performance detectados"
+      "evidence": [
+        {
+          "type": "service_missing",
+          "service": "EC2",
+          "status": "not_detected",
+          "description": "EC2 no está en uso o no tiene instancias",
+          "gap": "Falta de cómputo virtual"
+        },
+        {
+          "type": "service_missing",
+          "service": "Lambda",
+          "status": "not_detected",
+          "description": "Lambda no está en uso o no tiene funciones",
+          "gap": "Falta de cómputo serverless"
+        },
+        {
+          "type": "service_missing",
+          "service": "ECS",
+          "status": "not_detected",
+          "description": "ECS no está en uso o no tiene clusters/servicios",
+          "gap": "Falta de orquestación de contenedores"
+        },
+        {
+          "type": "service_missing",
+          "service": "Fargate",
+          "status": "not_detected",
+          "description": "ECS Fargate no está en uso",
+          "gap": "Falta de cómputo serverless para contenedores"
+        },
+        {
+          "type": "service_missing",
+          "service": "EBS",
+          "status": "not_detected",
+          "description": "EBS no está en uso o no tiene volumes",
+          "gap": "Falta de almacenamiento persistente"
+        },
+        {
+          "type": "service_missing",
+          "service": "S3",
+          "status": "not_detected",
+          "description": "S3 no está en uso o no tiene buckets",
+          "gap": "Falta de almacenamiento de objetos"
+        },
+        {
+          "type": "service_missing",
+          "service": "RDS",
+          "status": "not_detected",
+          "description": "RDS no está en uso o no tiene recursos activos",
+          "gap": "Falta de bases de datos gestionadas"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudWatch",
+          "status": "not_detected",
+          "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+          "gap": "Falta de monitoreo y benchmarking de rendimiento"
+        },
+        {
+          "type": "service_missing",
+          "service": "X-Ray",
+          "status": "not_detected",
+          "description": "X-Ray no está en uso o no tiene recursos configurados",
+          "gap": "Falta de rastreo distribuido y análisis de rendimiento"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudFormation",
+          "status": "not_detected",
+          "description": "CloudFormation no está en uso o no tiene stacks activos",
+          "gap": "Falta de evaluación de patrones de arquitectura mediante Infrastructure as Code"
+        }
+      ],
+      "questions": [
+        "¿Por qué no se está usando EC2 para cómputo?",
+        "¿Por qué no se está usando Lambda para cómputo serverless?",
+        "¿Por qué no se está usando ECS para orquestación de contenedores?",
+        "¿Se debería considerar Fargate para cargas de trabajo serverless?",
+        "¿Por qué no se está usando CloudWatch para monitorear y hacer benchmarking de rendimiento?",
+        "¿Por qué no se está usando X-Ray para rastrear y analizar el rendimiento de aplicaciones?",
+        "¿Por qué no se está usando CloudFormation para evaluar patrones de arquitectura?"
+      ],
+      "summary": "0 servicios de performance detectados",
+      "well_architected_questions": [
+        {
+          "id": "PERF1",
+          "question": "¿Cómo seleccionas la arquitectura de mejor rendimiento?",
+          "best_practices": [
+            {
+              "practice": "Evaluar múltiples patrones de arquitectura",
+              "services": [
+                "CloudFormation",
+                "Well-Architected Tool"
+              ]
+            },
+            {
+              "practice": "Hacer benchmarking de rendimiento",
+              "services": [
+                "CloudWatch",
+                "X-Ray"
+              ]
+            },
+            {
+              "practice": "Usar servicios gestionados",
+              "services": [
+                "RDS",
+                "ElastiCache",
+                "DynamoDB",
+                "Lambda"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch",
+            "X-Ray",
+            "CloudFormation"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudWatch",
+              "X-Ray",
+              "CloudFormation"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Selección de arquitectura",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "CloudWatch",
+              "status": "not_detected",
+              "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+              "gap": "Falta de monitoreo y benchmarking de rendimiento"
+            },
+            {
+              "type": "service_missing",
+              "service": "X-Ray",
+              "status": "not_detected",
+              "description": "X-Ray no está en uso o no tiene recursos configurados",
+              "gap": "Falta de rastreo distribuido y análisis de rendimiento"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudFormation",
+              "status": "not_detected",
+              "description": "CloudFormation no está en uso o no tiene stacks activos",
+              "gap": "Falta de evaluación de patrones de arquitectura mediante Infrastructure as Code"
+            }
+          ]
+        },
+        {
+          "id": "PERF2",
+          "question": "¿Cómo seleccionas tu solución de cómputo?",
+          "best_practices": [
+            {
+              "practice": "Hacer coincidir tipos de cómputo con necesidades de carga de trabajo",
+              "services": [
+                "EC2",
+                "Lambda",
+                "ECS"
+              ]
+            },
+            {
+              "practice": "Usar instancias de tamaño adecuado",
+              "services": [
+                "EC2",
+                "Compute Optimizer"
+              ]
+            },
+            {
+              "practice": "Adoptar serverless donde sea apropiado",
+              "services": [
+                "Lambda",
+                "ECS Fargate",
+                "API Gateway"
+              ]
+            }
+          ],
+          "related_services": [
+            "EC2",
+            "Lambda",
+            "ECS",
+            "Fargate"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "EC2",
+              "Lambda",
+              "ECS",
+              "Fargate"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Selección de solución de cómputo",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "EC2",
+              "status": "not_detected",
+              "description": "EC2 no está en uso o no tiene instancias",
+              "gap": "Falta de cómputo virtual"
+            },
+            {
+              "type": "service_missing",
+              "service": "Lambda",
+              "status": "not_detected",
+              "description": "Lambda no está en uso o no tiene funciones",
+              "gap": "Falta de cómputo serverless"
+            },
+            {
+              "type": "service_missing",
+              "service": "ECS",
+              "status": "not_detected",
+              "description": "ECS no está en uso o no tiene clusters/servicios",
+              "gap": "Falta de orquestación de contenedores"
+            },
+            {
+              "type": "service_missing",
+              "service": "Fargate",
+              "status": "not_detected",
+              "description": "ECS Fargate no está en uso",
+              "gap": "Falta de cómputo serverless para contenedores"
+            }
+          ]
+        },
+        {
+          "id": "PERF3",
+          "question": "¿Cómo seleccionas tu solución de almacenamiento?",
+          "best_practices": [
+            {
+              "practice": "Elegir almacenamiento basado en patrones de acceso",
+              "services": [
+                "S3",
+                "EBS",
+                "EFS"
+              ]
+            },
+            {
+              "practice": "Usar políticas de ciclo de vida",
+              "services": [
+                "S3 Lifecycle",
+                "EBS Snapshots"
+              ]
+            },
+            {
+              "practice": "Monitorear IOPS y throughput",
+              "services": [
+                "CloudWatch",
+                "EBS"
+              ]
+            }
+          ],
+          "related_services": [
+            "S3",
+            "EBS",
+            "EFS",
+            "Storage Gateway"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "S3",
+              "EBS",
+              "EFS",
+              "Storage Gateway"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Selección de solución de almacenamiento",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "EBS",
+              "status": "not_detected",
+              "description": "EBS no está en uso o no tiene volumes",
+              "gap": "Falta de almacenamiento persistente"
+            },
+            {
+              "type": "service_missing",
+              "service": "S3",
+              "status": "not_detected",
+              "description": "S3 no está en uso o no tiene buckets",
+              "gap": "Falta de almacenamiento de objetos"
+            }
+          ]
+        },
+        {
+          "id": "PERF4",
+          "question": "¿Cómo seleccionas tu solución de base de datos?",
+          "best_practices": [
+            {
+              "practice": "Elegir bases de datos basadas en modelo de datos",
+              "services": [
+                "RDS",
+                "DynamoDB",
+                "ElastiCache",
+                "Redshift"
+              ]
+            },
+            {
+              "practice": "Optimizar indexación",
+              "services": [
+                "RDS",
+                "DynamoDB"
+              ]
+            },
+            {
+              "practice": "Usar bases de datos gestionadas",
+              "services": [
+                "RDS",
+                "DynamoDB",
+                "ElastiCache"
+              ]
+            }
+          ],
+          "related_services": [
+            "RDS",
+            "DynamoDB",
+            "ElastiCache",
+            "Redshift"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/4 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "RDS",
+              "DynamoDB",
+              "ElastiCache",
+              "Redshift"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Selección de solución de base de datos",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "RDS",
+              "status": "not_detected",
+              "description": "RDS no está en uso o no tiene recursos activos",
+              "gap": "Falta de bases de datos gestionadas"
+            }
+          ]
+        },
+        {
+          "id": "PERF5",
+          "question": "¿Cómo monitoreas y mejoras el rendimiento?",
+          "best_practices": [
+            {
+              "practice": "Rastrear latencia y throughput",
+              "services": [
+                "CloudWatch",
+                "X-Ray"
+              ]
+            },
+            {
+              "practice": "Usar pruebas de rendimiento",
+              "services": [
+                "CloudWatch",
+                "X-Ray"
+              ]
+            },
+            {
+              "practice": "Ajustar cargas de trabajo continuamente",
+              "services": [
+                "CloudWatch",
+                "Compute Optimizer"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch",
+            "X-Ray",
+            "CodeGuru"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudWatch",
+              "X-Ray",
+              "CodeGuru"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Monitoreo y mejora de rendimiento",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "CloudWatch",
+              "status": "not_detected",
+              "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+              "gap": "Falta de monitoreo y benchmarking de rendimiento"
+            },
+            {
+              "type": "service_missing",
+              "service": "X-Ray",
+              "status": "not_detected",
+              "description": "X-Ray no está en uso o no tiene recursos configurados",
+              "gap": "Falta de rastreo distribuido y análisis de rendimiento"
+            }
+          ]
+        }
+      ]
     },
     "Cost Optimization": {
       "evidence": [
@@ -144,42 +2055,1139 @@
           "gap": "Limitada visibilidad de costos"
         },
         {
+          "type": "service_missing",
+          "service": "Trusted Advisor",
+          "status": "not_detected",
+          "description": "Trusted Advisor no está disponible o no se tienen datos recolectados",
+          "gap": "Falta de recomendaciones automatizadas de optimización (requiere plan de soporte Business o Enterprise)"
+        },
+        {
+          "type": "finding",
+          "category": "trusted_advisor_info",
+          "finding": "Trusted Advisor requiere un plan de soporte de AWS (Business o Enterprise) para acceder a recomendaciones completas",
+          "status": "info",
+          "details": "Las recomendaciones de Trusted Advisor ayudan a identificar oportunidades de optimización de costos, seguridad, rendimiento y confiabilidad. Accede a través de la consola de AWS o mediante la API de Support."
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudWatch",
+          "status": "not_detected",
+          "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+          "gap": "Falta de monitoreo de uso y gasto"
+        },
+        {
           "type": "review_required",
           "category": "reserved_instances",
           "description": "Revisar oportunidad de Reserved Instances o Savings Plans",
           "suggested_review": [
             "Analizar uso de instancias EC2",
             "Evaluar Reserved Instances vs Savings Plans",
-            "Revisar instancias que podr\u00edan usar tipos m\u00e1s econ\u00f3micos"
+            "Revisar instancias que podrían usar tipos más económicos"
           ]
         }
       ],
       "questions": [
-        "\u00bfSe est\u00e1n usando Reserved Instances o Savings Plans?",
-        "\u00bfSe han evaluado instancias que podr\u00edan usar tipos m\u00e1s econ\u00f3micos?"
+        "¿Se tiene un plan de soporte que incluya Trusted Advisor?",
+        "¿Se están revisando las recomendaciones de Trusted Advisor para identificar recursos inactivos?",
+        "¿Por qué no se está usando CloudWatch para monitorear costos y uso?",
+        "¿Se están usando Reserved Instances o Savings Plans?",
+        "¿Se han evaluado instancias que podrían usar tipos más económicos?"
       ],
-      "summary": "1 regiones activas, 0 servicios de costo detectados"
+      "summary": "1 regiones activas, 0 servicios de costo detectados",
+      "well_architected_questions": [
+        {
+          "id": "COST1",
+          "question": "¿Cómo consideras el costo al seleccionar servicios?",
+          "best_practices": [
+            {
+              "practice": "Comparar modelos de precios",
+              "services": [
+                "Cost Explorer",
+                "Pricing Calculator"
+              ]
+            },
+            {
+              "practice": "Usar servicios gestionados",
+              "services": [
+                "RDS",
+                "Lambda",
+                "ECS Fargate"
+              ]
+            },
+            {
+              "practice": "Evitar sobre-provisionamiento",
+              "services": [
+                "Compute Optimizer",
+                "CloudWatch"
+              ]
+            }
+          ],
+          "related_services": [
+            "Cost Explorer",
+            "Reserved Instances",
+            "Savings Plans"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Cost Explorer",
+              "Reserved Instances",
+              "Savings Plans"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Consideración de costos al seleccionar servicios",
+          "related_evidences": []
+        },
+        {
+          "id": "COST2",
+          "question": "¿Cómo monitoreas el uso y el gasto?",
+          "best_practices": [
+            {
+              "practice": "Usar Cost Explorer",
+              "services": [
+                "Cost Explorer"
+              ]
+            },
+            {
+              "practice": "Establecer presupuestos y alertas",
+              "services": [
+                "Budgets",
+                "CloudWatch"
+              ]
+            },
+            {
+              "practice": "Rastrear etiquetas de asignación de costos",
+              "services": [
+                "Cost Explorer",
+                "Cost Allocation Tags"
+              ]
+            }
+          ],
+          "related_services": [
+            "Cost Explorer",
+            "Budgets",
+            "CloudWatch"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Cost Explorer",
+              "Budgets",
+              "CloudWatch"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Monitoreo de uso y gasto",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Cost Explorer",
+              "status": "not_detected",
+              "description": "Cost Explorer no accesible",
+              "gap": "Limitada visibilidad de costos"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch",
+              "status": "not_detected",
+              "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+              "gap": "Falta de monitoreo de uso y gasto"
+            }
+          ]
+        },
+        {
+          "id": "COST3",
+          "question": "¿Cómo reduces costos innecesarios?",
+          "best_practices": [
+            {
+              "practice": "Identificar recursos inactivos",
+              "services": [
+                "Cost Explorer",
+                "Trusted Advisor",
+                "CloudWatch"
+              ]
+            },
+            {
+              "practice": "Desmantelar activos no utilizados",
+              "services": [
+                "CloudWatch",
+                "Trusted Advisor"
+              ]
+            },
+            {
+              "practice": "Usar automatización para apagar recursos",
+              "services": [
+                "Lambda",
+                "EventBridge",
+                "CloudWatch"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch",
+            "Trusted Advisor",
+            "Cost Explorer"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudWatch",
+              "Trusted Advisor",
+              "Cost Explorer"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Reducción de costos innecesarios",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Trusted Advisor",
+              "status": "not_detected",
+              "description": "Trusted Advisor no está disponible o no se tienen datos recolectados",
+              "gap": "Falta de recomendaciones automatizadas de optimización (requiere plan de soporte Business o Enterprise)"
+            },
+            {
+              "type": "finding",
+              "category": "trusted_advisor_info",
+              "finding": "Trusted Advisor requiere un plan de soporte de AWS (Business o Enterprise) para acceder a recomendaciones completas",
+              "status": "info",
+              "details": "Las recomendaciones de Trusted Advisor ayudan a identificar oportunidades de optimización de costos, seguridad, rendimiento y confiabilidad. Accede a través de la consola de AWS o mediante la API de Support."
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch",
+              "status": "not_detected",
+              "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+              "gap": "Falta de monitoreo de uso y gasto"
+            }
+          ]
+        },
+        {
+          "id": "COST4",
+          "question": "¿Cómo optimizas los modelos de precios?",
+          "best_practices": [
+            {
+              "practice": "Usar Savings Plans o Reserved Instances",
+              "services": [
+                "Reserved Instances",
+                "Savings Plans"
+              ]
+            },
+            {
+              "practice": "Adoptar Spot Instances",
+              "services": [
+                "EC2 Spot Instances"
+              ]
+            },
+            {
+              "practice": "Revisar compromisos regularmente",
+              "services": [
+                "Cost Explorer",
+                "Reserved Instances"
+              ]
+            }
+          ],
+          "related_services": [
+            "Reserved Instances",
+            "Savings Plans",
+            "Spot Instances"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "Reserved Instances",
+              "Savings Plans",
+              "Spot Instances"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Optimización de modelos de precios",
+          "related_evidences": []
+        }
+      ]
     },
     "Sustainability": {
       "evidence": [
         {
+          "type": "service_missing",
+          "service": "Cost Explorer",
+          "status": "not_detected",
+          "description": "Cost Explorer no accesible",
+          "gap": "Limitada visibilidad de métricas de sostenibilidad"
+        },
+        {
+          "type": "service_missing",
+          "service": "Trusted Advisor",
+          "status": "not_detected",
+          "description": "Trusted Advisor no está disponible o no se tienen datos recolectados",
+          "gap": "Falta de recomendaciones automatizadas de sostenibilidad (requiere plan de soporte Business o Enterprise)"
+        },
+        {
+          "type": "service_missing",
+          "service": "CloudWatch",
+          "status": "not_detected",
+          "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+          "gap": "Falta de medición de sostenibilidad"
+        },
+        {
           "type": "observation",
           "category": "regions",
           "description": "1 regiones en uso",
-          "suggestion": "Considerar usar regiones con energ\u00eda renovable cuando sea posible"
+          "suggestion": "Considerar usar regiones con energía renovable cuando sea posible"
         },
         {
           "type": "service_present",
           "service": "Lambda",
           "status": "detected",
-          "description": "Lambda (serverless) es m\u00e1s eficiente energ\u00e9ticamente"
+          "description": "Lambda (serverless) es más eficiente energéticamente"
         }
       ],
       "questions": [
-        "\u00bfSe han considerado regiones con energ\u00eda renovable?",
-        "\u00bfSe est\u00e1n usando servicios serverless cuando es posible?"
+        "¿Por qué no se está usando Cost Explorer para medir sostenibilidad?",
+        "¿Se tiene un plan de soporte que incluya Trusted Advisor para recomendaciones de sostenibilidad?",
+        "¿Por qué no se está usando CloudWatch para medir sostenibilidad?",
+        "¿Se han considerado regiones con energía renovable?",
+        "¿Se están usando servicios serverless cuando es posible?"
       ],
-      "summary": "1 servicios relevantes para sostenibilidad"
+      "summary": "1 servicios relevantes para sostenibilidad",
+      "well_architected_questions": [
+        {
+          "id": "SUS1",
+          "question": "¿Cómo mides la sostenibilidad de tu carga de trabajo?",
+          "best_practices": [
+            {
+              "practice": "Medir utilización de recursos",
+              "services": [
+                "CloudWatch",
+                "Cost Explorer"
+              ]
+            },
+            {
+              "practice": "Rastrear métricas de eficiencia energética",
+              "services": [
+                "CloudWatch",
+                "Cost Explorer"
+              ]
+            },
+            {
+              "practice": "Usar dashboards de sostenibilidad",
+              "services": [
+                "CloudWatch Dashboards"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch",
+            "Cost Explorer"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/2 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudWatch",
+              "Cost Explorer"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Medición de sostenibilidad",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Cost Explorer",
+              "status": "not_detected",
+              "description": "Cost Explorer no accesible",
+              "gap": "Limitada visibilidad de métricas de sostenibilidad"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch",
+              "status": "not_detected",
+              "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+              "gap": "Falta de medición de sostenibilidad"
+            }
+          ]
+        },
+        {
+          "id": "SUS2",
+          "question": "¿Cómo reduces el impacto ambiental de tu carga de trabajo?",
+          "best_practices": [
+            {
+              "practice": "Dimensionar recursos correctamente",
+              "services": [
+                "Compute Optimizer",
+                "CloudWatch"
+              ]
+            },
+            {
+              "practice": "Usar regiones eficientes",
+              "services": [
+                "Well-Architected Tool"
+              ]
+            },
+            {
+              "practice": "Minimizar capacidad inactiva",
+              "services": [
+                "Auto Scaling",
+                "Lambda",
+                "ECS Fargate"
+              ]
+            }
+          ],
+          "related_services": [
+            "Auto Scaling",
+            "Lambda",
+            "ECS Fargate"
+          ],
+          "compliance": {
+            "status": "partially_compliant",
+            "message": "Parcialmente cumplido: 1/3 servicios detectados",
+            "detected_services": [
+              "Lambda"
+            ],
+            "missing_services": [
+              "Auto Scaling",
+              "ECS Fargate"
+            ],
+            "compliance_percentage": 33.33333333333333
+          },
+          "description": "Reducción de impacto ambiental",
+          "related_evidences": [
+            {
+              "type": "service_present",
+              "service": "Lambda",
+              "status": "detected",
+              "description": "Lambda (serverless) es más eficiente energéticamente"
+            }
+          ]
+        },
+        {
+          "id": "SUS3",
+          "question": "¿Cómo mejoras continuamente la sostenibilidad?",
+          "best_practices": [
+            {
+              "practice": "Revisar métricas de sostenibilidad",
+              "services": [
+                "CloudWatch",
+                "Cost Explorer"
+              ]
+            },
+            {
+              "practice": "Optimizar arquitecturas regularmente",
+              "services": [
+                "Compute Optimizer",
+                "CloudWatch"
+              ]
+            },
+            {
+              "practice": "Adoptar servicios más nuevos y eficientes",
+              "services": [
+                "Lambda",
+                "ECS Fargate",
+                "Graviton Instances"
+              ]
+            }
+          ],
+          "related_services": [
+            "CloudWatch",
+            "Cost Explorer",
+            "Trusted Advisor"
+          ],
+          "compliance": {
+            "status": "not_compliant",
+            "message": "No cumplido: 0/3 servicios detectados",
+            "detected_services": [],
+            "missing_services": [
+              "CloudWatch",
+              "Cost Explorer",
+              "Trusted Advisor"
+            ],
+            "compliance_percentage": 0.0
+          },
+          "description": "Mejora continua de sostenibilidad",
+          "related_evidences": [
+            {
+              "type": "service_missing",
+              "service": "Cost Explorer",
+              "status": "not_detected",
+              "description": "Cost Explorer no accesible",
+              "gap": "Limitada visibilidad de métricas de sostenibilidad"
+            },
+            {
+              "type": "service_missing",
+              "service": "Trusted Advisor",
+              "status": "not_detected",
+              "description": "Trusted Advisor no está disponible o no se tienen datos recolectados",
+              "gap": "Falta de recomendaciones automatizadas de sostenibilidad (requiere plan de soporte Business o Enterprise)"
+            },
+            {
+              "type": "service_missing",
+              "service": "CloudWatch",
+              "status": "not_detected",
+              "description": "CloudWatch no está en uso o no tiene alarmas/dashboards configurados",
+              "gap": "Falta de medición de sostenibilidad"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "security_maturity": {
+    "source": "https://maturitymodel.security.aws.dev/es/",
+    "phases": [
+      {
+        "id": "quick_wins",
+        "name": "Fase 1: Quick Wins",
+        "order": 1
+      },
+      {
+        "id": "foundational",
+        "name": "Fase 2: Fundacional",
+        "order": 2
+      },
+      {
+        "id": "efficient",
+        "name": "Fase 3: Eficiente",
+        "order": 3
+      },
+      {
+        "id": "optimized",
+        "name": "Fase 4: Optimizado",
+        "order": 4
+      }
+    ],
+    "results": [
+      {
+        "phase": "quick_wins",
+        "category": "Gobierno de la seguridad",
+        "id": "assign-security-contacts",
+        "name": "Asignar los contactos de Seguridad",
+        "status": "not_evaluable",
+        "detail": "No se pudo verificar contactos de seguridad (revisión manual)."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Gobierno de la seguridad",
+        "id": "choose-regions",
+        "name": "Seleccione la(s) región(es)",
+        "status": "partial",
+        "detail": "Regiones en uso detectadas; revisar restricción de regiones en Organizations/SCP."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Aseguramiento de la seguridad",
+        "id": "security-hub",
+        "name": "Evalúa tu postura de seguridad (CSPM)",
+        "status": "not_met",
+        "detail": "Security Hub no detectado o no habilitado."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Gestión de identidades y accesos",
+        "id": "mfa",
+        "name": "Autenticación Multi-Factor",
+        "status": "not_evaluable",
+        "detail": "No se pudo evaluar MFA (revisión manual en IAM)."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Gestión de identidades y accesos",
+        "id": "root-protection",
+        "name": "Protección de la cuenta Root",
+        "status": "not_evaluable",
+        "detail": "Revisión manual de protección de cuenta root."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Gestión de identidades y accesos",
+        "id": "identity-federation",
+        "name": "Federación de Identidades",
+        "status": "not_met",
+        "detail": "Federación de identidades no detectada (IAM IdP o roles para IdP)."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Gestión de identidades y accesos",
+        "id": "iam-access-analyzer",
+        "name": "Limpieza de accesos no intencionales",
+        "status": "not_met",
+        "detail": "Access Analyzer no detectado."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Detección de amenazas",
+        "id": "guardduty",
+        "name": "Detección de amenazas comunes",
+        "status": "not_met",
+        "detail": "GuardDuty no detectado o sin detectores."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Detección de amenazas",
+        "id": "cloudtrail",
+        "name": "Auditoría de las llamadas a APIs",
+        "status": "not_met",
+        "detail": "CloudTrail no detectado o sin trails."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Detección de amenazas",
+        "id": "billing-alarm",
+        "name": "Alarma de Billing",
+        "status": "met",
+        "detail": "Alarmas de billing o Budgets detectados."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Protección de la infraestructura",
+        "id": "risky-open-ports-sg",
+        "name": "Limpieza de puertos riesgosos abiertos",
+        "status": "not_met",
+        "detail": "No se detectaron security groups o EC2."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Protección de Datos",
+        "id": "block-public-access",
+        "name": "Bloqueo del Acceso Público (BPA)",
+        "status": "partial",
+        "detail": "S3 o VPC detectados; verificar BPA y acceso público manualmente."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Protección de Datos",
+        "id": "macie-intentional-data-policies",
+        "name": "Analizar la postura de seguridad de datos",
+        "status": "not_met",
+        "detail": "Macie no detectado."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Seguridad de las aplicaciones",
+        "id": "waf",
+        "name": "WAF con reglas gestionadas",
+        "status": "not_met",
+        "detail": "WAF no detectado."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Respuesta a incidentes",
+        "id": "act-on-critical-security-findings",
+        "name": "Actúa ante hallazgos críticos de seguridad",
+        "status": "not_met",
+        "detail": "Security Hub no habilitado."
+      },
+      {
+        "phase": "quick_wins",
+        "category": "Resiliencia",
+        "id": "resilience-hub",
+        "name": "Evaluar Resiliencia",
+        "status": "not_met",
+        "detail": "Resilience Hub no detectado."
+      },
+      {
+        "phase": "foundational",
+        "category": "Gobierno de la seguridad",
+        "id": "identify-compliance-requirements",
+        "name": "Identificar requerimientos de seguridad y regulatorios",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "foundational",
+        "category": "Gobierno de la seguridad",
+        "id": "training-plan",
+        "name": "Plan de entrenamiento sobre seguridad en la nube",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "foundational",
+        "category": "Aseguramiento de la seguridad",
+        "id": "configurations-monitoring-config",
+        "name": "Inventario y Monitoreo de las configuraciones",
+        "status": "not_met",
+        "detail": "AWS Config no detectado o sin configuration recorders."
+      },
+      {
+        "phase": "foundational",
+        "category": "Gestión de identidades y accesos",
+        "id": "guardrails",
+        "name": "GuardRails: Políticas Organizacionales - SCPs",
+        "status": "not_met",
+        "detail": "Organizations no detectado."
+      },
+      {
+        "phase": "foundational",
+        "category": "Gestión de identidades y accesos",
+        "id": "temporary-credentials",
+        "name": "Usa credenciales temporales",
+        "status": "partial",
+        "detail": "Roles IAM detectados; verificar uso de credenciales temporales vs claves largas."
+      },
+      {
+        "phase": "foundational",
+        "category": "Gestión de identidades y accesos",
+        "id": "imdsv2",
+        "name": "Instance Metadata Service (IMDS) v2",
+        "status": "not_evaluable",
+        "detail": "No hay instancias EC2 en el inventario."
+      },
+      {
+        "phase": "foundational",
+        "category": "Detección de amenazas",
+        "id": "guardduty-advanced",
+        "name": "Detección avanzada de amenazas",
+        "status": "not_met",
+        "detail": "GuardDuty no detectado o sin detectores."
+      },
+      {
+        "phase": "foundational",
+        "category": "Gestión de vulnerabilidades",
+        "id": "vulnerability-analysis-and-pentesting",
+        "name": "Gestiona las vulnerabilidades en tu infraestructura y realiza pentesting",
+        "status": "not_met",
+        "detail": "Inspector no detectado."
+      },
+      {
+        "phase": "foundational",
+        "category": "Gestión de vulnerabilidades",
+        "id": "application-security-testing",
+        "name": "Gestiona las vulnerabilidades en tus aplicaciones",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "foundational",
+        "category": "Protección de la infraestructura",
+        "id": "security-groups",
+        "name": "Limitar el acceso de red",
+        "status": "not_met",
+        "detail": "No se detectaron security groups o EC2."
+      },
+      {
+        "phase": "foundational",
+        "category": "Protección de la infraestructura",
+        "id": "fleet-manager",
+        "name": "Gestión segura de instancias",
+        "status": "not_met",
+        "detail": "Systems Manager sin instancias gestionadas o no en uso."
+      },
+      {
+        "phase": "foundational",
+        "category": "Protección de la infraestructura",
+        "id": "vpcs",
+        "name": "Segmentación de redes (VPCs) - Redes Públicas/Privadas",
+        "status": "met",
+        "detail": "VPCs en uso (revisar segmentación pública/privada)."
+      },
+      {
+        "phase": "foundational",
+        "category": "Protección de la infraestructura",
+        "id": "multi-account-management",
+        "name": "Gestión multicuenta con AWS Control Tower",
+        "status": "not_met",
+        "detail": "Organizations no detectado."
+      },
+      {
+        "phase": "foundational",
+        "category": "Protección de Datos",
+        "id": "kms",
+        "name": "Cifrado de Datos en reposo",
+        "status": "not_met",
+        "detail": "KMS no detectado."
+      },
+      {
+        "phase": "foundational",
+        "category": "Protección de Datos",
+        "id": "backups",
+        "name": "Backups",
+        "status": "partial",
+        "detail": "AWS Backup no detectado; pueden existir backups nativos por servicio."
+      },
+      {
+        "phase": "foundational",
+        "category": "Protección de Datos",
+        "id": "identify-sensitive-data",
+        "name": "Descubrimiento de datos sensibles",
+        "status": "not_met",
+        "detail": "Macie no detectado."
+      },
+      {
+        "phase": "foundational",
+        "category": "Seguridad de las aplicaciones",
+        "id": "security-teams-in-dev",
+        "name": "Involucre a los equipos de seguridad en el desarrollo",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "foundational",
+        "category": "Seguridad de las aplicaciones",
+        "id": "dont-store-secrets-in-code",
+        "name": "Sin secretos en Código",
+        "status": "not_met",
+        "detail": "Secrets Manager no detectado."
+      },
+      {
+        "phase": "foundational",
+        "category": "Respuesta a incidentes",
+        "id": "playbooks",
+        "name": "Definir playbooks de respuesta ante incidentes",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "foundational",
+        "category": "Resiliencia",
+        "id": "multi-az",
+        "name": "Redundancia en múltiples zonas de disponibilidad",
+        "status": "partial",
+        "detail": "Recursos detectados; verificar multi-AZ por carga de trabajo."
+      },
+      {
+        "phase": "efficient",
+        "category": "Gobierno de la seguridad",
+        "id": "architecture",
+        "name": "Diseña tu arquitectura segura",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Gobierno de la seguridad",
+        "id": "infrastructure-as-code",
+        "name": "Usa infraestructura como código",
+        "status": "met",
+        "detail": "CloudFormation en uso (IaC)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Gobierno de la seguridad",
+        "id": "tags-strategy",
+        "name": "Estrategia de etiquetado",
+        "status": "not_met",
+        "detail": "No se pudo verificar uso de tags."
+      },
+      {
+        "phase": "efficient",
+        "category": "Aseguramiento de la seguridad",
+        "id": "compliance-reports",
+        "name": "Crea tus reportes para cumplimiento (como PCI-DSS)",
+        "status": "not_met",
+        "detail": "AWS Config no detectado o sin configuration recorders."
+      },
+      {
+        "phase": "efficient",
+        "category": "Gestión de identidades y accesos",
+        "id": "iam-least-privilege",
+        "name": "Revisión del Mínimo privilegio",
+        "status": "partial",
+        "detail": "Roles IAM detectados; verificar uso de credenciales temporales vs claves largas."
+      },
+      {
+        "phase": "efficient",
+        "category": "Gestión de identidades y accesos",
+        "id": "ciam",
+        "name": "Customer IAM: Seguridad de tus clientes",
+        "status": "not_met",
+        "detail": "Cognito no detectado."
+      },
+      {
+        "phase": "efficient",
+        "category": "Detección de amenazas",
+        "id": "siem-custom-threat-detection",
+        "name": "Detección de amenazas particulares (SecLake / SIEM)",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Gestión de vulnerabilidades",
+        "id": "security-champions",
+        "name": "Security Champions",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Gestión de vulnerabilidades",
+        "id": "devsecops",
+        "name": "DevSecOps: Seguridad en el pipeline",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Protección de la infraestructura",
+        "id": "ec2-image-builder",
+        "name": "Pipeline de generación de Imágenes",
+        "status": "not_met",
+        "detail": "Image Builder no detectado."
+      },
+      {
+        "phase": "efficient",
+        "category": "Protección de la infraestructura",
+        "id": "antimalware",
+        "name": "Anti-Malware / EDR / Runtime Protection",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Protección de la infraestructura",
+        "id": "outbound-traffic-control",
+        "name": "Control de tráfico saliente",
+        "status": "not_met",
+        "detail": "NACLs no detectados."
+      },
+      {
+        "phase": "efficient",
+        "category": "Protección de Datos",
+        "id": "acm",
+        "name": "Cifrado en tránsito",
+        "status": "not_met",
+        "detail": "ACM no detectado."
+      },
+      {
+        "phase": "efficient",
+        "category": "Seguridad de las aplicaciones",
+        "id": "threat-modeling",
+        "name": "Realizar un modelado de amenazas",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Seguridad de las aplicaciones",
+        "id": "waf-custom-rules",
+        "name": "WAF con reglas custom",
+        "status": "not_met",
+        "detail": "WAF no detectado."
+      },
+      {
+        "phase": "efficient",
+        "category": "Seguridad de las aplicaciones",
+        "id": "shield-advanced",
+        "name": "Mitigación avanzada de DDoS (L7)",
+        "status": "not_met",
+        "detail": "Shield no detectado (Shield Standard está siempre activo)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Respuesta a incidentes",
+        "id": "tabletop-exercises",
+        "name": "Correr ejercicios TableTop - Simulaciones",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "efficient",
+        "category": "Respuesta a incidentes",
+        "id": "automate-critical-playbooks",
+        "name": "Automatizar Playbooks críticos",
+        "status": "not_met",
+        "detail": "EventBridge no detectado."
+      },
+      {
+        "phase": "efficient",
+        "category": "Respuesta a incidentes",
+        "id": "detective",
+        "name": "Investigaciones en Seguridad - Análisis de causa raíz",
+        "status": "not_met",
+        "detail": "Detective no detectado."
+      },
+      {
+        "phase": "efficient",
+        "category": "Resiliencia",
+        "id": "disaster-recovery",
+        "name": "Plan de Disaster Recovery",
+        "status": "partial",
+        "detail": "AWS Backup no detectado; pueden existir backups nativos por servicio."
+      },
+      {
+        "phase": "efficient",
+        "category": "Protección de la infraestructura",
+        "id": "zero-trust",
+        "name": "Acceso Zero Trust",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Gobierno de la seguridad",
+        "id": "share-security-responsibility",
+        "name": "Compartir la labor y responsabilidad de seguridad",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Aseguramiento de la seguridad",
+        "id": "automate-evidence-gathering",
+        "name": "Automatizar la colección de evidencia",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Gestión de identidades y accesos",
+        "id": "data-perimeters",
+        "name": "Perímetro de datos",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Gestión de identidades y accesos",
+        "id": "iam-pipelines",
+        "name": "Pipeline de generación de Políticas de IAM",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Gestión de identidades y accesos",
+        "id": "iam-temporary-elevated-access",
+        "name": "Acceso elevado temporal",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Detección de amenazas",
+        "id": "threat-intellingence",
+        "name": "Inteligencia de amenazas",
+        "status": "not_met",
+        "detail": "GuardDuty no detectado o sin detectores."
+      },
+      {
+        "phase": "optimized",
+        "category": "Detección de amenazas",
+        "id": "vpc-flow-logs",
+        "name": "Análisis de flujos de red (VPC Flow Logs)",
+        "status": "not_met",
+        "detail": "VPC Flow Logs no detectados."
+      },
+      {
+        "phase": "optimized",
+        "category": "Gestión de vulnerabilidades",
+        "id": "vulnerability-management-team",
+        "name": "Equipo de gestión de vulnerabilidades",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Protección de la infraestructura",
+        "id": "serverless",
+        "name": "Uso de servicios abstractos",
+        "status": "partial",
+        "detail": "Lambda en uso (servicios abstractos)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Protección de Datos",
+        "id": "gen-ai-security",
+        "name": "GenAI Data protection",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Seguridad de las aplicaciones",
+        "id": "red-team",
+        "name": "Conformación un Red Team (Punto de vista del atacante)",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Respuesta a incidentes",
+        "id": "blue-team",
+        "name": "Conformación un Blue Team (Respuesta ante incidentes)",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Respuesta a incidentes",
+        "id": "security-automations-adv",
+        "name": "Automatización avanzada en seguridad",
+        "status": "not_met",
+        "detail": "EventBridge no detectado."
+      },
+      {
+        "phase": "optimized",
+        "category": "Respuesta a incidentes",
+        "id": "security-orchestration-ticketing",
+        "name": "Orquestación y tickets de seguridad",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Respuesta a incidentes",
+        "id": "security-automations-config",
+        "name": "Automatizar configuraciones con corrección de desvíos",
+        "status": "not_met",
+        "detail": "AWS Config no detectado o sin configuration recorders."
+      },
+      {
+        "phase": "optimized",
+        "category": "Resiliencia",
+        "id": "multi-region-disaster-recovery-automation",
+        "name": "Automatización del Disaster Recovery multi-región",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      },
+      {
+        "phase": "optimized",
+        "category": "Resiliencia",
+        "id": "chaos-engineering",
+        "name": "Ingeniería del Caos",
+        "status": "not_evaluable",
+        "detail": "Requiere revisión manual (proceso u organización)."
+      }
+    ],
+    "summary": {
+      "quick_wins": {
+        "met": 1,
+        "not_met": 10,
+        "partial": 2,
+        "not_evaluable": 3,
+        "total": 16
+      },
+      "foundational": {
+        "met": 1,
+        "not_met": 10,
+        "partial": 3,
+        "not_evaluable": 6,
+        "total": 20
+      },
+      "efficient": {
+        "met": 1,
+        "not_met": 10,
+        "partial": 2,
+        "not_evaluable": 8,
+        "total": 21
+      },
+      "optimized": {
+        "met": 0,
+        "not_met": 4,
+        "partial": 1,
+        "not_evaluable": 12,
+        "total": 17
+      }
     }
   }
 }

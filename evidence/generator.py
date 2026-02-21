@@ -17,6 +17,7 @@ from typing import Dict, List, Any, Tuple, Optional
 from collections import defaultdict
 
 from jinja2 import Environment, FileSystemLoader
+from markupsafe import Markup
 
 logging.basicConfig(
     level=logging.INFO,
@@ -112,6 +113,15 @@ class EvidenceGenerator:
         
         from datetime import datetime
         evidence_pack["metadata"]["generated_at"] = datetime.utcnow().isoformat()
+        
+        # Evaluar Modelo de Madurez en Seguridad de AWS
+        try:
+            from evidence.security_maturity import evaluate as evaluate_maturity
+            maturity = evaluate_maturity(index, run_dir=self.run_dir)
+            evidence_pack["security_maturity"] = maturity
+        except Exception as e:
+            logger.warning(f"No se pudo evaluar modelo de madurez: {e}")
+            evidence_pack["security_maturity"] = None
         
         # Guardar evidence pack
         self._save_evidence_pack(evidence_pack)
@@ -4351,14 +4361,14 @@ class EvidenceGenerator:
             f.write(md_content)
         logger.info(f"Evidence pack Markdown guardado: {md_file}")
 
-    # Colores y slugs por pilar para el reporte web
+    # Colores por categoría del pilar (semánticos y distinguibles)
     _PILLAR_WEB = {
-        "Operational Excellence": {"color": "#2563eb", "slug": "operational-excellence"},
-        "Security": {"color": "#dc2626", "slug": "security"},
-        "Reliability": {"color": "#059669", "slug": "reliability"},
-        "Performance Efficiency": {"color": "#ea580c", "slug": "performance-efficiency"},
-        "Cost Optimization": {"color": "#0d9488", "slug": "cost-optimization"},
-        "Sustainability": {"color": "#16a34a", "slug": "sustainability"},
+        "Operational Excellence": {"color": "#2563eb", "slug": "operational-excellence"},   # Azul: operaciones, sistemas, automatización
+        "Security": {"color": "#b91c1c", "slug": "security"},                               # Rojo: protección, alerta
+        "Reliability": {"color": "#059669", "slug": "reliability"},                         # Verde esmeralda: estabilidad, confianza
+        "Performance Efficiency": {"color": "#d97706", "slug": "performance-efficiency"}, # Ámbar: energía, velocidad
+        "Cost Optimization": {"color": "#0d9488", "slug": "cost-optimization"},             # Teal: ahorro, eficiencia económica
+        "Sustainability": {"color": "#15803d", "slug": "sustainability"},                   # Verde naturaleza: medio ambiente
     }
     _STATUS_MAP = {
         "compliant": ("success", "Excelente", "compliant"),
@@ -4367,8 +4377,85 @@ class EvidenceGenerator:
         "not_applicable": ("info", "N/A", "na"),
     }
 
-    def _generate_web_report(self, evidence_pack: Dict) -> None:
-        """Generar reporte HTML estático para presentación web del evidence pack."""
+    # Iconos SVG por pilar: claros y reconocibles (currentColor para tema)
+    _PILLAR_ICONS = {
+        "Operational Excellence": Markup(
+            # Engranajes: automatización y operaciones
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<circle cx="26" cy="26" r="10"/><circle cx="26" cy="26" r="4" fill="currentColor"/>'
+            '<path d="M26 14v-2M26 38v2M14 26h-2M38 26h2M18.2 18.2l-1.4-1.4M33.8 33.8l1.4 1.4M18.2 33.8l-1.4 1.4M33.8 18.2l1.4-1.4"/>'
+            '<circle cx="42" cy="40" r="10"/><circle cx="42" cy="40" r="4" fill="currentColor"/>'
+            '<path d="M42 28v-2M42 52v2M30 40h-2M54 40h2"/>'
+            '<path d="M34 32l8 8"/>'
+            '</svg>'
+        ),
+        "Security": Markup(
+            # Escudo + candado: protección y control de acceso
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<path d="M32 6L8 16v14c0 14 10 22 24 28 14-6 24-14 24-28V16L32 6z"/>'
+            '<rect x="26" y="28" width="12" height="10" rx="2" fill="none"/>'
+            '<path d="M28 28V24a4 4 0 018 0v4"/>'
+            '</svg>'
+        ),
+        "Reliability": Markup(
+            # Doble nodo + check: redundancia y disponibilidad
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<rect x="14" y="20" width="16" height="16" rx="3"/>'
+            '<rect x="34" y="28" width="16" height="16" rx="3"/>'
+            '<path d="M30 28h4M30 36h4"/>'
+            '<path d="M24 36l6 6 14-14" stroke-width="2.5"/>'
+            '<circle cx="22" cy="28" r="2" fill="currentColor"/>'
+            '<circle cx="42" cy="36" r="2" fill="currentColor"/>'
+            '</svg>'
+        ),
+        "Performance Efficiency": Markup(
+            # Velocímetro: rendimiento y velocidad
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<path d="M12 44a24 24 0 1140 0"/>'
+            '<path d="M32 44V24"/>'
+            '<path d="M32 24l10 12"/>'
+            '<circle cx="32" cy="44" r="3" fill="currentColor"/>'
+            '<path d="M20 38l4-4M40 38l-4-4"/>'
+            '</svg>'
+        ),
+        "Cost Optimization": Markup(
+            # Gráfica descendente: ahorro y reducción de costos
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<path d="M12 20h40v32H12z"/>'
+            '<path d="M18 28l12 6 12-4 10-12" stroke-width="2.5"/>'
+            '<path d="M18 20v24M32 20v24M46 20v24"/>'
+            '<path d="M18 44h28"/>'
+            '</svg>'
+        ),
+        "Sustainability": Markup(
+            # Hoja: sostenibilidad y medio ambiente
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<path d="M32 56V32c0-12-8-20-16-24 8 0 16 4 16 12 0 8-8 16-8 24s4 8 8 12z"/>'
+            '<path d="M32 56V32c0 12 8 20 16 24-8 0-16-4-16-12 0-8 8-16 8-24s-4-8-8-12z"/>'
+            '<path d="M32 32L32 8"/>'
+            '</svg>'
+        ),
+    }
+
+    def _scores_from_evidence_pack(self, evidence_pack: Dict) -> Dict[str, int]:
+        """Calcular scores 1-5 por pilar desde evidence pack (coherente con report_generator)."""
+        compliance_to_points = {"compliant": 5, "partially_compliant": 4, "not_compliant": 2, "not_applicable": None}
+        domain_scores = {}
+        pillars = evidence_pack.get("pillars", {})
+        for pillar in self.PILLARS:
+            pillar_data = pillars.get(pillar, {})
+            questions = pillar_data.get("well_architected_questions", [])
+            points = []
+            for q in questions:
+                st = q.get("compliance", {}).get("status", "not_applicable")
+                pt = compliance_to_points.get(st)
+                if pt is not None:
+                    points.append(pt)
+            domain_scores[pillar] = max(1, min(5, round(sum(points) / len(points)))) if points else 5
+        return domain_scores
+
+    def _generate_web_report(self, evidence_pack: Dict, extra_reports: Optional[Dict] = None) -> None:
+        """Generar reporte HTML estático (Scorecard, Evidence Pack, CAF, y opcionalmente otros reportes)."""
         web_dir = self.run_dir / "outputs" / "web"
         web_dir.mkdir(parents=True, exist_ok=True)
         template_dir = Path(__file__).parent / "templates"
@@ -4424,10 +4511,36 @@ class EvidenceGenerator:
                 q["related_evidences"] = rel
             pillars_for_template[pillar] = {**data, "well_architected_questions": questions}
 
+        # Scorecard coherente con evidencias (misma lógica que report_generator)
+        scorecard_scores = self._scores_from_evidence_pack(evidence_pack)
+        scorecard_list = []
+        score_labels = {5: "Excelente", 4: "Bueno", 3: "Aceptable", 2: "Necesita Mejora", 1: "Crítico"}
+        for pillar in self.PILLARS:
+            s = scorecard_scores.get(pillar, 5)
+            info = self._PILLAR_WEB.get(pillar, {"color": "#6b7280", "slug": ""})
+            scorecard_list.append({
+                "name": pillar,
+                "score": s,
+                "label": score_labels.get(s, "N/A"),
+                "color": info["color"],
+                "slug": info["slug"],
+            })
+        average_score = sum(scorecard_scores.get(p, 5) for p in self.PILLARS) / len(self.PILLARS) if self.PILLARS else 0
+
+        er = extra_reports or {}
+        security_maturity = evidence_pack.get("security_maturity") or {}
         ctx = {
             "metadata": evidence_pack["metadata"],
             "pillar_summaries": pillar_summaries,
             "pillars": pillars_for_template,
+            "pillar_icons": self._PILLAR_ICONS,
+            "scorecard_scores": scorecard_scores,
+            "scorecard_list": scorecard_list,
+            "average_score": round(average_score, 1),
+            "executive_summary_html": Markup(er.get("executive_summary_html", "")) if er.get("executive_summary_html") else "",
+            "findings_html": Markup(er.get("findings_html", "")) if er.get("findings_html") else "",
+            "roadmap_html": Markup(er.get("roadmap_html", "")) if er.get("roadmap_html") else "",
+            "security_maturity": security_maturity,
         }
         html = template.render(**ctx)
         out_file = web_dir / "index.html"

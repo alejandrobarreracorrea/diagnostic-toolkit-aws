@@ -52,7 +52,8 @@ class ReportGenerator:
         self._generate_technical_annex(data)
         self._generate_scorecard(data)
         self._generate_inventory_report(data)
-        
+        self._generate_web_unified(data)
+
         logger.info(f"Reportes generados en: {self.output_dir}")
     
     def _load_data(self) -> Dict:
@@ -120,6 +121,18 @@ class ReportGenerator:
                 data["stats"] = {}
         else:
             data["stats"] = {}
+        
+        # Cargar evidence pack (fuente de verdad para scorecard y coherencia)
+        evidence_file = self.run_dir / "outputs" / "evidence" / "evidence_pack.json"
+        if evidence_file.exists():
+            try:
+                with open(evidence_file, "r", encoding="utf-8") as f:
+                    data["evidence_pack"] = json.load(f)
+            except Exception as e:
+                logger.warning(f"Error cargando evidence pack: {e}")
+                data["evidence_pack"] = {}
+        else:
+            data["evidence_pack"] = {}
         
         return data
     
@@ -288,8 +301,34 @@ class ReportGenerator:
             f.write(output)
         logger.info(f"Anexo técnico generado: {output_file}")
     
+    def _scores_from_evidence_pack(self, evidence_pack: Dict) -> Dict[str, int]:
+        """Calcular scores 1-5 por pilar desde evidence pack (coherente con evidencias)."""
+        compliance_to_points = {
+            "compliant": 5,
+            "partially_compliant": 4,
+            "not_compliant": 2,
+            "not_applicable": None,  # no cuenta en el promedio
+        }
+        domains = ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"]
+        domain_scores = {}
+        pillars = evidence_pack.get("pillars", {})
+        for domain in domains:
+            pillar_data = pillars.get(domain, {})
+            questions = pillar_data.get("well_architected_questions", [])
+            points = []
+            for q in questions:
+                st = q.get("compliance", {}).get("status", "not_applicable")
+                pt = compliance_to_points.get(st)
+                if pt is not None:
+                    points.append(pt)
+            if points:
+                domain_scores[domain] = max(1, min(5, round(sum(points) / len(points))))
+            else:
+                domain_scores[domain] = 5
+        return domain_scores
+
     def _generate_scorecard(self, data: Dict):
-        """Generar scorecard por dominio."""
+        """Generar scorecard por dominio (prioriza evidence pack para coherencia)."""
         template_file = self.templates_dir / "scorecard.md"
         if not template_file.exists():
             logger.warning(f"Template no encontrado: {template_file}")
@@ -298,24 +337,25 @@ class ReportGenerator:
         with open(template_file, 'r', encoding='utf-8') as f:
             template = Template(f.read())
         
-        findings = data.get("findings", {}).get("findings", [])
-        
-        # Calcular scores por dominio
+        evidence_pack = data.get("evidence_pack", {})
         domains = ["Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Operational Excellence", "Sustainability"]
         domain_scores = {}
         
-        for domain in domains:
-            domain_findings = [f for f in findings if f.get("domain") == domain]
-            if not domain_findings:
-                score = 5  # Sin hallazgos = score perfecto
-            else:
-                # Calcular score basado en severidad (5 = perfecto, 1 = crítico)
-                severity_weights = {"high": -2, "medium": -1, "low": -0.5, "info": 0}
-                base_score = 5
-                for finding in domain_findings:
-                    base_score += severity_weights.get(finding.get("severity", "info"), 0)
-                score = max(1, min(5, int(base_score)))
-            domain_scores[domain] = score
+        if evidence_pack.get("pillars"):
+            domain_scores = self._scores_from_evidence_pack(evidence_pack)
+        else:
+            findings = data.get("findings", {}).get("findings", [])
+            for domain in domains:
+                domain_findings = [f for f in findings if f.get("domain") == domain]
+                if not domain_findings:
+                    score = 5
+                else:
+                    severity_weights = {"high": -2, "medium": -1, "low": -0.5, "info": 0}
+                    base_score = 5
+                    for finding in domain_findings:
+                        base_score += severity_weights.get(finding.get("severity", "info"), 0)
+                    score = max(1, min(5, int(base_score)))
+                domain_scores[domain] = score
         
         context = {
             "date": datetime.now().strftime("%Y-%m-%d"),
@@ -437,6 +477,43 @@ class ReportGenerator:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Reporte de inventario generado: {output_file}")
+
+    def _generate_web_unified(self, data: Dict) -> None:
+        """Regenerar reporte web unificado con todos los reportes (Scorecard, Evidence, CAF, Modelo de Madurez, Resumen, Hallazgos, Roadmap)."""
+        evidence_pack = data.get("evidence_pack", {})
+        if not evidence_pack.get("pillars"):
+            logger.debug("Evidence pack sin pilares; no se regenera web unificado.")
+            return
+        try:
+            if not evidence_pack.get("security_maturity") and data.get("index"):
+                try:
+                    from evidence.security_maturity import evaluate as evaluate_maturity
+                    evidence_pack["security_maturity"] = evaluate_maturity(
+                        data["index"], run_dir=self.run_dir
+                    )
+                except Exception as e:
+                    logger.debug("No se pudo evaluar modelo de madurez: %s", e)
+            reports_dir = self.run_dir / "outputs" / "reports"
+            extra = {}
+            try:
+                import markdown
+                for key, filename in [
+                    ("executive_summary_html", "executive_summary.md"),
+                    ("findings_html", "findings_report.md"),
+                    ("roadmap_html", "roadmap_30_60_90.md"),
+                ]:
+                    path = reports_dir / filename
+                    if path.exists():
+                        with open(path, "r", encoding="utf-8") as f:
+                            extra[key] = markdown.markdown(f.read(), extensions=["extra"])
+            except ImportError:
+                logger.debug("Paquete markdown no instalado; pestañas de reportes mostrarán placeholder. pip install markdown para contenido completo.")
+            from evidence.generator import EvidenceGenerator
+            gen = EvidenceGenerator(str(self.run_dir))
+            gen._generate_web_report(evidence_pack, extra_reports=extra)
+            logger.info("Reporte web unificado actualizado con todos los reportes.")
+        except Exception as e:
+            logger.warning(f"No se pudo regenerar reporte web unificado: {e}")
 
 
 def main():

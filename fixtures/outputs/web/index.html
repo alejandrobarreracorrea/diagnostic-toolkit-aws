@@ -1,0 +1,3108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Well-Architected Evidence Pack — 123456789012</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --surface-hover: #27272a;
+      --border: rgba(255,255,255,.08);
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #06b6d4;
+      --accent-dim: rgba(6, 182, 212, .25);
+      --success: #22c55e;
+      --success-dim: rgba(34, 197, 94, .2);
+      --warning: #f59e0b;
+      --warning-dim: rgba(245, 158, 11, .2);
+      --danger: #ef4444;
+      --danger-dim: rgba(239, 68, 68, .2);
+      --info: #71717a;
+      --info-dim: rgba(113, 113, 122, .2);
+      --radius: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: 0.3s var(--ease);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.03) 0%, transparent 50%),
+        linear-gradient(180deg, transparent 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 28px; }
+    .hero {
+      position: relative;
+      padding: 72px 0 64px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, .18), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 50%, rgba(99, 102, 241, .12), transparent 45%),
+        radial-gradient(ellipse 50% 30% at 20% 80%, rgba(6, 182, 212, .08), transparent 40%);
+      pointer-events: none;
+    }
+    .hero .container { position: relative; z-index: 1; }
+    .hero .label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,.85) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .meta {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+    .hero .meta span + span::before { content: " · "; }
+    .pillar-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+    }
+    .pillar-card {
+      position: relative;
+      display: block;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--border);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      overflow: hidden;
+    }
+    .pillar-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--pillar-color), transparent 50%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: .6;
+      transition: opacity var(--transition);
+    }
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--pillar-color);
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,.5), 0 0 0 1px var(--pillar-color);
+    }
+    .pillar-card:hover::before { opacity: 1; }
+    .pillar-card .name {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .pillar-card .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 10px;
+      letter-spacing: 0.02em;
+    }
+    .badge-success { background: var(--success-dim); color: #4ade80; }
+    .badge-warning { background: var(--warning-dim); color: #fbbf24; }
+    .badge-danger { background: var(--danger-dim); color: #f87171; }
+    .badge-info { background: var(--info-dim); color: #a1a1aa; }
+    .pillar-card .summary { font-size: 13px; color: var(--text-muted); line-height: 1.45; }
+    .pillar-hero-icon {
+      width: 44px;
+      height: 44px;
+      margin-bottom: 14px;
+      color: var(--pillar-color);
+      flex-shrink: 0;
+    }
+    .pillar-hero-icon svg { width: 100%; height: 100%; display: block; }
+    .pillar-section-icon {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 20px;
+      color: var(--pillar-color);
+    }
+    .pillar-section-icon svg { width: 100%; height: 100%; display: block; }
+    .nav-pillars {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 9, 11, .8);
+      backdrop-filter: saturate(180%) blur(24px);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+    .nav-pillars .container { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .nav-pillars a {
+      padding: 10px 18px;
+      border-radius: 100px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+    .nav-pillars a:hover {
+      color: var(--text);
+      border-color: var(--pillar-color);
+      background: rgba(255,255,255,.03);
+    }
+    .nav-pillars a[data-color] { border-color: var(--pillar-color); color: var(--pillar-color); }
+    .nav-pillars a[data-color]:hover { background: var(--pillar-color); color: var(--bg); }
+    main { padding: 48px 0 100px; }
+    .section-pillar {
+      margin-bottom: 56px;
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      padding: 40px 36px;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--pillar-color);
+      box-shadow: 0 4px 24px -4px rgba(0,0,0,.3);
+    }
+    .section-pillar h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+    .section-pillar .pillar-summary {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .accordion { margin-top: 12px; }
+    .accordion details {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,.02);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .accordion details:hover { border-color: rgba(255,255,255,.12); }
+    .accordion details[open] {
+      border-color: var(--pillar-color);
+      box-shadow: 0 0 0 1px var(--pillar-color), 0 8px 24px -8px rgba(0,0,0,.4);
+    }
+    .accordion summary {
+      padding: 20px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 16px;
+      transition: background var(--transition);
+    }
+    .accordion summary:hover { background: rgba(255,255,255,.04); }
+    .accordion summary::-webkit-details-marker { display: none; }
+    .accordion summary::after {
+      content: "";
+      width: 12px; height: 12px;
+      margin-left: auto;
+      border-right: 2px solid var(--text-muted);
+      border-bottom: 2px solid var(--text-muted);
+      transform: rotate(45deg);
+      transition: transform var(--transition);
+    }
+    .accordion details[open] summary::after { transform: rotate(-135deg); }
+    .accordion .q-id {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pillar-color);
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .accordion .content {
+      padding: 0 24px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .accordion .compliance-msg {
+      margin: 18px 0 14px;
+      padding: 18px 22px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .accordion .compliance-msg.status-compliant { background: var(--success-dim); color: #86efac; border: 1px solid rgba(34, 197, 94, .3); }
+    .accordion .compliance-msg.status-partial { background: var(--warning-dim); color: #fcd34d; border: 1px solid rgba(245, 158, 11, .3); }
+    .accordion .compliance-msg.status-not-compliant { background: var(--danger-dim); color: #fca5a5; border: 1px solid rgba(239, 68, 68, .3); }
+    .accordion .compliance-msg.status-na { background: var(--info-dim); color: #d4d4d8; border: 1px solid rgba(113, 113, 122, .3); }
+    .accordion ul.evidences, .accordion ul.practices { margin: 12px 0; padding-left: 22px; }
+    .accordion ul.evidences li { margin: 8px 0; font-size: 15px; line-height: 1.5; }
+    .accordion .ev-ok { color: #4ade80; }
+    .accordion .ev-warn { color: #fbbf24; }
+    .accordion .ev-fail { color: #f87171; }
+    .accordion .ev-info { color: #a1a1aa; }
+    .accordion .practices { font-size: 15px; color: var(--text-muted); line-height: 1.55; }
+    .accordion p strong {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .footer {
+      text-align: center;
+      padding: 40px 28px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+    .tabs-wrap { margin: 0 0 32px; }
+    .tabs-wrap .tab-labels {
+      display: flex;
+      gap: 8px;
+      padding: 0 28px;
+      max-width: 1000px;
+      margin: 0 auto 24px;
+    }
+    .tabs-wrap .tab-labels label {
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      transition: all var(--transition);
+    }
+    .tabs-wrap .tab-labels label:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+    .tabs-wrap input[name="main-tab"] { display: none; }
+    .tabs-wrap input#tab-scorecard:checked ~ .tab-labels label[for="tab-scorecard"],
+    .tabs-wrap input#tab-evidence:checked ~ .tab-labels label[for="tab-evidence"],
+    .tabs-wrap input#tab-caf:checked ~ .tab-labels label[for="tab-caf"],
+    .tabs-wrap input#tab-maturity:checked ~ .tab-labels label[for="tab-maturity"],
+    .tabs-wrap input#tab-executive:checked ~ .tab-labels label[for="tab-executive"],
+    .tabs-wrap input#tab-findings:checked ~ .tab-labels label[for="tab-findings"],
+    .tabs-wrap input#tab-roadmap:checked ~ .tab-labels label[for="tab-roadmap"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+    .tabs-wrap .tab-panel { display: none; }
+    .tabs-wrap input#tab-scorecard:checked ~ .tab-panel#panel-scorecard,
+    .tabs-wrap input#tab-evidence:checked ~ .tab-panel#panel-evidence,
+    .tabs-wrap input#tab-caf:checked ~ .tab-panel#panel-caf,
+    .tabs-wrap input#tab-maturity:checked ~ .tab-panel#panel-maturity,
+    .tabs-wrap input#tab-executive:checked ~ .tab-panel#panel-executive,
+    .tabs-wrap input#tab-findings:checked ~ .tab-panel#panel-findings,
+    .tabs-wrap input#tab-roadmap:checked ~ .tab-panel#panel-roadmap { display: block; }
+    .tab-report-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 32px 28px 48px;
+    }
+    .tab-report-content h1,.tab-report-content h2,.tab-report-content h3 { margin: 1.25em 0 0.5em; color: var(--text); }
+    .tab-report-content p { margin: 0.75em 0; }
+    .tab-report-content ul, .tab-report-content ol { margin: 0.75em 0; padding-left: 1.5em; }
+    .tab-report-content pre { background: var(--surface); padding: 1rem; border-radius: var(--radius); overflow-x: auto; font-size: 14px; }
+    .tab-report-placeholder { color: var(--text-muted); text-align: center; padding: 48px 28px; }
+    .tab-report-placeholder p { margin: 0.5em 0; }
+    .maturity-phase { margin-bottom: 32px; }
+    .maturity-phase h3 { font-size: 18px; margin: 0 0 12px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .maturity-category { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .maturity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: var(--surface); border-radius: var(--radius); margin-bottom: 8px; border: 1px solid var(--border); }
+    .maturity-item .name { flex: 1; font-weight: 500; }
+    .maturity-item .detail { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+    .maturity-item .badge { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px; }
+    .maturity-summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); }
+    .maturity-summary .phase-sum { font-size: 14px; }
+    .maturity-summary .phase-sum strong { color: var(--accent); }
+    .scorecard-hero {
+      text-align: center;
+      padding: 40px 28px 32px;
+    }
+    .scorecard-hero .score-big {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .scorecard-hero .score-big span { font-size: 28px; color: var(--text-muted); font-weight: 600; }
+    .scorecard-hero p { color: var(--text-muted); margin-top: 8px; }
+    .scorecard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 28px 48px;
+    }
+    .scorecard-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--pillar-color);
+    }
+    .scorecard-card .name { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+    .scorecard-card .score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .scorecard-card .score-num { font-size: 28px; font-weight: 800; color: var(--pillar-color); }
+    .scorecard-card .score-label { font-size: 14px; color: var(--text-muted); }
+    .scorecard-card .summary { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+    @media (max-width: 768px) {
+      .hero { padding: 48px 0 44px; }
+      .hero h1 { font-size: 32px; }
+      .section-pillar { padding: 28px 24px; }
+      .section-pillar h2 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <span class="label">Well-Architected Framework</span>
+      <h1>Evidence Pack</h1>
+      <p class="meta">
+        <span>Account 123456789012</span>
+        <span>2026-02-21T14:55:27.401269</span>
+      </p>
+    </div>
+  </header>
+
+  <div class="tabs-wrap">
+    <input type="radio" name="main-tab" id="tab-scorecard" checked>
+    <input type="radio" name="main-tab" id="tab-evidence">
+    <input type="radio" name="main-tab" id="tab-caf">
+    <input type="radio" name="main-tab" id="tab-maturity">
+    <input type="radio" name="main-tab" id="tab-executive">
+    <input type="radio" name="main-tab" id="tab-findings">
+    <input type="radio" name="main-tab" id="tab-roadmap">
+    <div class="tab-labels">
+      <label for="tab-scorecard">Scorecard</label>
+      <label for="tab-evidence">Evidence Pack</label>
+      <label for="tab-caf">CAF</label>
+      <label for="tab-maturity">Modelo de Madurez</label>
+      <label for="tab-executive">Resumen ejecutivo</label>
+      <label for="tab-findings">Hallazgos</label>
+      <label for="tab-roadmap">Roadmap</label>
+    </div>
+    <div id="panel-scorecard" class="tab-panel">
+      <div class="scorecard-hero">
+        <div class="score-big">2.5<span>/5.0</span></div>
+        <p>Score promedio por pilar (coherente con evidencias)</p>
+      </div>
+      <div class="scorecard-grid">
+        
+        <div class="scorecard-card" style="--pillar-color: #2563eb">
+          <div class="name">Operational Excellence</div>
+          <div class="score-row">
+            <span class="score-num">2/5</span>
+            <span class="score-label">Necesita Mejora</span>
+          </div>
+          <p class="summary">0 servicios operacionales detectados</p>
+        </div>
+        
+        <div class="scorecard-card" style="--pillar-color: #b91c1c">
+          <div class="name">Security</div>
+          <div class="score-row">
+            <span class="score-num">3/5</span>
+            <span class="score-label">Aceptable</span>
+          </div>
+          <p class="summary">1 servicios de seguridad detectados</p>
+        </div>
+        
+        <div class="scorecard-card" style="--pillar-color: #059669">
+          <div class="name">Reliability</div>
+          <div class="score-row">
+            <span class="score-num">3/5</span>
+            <span class="score-label">Aceptable</span>
+          </div>
+          <p class="summary">0 servicios de confiabilidad detectados</p>
+        </div>
+        
+        <div class="scorecard-card" style="--pillar-color: #d97706">
+          <div class="name">Performance Efficiency</div>
+          <div class="score-row">
+            <span class="score-num">2/5</span>
+            <span class="score-label">Necesita Mejora</span>
+          </div>
+          <p class="summary">0 servicios de performance detectados</p>
+        </div>
+        
+        <div class="scorecard-card" style="--pillar-color: #0d9488">
+          <div class="name">Cost Optimization</div>
+          <div class="score-row">
+            <span class="score-num">2/5</span>
+            <span class="score-label">Necesita Mejora</span>
+          </div>
+          <p class="summary">1 regiones activas, 0 servicios de costo detectados</p>
+        </div>
+        
+        <div class="scorecard-card" style="--pillar-color: #15803d">
+          <div class="name">Sustainability</div>
+          <div class="score-row">
+            <span class="score-num">3/5</span>
+            <span class="score-label">Aceptable</span>
+          </div>
+          <p class="summary">1 servicios relevantes para sostenibilidad</p>
+        </div>
+        
+      </div>
+    </div>
+    <div id="panel-caf" class="tab-panel">
+      <div class="tab-report-content">
+        <p>Esta sección está reservada para contenido del <strong>AWS Cloud Adoption Framework (CAF)</strong>. Próximamente.</p>
+      </div>
+    </div>
+    <div id="panel-maturity" class="tab-panel">
+      <div class="tab-report-content">
+        
+        <p style="margin-bottom: 24px;">Evaluación según el <a href="https://maturitymodel.security.aws.dev/es/" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS</a> (v2.0), basada en los datos recolectados por ECAD. Los puntos marcados como <em>No evaluable</em> requieren revisión manual (procesos u organización).</p>
+        
+        <div class="maturity-summary">
+          
+          
+          <span class="phase-sum"><strong>Fase 1: Quick Wins</strong>: 1 cumple, 10 no cumple, 2 parcial, 3 no evaluable (16 total)</span>
+          
+          
+          <span class="phase-sum"><strong>Fase 2: Fundacional</strong>: 1 cumple, 10 no cumple, 3 parcial, 6 no evaluable (20 total)</span>
+          
+          
+          <span class="phase-sum"><strong>Fase 3: Eficiente</strong>: 1 cumple, 10 no cumple, 2 parcial, 8 no evaluable (21 total)</span>
+          
+          
+          <span class="phase-sum"><strong>Fase 4: Optimizado</strong>: 0 cumple, 4 no cumple, 1 parcial, 12 no evaluable (17 total)</span>
+          
+        </div>
+        
+        
+        <div class="maturity-phase">
+          <h3>Fase 1: Quick Wins</h3>
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Asignar los contactos de Seguridad
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">No se pudo verificar contactos de seguridad (revisión manual).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Seleccione la(s) región(es)
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">Regiones en uso detectadas; revisar restricción de regiones en Organizations/SCP.</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Evalúa tu postura de seguridad (CSPM)
+              <span class="maturity-category">— Aseguramiento de la seguridad</span>
+              <div class="detail">Security Hub no detectado o no habilitado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Autenticación Multi-Factor
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">No se pudo evaluar MFA (revisión manual en IAM).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Protección de la cuenta Root
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Revisión manual de protección de cuenta root.</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Federación de Identidades
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Federación de identidades no detectada (IAM IdP o roles para IdP).</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Limpieza de accesos no intencionales
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Access Analyzer no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Detección de amenazas comunes
+              <span class="maturity-category">— Detección de amenazas</span>
+              <div class="detail">GuardDuty no detectado o sin detectores.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Auditoría de las llamadas a APIs
+              <span class="maturity-category">— Detección de amenazas</span>
+              <div class="detail">CloudTrail no detectado o sin trails.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Alarma de Billing
+              <span class="maturity-category">— Detección de amenazas</span>
+              <div class="detail">Alarmas de billing o Budgets detectados.</div>
+            </span>
+            <span class="badge badge-success">Cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Limpieza de puertos riesgosos abiertos
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">No se detectaron security groups o EC2.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Bloqueo del Acceso Público (BPA)
+              <span class="maturity-category">— Protección de Datos</span>
+              <div class="detail">S3 o VPC detectados; verificar BPA y acceso público manualmente.</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Analizar la postura de seguridad de datos
+              <span class="maturity-category">— Protección de Datos</span>
+              <div class="detail">Macie no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              WAF con reglas gestionadas
+              <span class="maturity-category">— Seguridad de las aplicaciones</span>
+              <div class="detail">WAF no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Actúa ante hallazgos críticos de seguridad
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">Security Hub no habilitado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Evaluar Resiliencia
+              <span class="maturity-category">— Resiliencia</span>
+              <div class="detail">Resilience Hub no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+        </div>
+        
+        <div class="maturity-phase">
+          <h3>Fase 2: Fundacional</h3>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Identificar requerimientos de seguridad y regulatorios
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Plan de entrenamiento sobre seguridad en la nube
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Inventario y Monitoreo de las configuraciones
+              <span class="maturity-category">— Aseguramiento de la seguridad</span>
+              <div class="detail">AWS Config no detectado o sin configuration recorders.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              GuardRails: Políticas Organizacionales - SCPs
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Organizations no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Usa credenciales temporales
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Roles IAM detectados; verificar uso de credenciales temporales vs claves largas.</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Instance Metadata Service (IMDS) v2
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">No hay instancias EC2 en el inventario.</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Detección avanzada de amenazas
+              <span class="maturity-category">— Detección de amenazas</span>
+              <div class="detail">GuardDuty no detectado o sin detectores.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Gestiona las vulnerabilidades en tu infraestructura y realiza pentesting
+              <span class="maturity-category">— Gestión de vulnerabilidades</span>
+              <div class="detail">Inspector no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Gestiona las vulnerabilidades en tus aplicaciones
+              <span class="maturity-category">— Gestión de vulnerabilidades</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Limitar el acceso de red
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">No se detectaron security groups o EC2.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Gestión segura de instancias
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">Systems Manager sin instancias gestionadas o no en uso.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Segmentación de redes (VPCs) - Redes Públicas/Privadas
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">VPCs en uso (revisar segmentación pública/privada).</div>
+            </span>
+            <span class="badge badge-success">Cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Gestión multicuenta con AWS Control Tower
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">Organizations no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Cifrado de Datos en reposo
+              <span class="maturity-category">— Protección de Datos</span>
+              <div class="detail">KMS no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Backups
+              <span class="maturity-category">— Protección de Datos</span>
+              <div class="detail">AWS Backup no detectado; pueden existir backups nativos por servicio.</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Descubrimiento de datos sensibles
+              <span class="maturity-category">— Protección de Datos</span>
+              <div class="detail">Macie no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Involucre a los equipos de seguridad en el desarrollo
+              <span class="maturity-category">— Seguridad de las aplicaciones</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Sin secretos en Código
+              <span class="maturity-category">— Seguridad de las aplicaciones</span>
+              <div class="detail">Secrets Manager no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Definir playbooks de respuesta ante incidentes
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Redundancia en múltiples zonas de disponibilidad
+              <span class="maturity-category">— Resiliencia</span>
+              <div class="detail">Recursos detectados; verificar multi-AZ por carga de trabajo.</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+        </div>
+        
+        <div class="maturity-phase">
+          <h3>Fase 3: Eficiente</h3>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Diseña tu arquitectura segura
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Usa infraestructura como código
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">CloudFormation en uso (IaC).</div>
+            </span>
+            <span class="badge badge-success">Cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Estrategia de etiquetado
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">No se pudo verificar uso de tags.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Crea tus reportes para cumplimiento (como PCI-DSS)
+              <span class="maturity-category">— Aseguramiento de la seguridad</span>
+              <div class="detail">AWS Config no detectado o sin configuration recorders.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Revisión del Mínimo privilegio
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Roles IAM detectados; verificar uso de credenciales temporales vs claves largas.</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Customer IAM: Seguridad de tus clientes
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Cognito no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Detección de amenazas particulares (SecLake / SIEM)
+              <span class="maturity-category">— Detección de amenazas</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Security Champions
+              <span class="maturity-category">— Gestión de vulnerabilidades</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              DevSecOps: Seguridad en el pipeline
+              <span class="maturity-category">— Gestión de vulnerabilidades</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Pipeline de generación de Imágenes
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">Image Builder no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Anti-Malware / EDR / Runtime Protection
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Control de tráfico saliente
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">NACLs no detectados.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Cifrado en tránsito
+              <span class="maturity-category">— Protección de Datos</span>
+              <div class="detail">ACM no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Realizar un modelado de amenazas
+              <span class="maturity-category">— Seguridad de las aplicaciones</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              WAF con reglas custom
+              <span class="maturity-category">— Seguridad de las aplicaciones</span>
+              <div class="detail">WAF no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Mitigación avanzada de DDoS (L7)
+              <span class="maturity-category">— Seguridad de las aplicaciones</span>
+              <div class="detail">Shield no detectado (Shield Standard está siempre activo).</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Correr ejercicios TableTop - Simulaciones
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Automatizar Playbooks críticos
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">EventBridge no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Investigaciones en Seguridad - Análisis de causa raíz
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">Detective no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Plan de Disaster Recovery
+              <span class="maturity-category">— Resiliencia</span>
+              <div class="detail">AWS Backup no detectado; pueden existir backups nativos por servicio.</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Acceso Zero Trust
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+        </div>
+        
+        <div class="maturity-phase">
+          <h3>Fase 4: Optimizado</h3>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Compartir la labor y responsabilidad de seguridad
+              <span class="maturity-category">— Gobierno de la seguridad</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Automatizar la colección de evidencia
+              <span class="maturity-category">— Aseguramiento de la seguridad</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Perímetro de datos
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Pipeline de generación de Políticas de IAM
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Acceso elevado temporal
+              <span class="maturity-category">— Gestión de identidades y accesos</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Inteligencia de amenazas
+              <span class="maturity-category">— Detección de amenazas</span>
+              <div class="detail">GuardDuty no detectado o sin detectores.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Análisis de flujos de red (VPC Flow Logs)
+              <span class="maturity-category">— Detección de amenazas</span>
+              <div class="detail">VPC Flow Logs no detectados.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Equipo de gestión de vulnerabilidades
+              <span class="maturity-category">— Gestión de vulnerabilidades</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Uso de servicios abstractos
+              <span class="maturity-category">— Protección de la infraestructura</span>
+              <div class="detail">Lambda en uso (servicios abstractos).</div>
+            </span>
+            <span class="badge badge-warning">Parcial</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              GenAI Data protection
+              <span class="maturity-category">— Protección de Datos</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Conformación un Red Team (Punto de vista del atacante)
+              <span class="maturity-category">— Seguridad de las aplicaciones</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Conformación un Blue Team (Respuesta ante incidentes)
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Automatización avanzada en seguridad
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">EventBridge no detectado.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Orquestación y tickets de seguridad
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Automatizar configuraciones con corrección de desvíos
+              <span class="maturity-category">— Respuesta a incidentes</span>
+              <div class="detail">AWS Config no detectado o sin configuration recorders.</div>
+            </span>
+            <span class="badge badge-danger">No cumple</span>
+            
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Automatización del Disaster Recovery multi-región
+              <span class="maturity-category">— Resiliencia</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+          
+          <div class="maturity-item">
+            <span class="name">
+              Ingeniería del Caos
+              <span class="maturity-category">— Resiliencia</span>
+              <div class="detail">Requiere revisión manual (proceso u organización).</div>
+            </span>
+            <span class="badge badge-info">No evaluable</span>
+          </div>
+          
+          
+        </div>
+        
+        
+      </div>
+    </div>
+    <div id="panel-executive" class="tab-panel">
+      
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el resumen ejecutivo en esta vista.</p>
+      </div>
+      
+    </div>
+    <div id="panel-findings" class="tab-panel">
+      
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el reporte de hallazgos en esta vista.</p>
+      </div>
+      
+    </div>
+    <div id="panel-roadmap" class="tab-panel">
+      
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el roadmap en esta vista.</p>
+      </div>
+      
+    </div>
+    <div id="panel-evidence" class="tab-panel">
+      <div class="container" style="padding-bottom: 24px;">
+        <div class="pillar-cards">
+          
+          <a class="pillar-card" href="#pillar-operational-excellence" style="--pillar-color: #2563eb">
+            <span class="pillar-hero-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="26" cy="26" r="10"/><circle cx="26" cy="26" r="4" fill="currentColor"/><path d="M26 14v-2M26 38v2M14 26h-2M38 26h2M18.2 18.2l-1.4-1.4M33.8 33.8l1.4 1.4M18.2 33.8l-1.4 1.4M33.8 18.2l1.4-1.4"/><circle cx="42" cy="40" r="10"/><circle cx="42" cy="40" r="4" fill="currentColor"/><path d="M42 28v-2M42 52v2M30 40h-2M54 40h2"/><path d="M34 32l8 8"/></svg></span>
+            <span class="name">Operational Excellence</span>
+            <span class="badge badge-danger">Crítico</span>
+            <p class="summary">0 servicios operacionales detectados</p>
+          </a>
+          
+          <a class="pillar-card" href="#pillar-security" style="--pillar-color: #b91c1c">
+            <span class="pillar-hero-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 6L8 16v14c0 14 10 22 24 28 14-6 24-14 24-28V16L32 6z"/><rect x="26" y="28" width="12" height="10" rx="2" fill="none"/><path d="M28 28V24a4 4 0 018 0v4"/></svg></span>
+            <span class="name">Security</span>
+            <span class="badge badge-danger">Crítico</span>
+            <p class="summary">1 servicios de seguridad detectados</p>
+          </a>
+          
+          <a class="pillar-card" href="#pillar-reliability" style="--pillar-color: #059669">
+            <span class="pillar-hero-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="20" width="16" height="16" rx="3"/><rect x="34" y="28" width="16" height="16" rx="3"/><path d="M30 28h4M30 36h4"/><path d="M24 36l6 6 14-14" stroke-width="2.5"/><circle cx="22" cy="28" r="2" fill="currentColor"/><circle cx="42" cy="36" r="2" fill="currentColor"/></svg></span>
+            <span class="name">Reliability</span>
+            <span class="badge badge-danger">Crítico</span>
+            <p class="summary">0 servicios de confiabilidad detectados</p>
+          </a>
+          
+          <a class="pillar-card" href="#pillar-performance-efficiency" style="--pillar-color: #d97706">
+            <span class="pillar-hero-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 44a24 24 0 1140 0"/><path d="M32 44V24"/><path d="M32 24l10 12"/><circle cx="32" cy="44" r="3" fill="currentColor"/><path d="M20 38l4-4M40 38l-4-4"/></svg></span>
+            <span class="name">Performance Efficiency</span>
+            <span class="badge badge-danger">Crítico</span>
+            <p class="summary">0 servicios de performance detectados</p>
+          </a>
+          
+          <a class="pillar-card" href="#pillar-cost-optimization" style="--pillar-color: #0d9488">
+            <span class="pillar-hero-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h40v32H12z"/><path d="M18 28l12 6 12-4 10-12" stroke-width="2.5"/><path d="M18 20v24M32 20v24M46 20v24"/><path d="M18 44h28"/></svg></span>
+            <span class="name">Cost Optimization</span>
+            <span class="badge badge-danger">Crítico</span>
+            <p class="summary">1 regiones activas, 0 servicios de costo detectados</p>
+          </a>
+          
+          <a class="pillar-card" href="#pillar-sustainability" style="--pillar-color: #15803d">
+            <span class="pillar-hero-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 56V32c0-12-8-20-16-24 8 0 16 4 16 12 0 8-8 16-8 24s4 8 8 12z"/><path d="M32 56V32c0 12 8 20 16 24-8 0-16-4-16-12 0-8 8-16 8-24s-4-8-8-12z"/><path d="M32 32L32 8"/></svg></span>
+            <span class="name">Sustainability</span>
+            <span class="badge badge-danger">Crítico</span>
+            <p class="summary">1 servicios relevantes para sostenibilidad</p>
+          </a>
+          
+        </div>
+      </div>
+  <nav class="nav-pillars">
+    <div class="container">
+      
+      <a href="#pillar-operational-excellence" data-color style="--pillar-color: #2563eb">Operational Excellence</a>
+      
+      <a href="#pillar-security" data-color style="--pillar-color: #b91c1c">Security</a>
+      
+      <a href="#pillar-reliability" data-color style="--pillar-color: #059669">Reliability</a>
+      
+      <a href="#pillar-performance-efficiency" data-color style="--pillar-color: #d97706">Performance Efficiency</a>
+      
+      <a href="#pillar-cost-optimization" data-color style="--pillar-color: #0d9488">Cost Optimization</a>
+      
+      <a href="#pillar-sustainability" data-color style="--pillar-color: #15803d">Sustainability</a>
+      
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+    
+    <section id="pillar-operational-excellence" class="section-pillar" style="--pillar-color: #2563eb">
+      <div class="pillar-section-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="26" cy="26" r="10"/><circle cx="26" cy="26" r="4" fill="currentColor"/><path d="M26 14v-2M26 38v2M14 26h-2M38 26h2M18.2 18.2l-1.4-1.4M33.8 33.8l1.4 1.4M18.2 33.8l-1.4 1.4M33.8 18.2l1.4-1.4"/><circle cx="42" cy="40" r="10"/><circle cx="42" cy="40" r="4" fill="currentColor"/><path d="M42 28v-2M42 52v2M30 40h-2M54 40h2"/><path d="M34 32l8 8"/></svg></div>
+      <h2>Operational Excellence</h2>
+      <p class="pillar-summary">0 servicios operacionales detectados</p>
+      <div class="accordion">
+        
+        <details>
+          <summary>
+            <span class="q-id">OPS1</span>
+            <span>¿Cómo determinas cuáles son tus prioridades?</span>
+            <span class="badge badge-info">N/A</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-na">Pregunta organizacional, no aplica a servicios de AWS</div>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Definir resultados de negocio y métricas de éxito</li><li>Priorizar trabajo basado en valor de negocio y riesgo</li><li>Revisar prioridades regularmente</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">OPS2</span>
+            <span>¿Cómo estructuras tu organización para apoyar tus resultados de negocio?</span>
+            <span class="badge badge-info">N/A</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-na">Pregunta organizacional, no aplica a servicios de AWS</div>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Alinear la propiedad del equipo con las cargas de trabajo</li><li>Usar equipos pequeños y autónomos</li><li>Definir responsabilidades claras y rutas de escalación</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">OPS3</span>
+            <span>¿Cómo tu cultura organizacional apoya tus resultados de negocio?</span>
+            <span class="badge badge-info">N/A</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-na">Pregunta organizacional, no aplica a servicios de AWS</div>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Promover mejora continua y aprendizaje</li><li>Usar postmortems sin culpa</li><li>Automatizar operaciones donde sea posible</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">OPS4</span>
+            <span>¿Cómo monitoreas tu carga de trabajo para asegurar que opera como se espera?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                CloudWatch Alarms no está en uso o no tiene alarmas configuradas
+                <br><em>Gap: Falta de alertas y monitoreo proactivo</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch Dashboards no está en uso o no tiene dashboards configurados
+                <br><em>Gap: Falta de visualización centralizada de métricas</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch Logs no está en uso o no tiene log groups configurados
+                <br><em>Gap: Falta de centralización y análisis de logs</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Recopilar métricas, logs y trazas</li><li>Definir SLIs y SLOs</li><li>Usar dashboards y alarmas</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">OPS5</span>
+            <span>¿Cómo respondes a eventos operacionales no planificados?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                CloudWatch Alarms no está en uso o no tiene alarmas configuradas
+                <br><em>Gap: Falta de alertas y monitoreo proactivo</em>
+              </li>
+              
+              <li class="ev-fail">
+                Systems Manager no está en uso o no tiene instancias gestionadas
+                <br><em>Gap: Falta de gestión centralizada de instancias</em>
+              </li>
+              
+              <li class="ev-fail">
+                SNS no está en uso o no tiene topics/subscriptions configurados
+                <br><em>Gap: Falta de notificaciones automatizadas para alarmas y eventos</em>
+              </li>
+              
+              <li class="ev-fail">
+                EventBridge no está en uso o no tiene rules/event buses configurados
+                <br><em>Gap: Falta de automatización de respuestas a eventos</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Crear y mantener runbooks</li><li>Automatizar respuesta a incidentes</li><li>Practicar simulaciones de incidentes</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">OPS6</span>
+            <span>¿Cómo se gestiona la escalación al responder a eventos operacionales no planificados?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                CloudWatch Alarms no está en uso o no tiene alarmas configuradas
+                <br><em>Gap: Falta de alertas y monitoreo proactivo</em>
+              </li>
+              
+              <li class="ev-fail">
+                SNS no está en uso o no tiene topics/subscriptions configurados
+                <br><em>Gap: Falta de notificaciones automatizadas para alarmas y eventos</em>
+              </li>
+              
+              <li class="ev-fail">
+                EventBridge no está en uso o no tiene rules/event buses configurados
+                <br><em>Gap: Falta de automatización de respuestas a eventos</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Definir políticas de escalación</li><li>Usar notificaciones automatizadas</li><li>Asegurar cobertura 24/7 donde se requiera</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+      </div>
+    </section>
+    
+    <section id="pillar-security" class="section-pillar" style="--pillar-color: #b91c1c">
+      <div class="pillar-section-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 6L8 16v14c0 14 10 22 24 28 14-6 24-14 24-28V16L32 6z"/><rect x="26" y="28" width="12" height="10" rx="2" fill="none"/><path d="M28 28V24a4 4 0 018 0v4"/></svg></div>
+      <h2>Security</h2>
+      <p class="pillar-summary">1 servicios de seguridad detectados</p>
+      <div class="accordion">
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC1</span>
+            <span>¿Cómo gestionas credenciales y autenticación?</span>
+            <span class="badge badge-warning">Parcial</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-partial">Parcialmente cumplido: 1/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-ok">
+                IAM está accesible
+                
+              </li>
+              
+              <li class="ev-fail">
+                AWS Secrets Manager no está en uso o no tiene secrets
+                <br><em>Gap: Falta de gestión centralizada de credenciales</em>
+              </li>
+              
+              <li class="ev-fail">
+                AWS KMS no está en uso o no tiene keys
+                <br><em>Gap: Falta de gestión de claves de cifrado</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar roles IAM en lugar de credenciales de largo plazo</li><li>Habilitar MFA</li><li>Rotar credenciales automáticamente</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC2</span>
+            <span>¿Cómo gestionas identidades para personas y máquinas?</span>
+            <span class="badge badge-warning">Parcial</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-partial">Parcialmente cumplido: 1/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-ok">
+                IAM está accesible
+                
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Centralizar gestión de identidades</li><li>Usar acceso federado</li><li>Separar identidades humanas y de máquinas</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC3</span>
+            <span>¿Cómo gestionas el acceso de menor privilegio?</span>
+            <span class="badge badge-success">Excelente</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-compliant">Completamente cumplido: 1/1 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-ok">
+                IAM está accesible
+                
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Otorgar permisos basados en función de trabajo</li><li>Revisar permisos regularmente</li><li>Usar condiciones de políticas</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC4</span>
+            <span>¿Cómo detectas e investigas eventos de seguridad?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                AWS Security Hub no está habilitado
+                <br><em>Gap: Falta de visibilidad centralizada del estado de seguridad</em>
+              </li>
+              
+              <li class="ev-fail">
+                AWS CloudTrail no está habilitado
+                <br><em>Gap: CRÍTICO: Falta de auditoría de actividad de API</em>
+              </li>
+              
+              <li class="ev-fail">
+                Amazon GuardDuty no está habilitado
+                <br><em>Gap: Falta de detección de amenazas</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch Logs no está en uso o no tiene log groups
+                <br><em>Gap: Falta de centralización de logs de seguridad</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Habilitar CloudTrail</li><li>Usar GuardDuty y Security Hub</li><li>Centralizar logs de seguridad</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC5</span>
+            <span>¿Cómo proteges tus recursos de red?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                Revisar manualmente recursos con IPs públicas o acceso público
+                
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar segmentación VPC</li><li>Aplicar security groups y NACLs</li><li>Limitar exposición pública</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC6</span>
+            <span>¿Cómo proteges tus recursos de cómputo?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                Systems Manager no está en uso o no tiene instancias gestionadas
+                <br><em>Gap: Falta de gestión centralizada y hardening de instancias EC2</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Aplicar parches regularmente</li><li>Usar AMIs endurecidas</li><li>Monitorear comportamiento en tiempo de ejecución</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC7</span>
+            <span>¿Cómo clasificas tus datos?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                S3 no está en uso o no tiene buckets
+                <br><em>Gap: Falta de almacenamiento de objetos</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Identificar datos sensibles</li><li>Etiquetar y catalogar datos</li><li>Aplicar políticas de clasificación de datos</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC8</span>
+            <span>¿Cómo proteges tus datos en reposo?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                AWS KMS no está en uso o no tiene keys
+                <br><em>Gap: Falta de gestión de claves de cifrado</em>
+              </li>
+              
+              <li class="ev-fail">
+                RDS no está en uso o no tiene recursos activos
+                <br><em>Gap: Falta de bases de datos gestionadas</em>
+              </li>
+              
+              <li class="ev-fail">
+                EBS no está en uso o no tiene volumes
+                <br><em>Gap: Falta de almacenamiento persistente para instancias EC2</em>
+              </li>
+              
+              <li class="ev-fail">
+                S3 no está en uso o no tiene buckets
+                <br><em>Gap: Falta de almacenamiento de objetos</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Cifrar datos usando AWS KMS</li><li>Restringir acceso a recursos cifrados</li><li>Rotar claves de cifrado</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC9</span>
+            <span>¿Cómo proteges tus datos en tránsito?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                ACM no está en uso o no tiene certificados
+                <br><em>Gap: Falta de gestión de certificados SSL/TLS</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudFront no está en uso o no tiene distribuciones
+                <br><em>Gap: Falta de CDN y protección de datos en tránsito</em>
+              </li>
+              
+              <li class="ev-fail">
+                API Gateway no está en uso o no tiene APIs
+                <br><em>Gap: Falta de gestión de APIs y protección de datos en tránsito</em>
+              </li>
+              
+              <li class="ev-fail">
+                ELB no está en uso o no tiene load balancers
+                <br><em>Gap: Falta de balanceo de carga y protección de datos en tránsito</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar TLS para todas las comunicaciones</li><li>Aplicar suites de cifrado seguras</li><li>Deshabilitar protocolos inseguros</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC10</span>
+            <span>¿Cómo gestionas tus claves de cifrado?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/1 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                AWS KMS no está en uso o no tiene keys
+                <br><em>Gap: Falta de gestión de claves de cifrado</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Separar deberes de gestión de claves</li><li>Usar claves gestionadas por el cliente</li><li>Rotar claves periódicamente</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SEC11</span>
+            <span>¿Cómo te preparas y respondes a incidentes de seguridad?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                AWS Security Hub no está habilitado
+                <br><em>Gap: Falta de visibilidad centralizada del estado de seguridad</em>
+              </li>
+              
+              <li class="ev-fail">
+                Amazon GuardDuty no está habilitado
+                <br><em>Gap: Falta de detección de amenazas</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch Logs no está en uso o no tiene log groups
+                <br><em>Gap: Falta de centralización de logs de seguridad</em>
+              </li>
+              
+              <li class="ev-fail">
+                EventBridge no está en uso o no tiene rules/event buses configurados
+                <br><em>Gap: Falta de automatización de respuestas a incidentes de seguridad</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Crear planes de respuesta a incidentes</li><li>Probar procedimientos de respuesta</li><li>Automatizar acciones de contención</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+      </div>
+    </section>
+    
+    <section id="pillar-reliability" class="section-pillar" style="--pillar-color: #059669">
+      <div class="pillar-section-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="20" width="16" height="16" rx="3"/><rect x="34" y="28" width="16" height="16" rx="3"/><path d="M30 28h4M30 36h4"/><path d="M24 36l6 6 14-14" stroke-width="2.5"/><circle cx="22" cy="28" r="2" fill="currentColor"/><circle cx="42" cy="36" r="2" fill="currentColor"/></svg></div>
+      <h2>Reliability</h2>
+      <p class="pillar-summary">0 servicios de confiabilidad detectados</p>
+      <div class="accordion">
+        
+        <details>
+          <summary>
+            <span class="q-id">REL1</span>
+            <span>¿Cómo gestionas los límites de servicios de AWS?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/2 servicios detectados</div>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Monitorear cuotas de servicios</li><li>Solicitar aumentos de límites proactivamente</li><li>Diseñar arquitecturas dentro de los límites</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">REL2</span>
+            <span>¿Cómo gestionas el cambio?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                CloudFormation no está en uso o no tiene stacks activos
+                <br><em>Gap: Falta de gestión de cambios mediante Infrastructure as Code</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar infraestructura como código</li><li>Implementar gestión de cambios</li><li>Automatizar despliegues</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">REL3</span>
+            <span>¿Cómo se adapta tu sistema a cambios en la demanda?</span>
+            <span class="badge badge-warning">Parcial</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-partial">Parcialmente cumplido: 1/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                EC2 detectado pero Auto Scaling no
+                <br><em>Gap: Falta de escalado automático y recuperación</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar auto escalado</li><li>Diseñar cargas de trabajo sin estado</li><li>Implementar balanceo de carga</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">REL4</span>
+            <span>¿Cómo monitoreas tus cargas de trabajo?</span>
+            <span class="badge badge-warning">Parcial</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-partial">Parcialmente cumplido: 1/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                CloudWatch Logs no está en uso o no tiene log groups
+                <br><em>Gap: Falta de monitoreo de logs de aplicaciones</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar métricas y alarmas de CloudWatch</li><li>Monitorear health checks</li><li>Rastrear KPIs de disponibilidad</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">REL5</span>
+            <span>¿Cómo haces respaldo de tus datos?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                RDS no está en uso o no tiene recursos activos
+                <br><em>Gap: Falta de bases de datos gestionadas</em>
+              </li>
+              
+              <li class="ev-fail">
+                EBS no está en uso o no tiene volumes
+                <br><em>Gap: Falta de almacenamiento persistente para backups</em>
+              </li>
+              
+              <li class="ev-fail">
+                S3 no está en uso o no tiene buckets
+                <br><em>Gap: Falta de almacenamiento de objetos para backups</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Automatizar backups</li><li>Definir políticas de retención</li><li>Probar procedimientos de restauración</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">REL6</span>
+            <span>¿Cómo pruebas la recuperación?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                RDS no está en uso o no tiene recursos activos
+                <br><em>Gap: Falta de bases de datos gestionadas</em>
+              </li>
+              
+              <li class="ev-fail">
+                Route 53 no está en uso o no tiene hosted zones activas
+                <br><em>Gap: Falta de gestión de DNS</em>
+              </li>
+              
+              <li class="ev-fail">
+                Multi-AZ no está configurado en ningún recurso
+                <br><em>Gap: Falta de alta disponibilidad mediante Multi-AZ</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Realizar simulacros de recuperación ante desastres</li><li>Probar mecanismos de failover</li><li>Documentar resultados de recuperación</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+      </div>
+    </section>
+    
+    <section id="pillar-performance-efficiency" class="section-pillar" style="--pillar-color: #d97706">
+      <div class="pillar-section-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 44a24 24 0 1140 0"/><path d="M32 44V24"/><path d="M32 24l10 12"/><circle cx="32" cy="44" r="3" fill="currentColor"/><path d="M20 38l4-4M40 38l-4-4"/></svg></div>
+      <h2>Performance Efficiency</h2>
+      <p class="pillar-summary">0 servicios de performance detectados</p>
+      <div class="accordion">
+        
+        <details>
+          <summary>
+            <span class="q-id">PERF1</span>
+            <span>¿Cómo seleccionas la arquitectura de mejor rendimiento?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                CloudWatch no está en uso o no tiene alarmas/dashboards configurados
+                <br><em>Gap: Falta de monitoreo y benchmarking de rendimiento</em>
+              </li>
+              
+              <li class="ev-fail">
+                X-Ray no está en uso o no tiene recursos configurados
+                <br><em>Gap: Falta de rastreo distribuido y análisis de rendimiento</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudFormation no está en uso o no tiene stacks activos
+                <br><em>Gap: Falta de evaluación de patrones de arquitectura mediante Infrastructure as Code</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Evaluar múltiples patrones de arquitectura</li><li>Hacer benchmarking de rendimiento</li><li>Usar servicios gestionados</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">PERF2</span>
+            <span>¿Cómo seleccionas tu solución de cómputo?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                EC2 no está en uso o no tiene instancias
+                <br><em>Gap: Falta de cómputo virtual</em>
+              </li>
+              
+              <li class="ev-fail">
+                Lambda no está en uso o no tiene funciones
+                <br><em>Gap: Falta de cómputo serverless</em>
+              </li>
+              
+              <li class="ev-fail">
+                ECS no está en uso o no tiene clusters/servicios
+                <br><em>Gap: Falta de orquestación de contenedores</em>
+              </li>
+              
+              <li class="ev-fail">
+                ECS Fargate no está en uso
+                <br><em>Gap: Falta de cómputo serverless para contenedores</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Hacer coincidir tipos de cómputo con necesidades de carga de trabajo</li><li>Usar instancias de tamaño adecuado</li><li>Adoptar serverless donde sea apropiado</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">PERF3</span>
+            <span>¿Cómo seleccionas tu solución de almacenamiento?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                EBS no está en uso o no tiene volumes
+                <br><em>Gap: Falta de almacenamiento persistente</em>
+              </li>
+              
+              <li class="ev-fail">
+                S3 no está en uso o no tiene buckets
+                <br><em>Gap: Falta de almacenamiento de objetos</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Elegir almacenamiento basado en patrones de acceso</li><li>Usar políticas de ciclo de vida</li><li>Monitorear IOPS y throughput</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">PERF4</span>
+            <span>¿Cómo seleccionas tu solución de base de datos?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/4 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                RDS no está en uso o no tiene recursos activos
+                <br><em>Gap: Falta de bases de datos gestionadas</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Elegir bases de datos basadas en modelo de datos</li><li>Optimizar indexación</li><li>Usar bases de datos gestionadas</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">PERF5</span>
+            <span>¿Cómo monitoreas y mejoras el rendimiento?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                CloudWatch no está en uso o no tiene alarmas/dashboards configurados
+                <br><em>Gap: Falta de monitoreo y benchmarking de rendimiento</em>
+              </li>
+              
+              <li class="ev-fail">
+                X-Ray no está en uso o no tiene recursos configurados
+                <br><em>Gap: Falta de rastreo distribuido y análisis de rendimiento</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Rastrear latencia y throughput</li><li>Usar pruebas de rendimiento</li><li>Ajustar cargas de trabajo continuamente</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+      </div>
+    </section>
+    
+    <section id="pillar-cost-optimization" class="section-pillar" style="--pillar-color: #0d9488">
+      <div class="pillar-section-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h40v32H12z"/><path d="M18 28l12 6 12-4 10-12" stroke-width="2.5"/><path d="M18 20v24M32 20v24M46 20v24"/><path d="M18 44h28"/></svg></div>
+      <h2>Cost Optimization</h2>
+      <p class="pillar-summary">1 regiones activas, 0 servicios de costo detectados</p>
+      <div class="accordion">
+        
+        <details>
+          <summary>
+            <span class="q-id">COST1</span>
+            <span>¿Cómo consideras el costo al seleccionar servicios?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Comparar modelos de precios</li><li>Usar servicios gestionados</li><li>Evitar sobre-provisionamiento</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">COST2</span>
+            <span>¿Cómo monitoreas el uso y el gasto?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                Cost Explorer no accesible
+                <br><em>Gap: Limitada visibilidad de costos</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch no está en uso o no tiene alarmas/dashboards configurados
+                <br><em>Gap: Falta de monitoreo de uso y gasto</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar Cost Explorer</li><li>Establecer presupuestos y alertas</li><li>Rastrear etiquetas de asignación de costos</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">COST3</span>
+            <span>¿Cómo reduces costos innecesarios?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                Trusted Advisor no está disponible o no se tienen datos recolectados
+                <br><em>Gap: Falta de recomendaciones automatizadas de optimización (requiere plan de soporte Business o Enterprise)</em>
+              </li>
+              
+              <li class="ev-info">
+                trusted_advisor_info: Trusted Advisor requiere un plan de soporte de AWS (Business o Enterprise) para acceder a recomendaciones completas
+                
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch no está en uso o no tiene alarmas/dashboards configurados
+                <br><em>Gap: Falta de monitoreo de uso y gasto</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Identificar recursos inactivos</li><li>Desmantelar activos no utilizados</li><li>Usar automatización para apagar recursos</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">COST4</span>
+            <span>¿Cómo optimizas los modelos de precios?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Usar Savings Plans o Reserved Instances</li><li>Adoptar Spot Instances</li><li>Revisar compromisos regularmente</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+      </div>
+    </section>
+    
+    <section id="pillar-sustainability" class="section-pillar" style="--pillar-color: #15803d">
+      <div class="pillar-section-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 56V32c0-12-8-20-16-24 8 0 16 4 16 12 0 8-8 16-8 24s4 8 8 12z"/><path d="M32 56V32c0 12 8 20 16 24-8 0-16-4-16-12 0-8 8-16 8-24s-4-8-8-12z"/><path d="M32 32L32 8"/></svg></div>
+      <h2>Sustainability</h2>
+      <p class="pillar-summary">1 servicios relevantes para sostenibilidad</p>
+      <div class="accordion">
+        
+        <details>
+          <summary>
+            <span class="q-id">SUS1</span>
+            <span>¿Cómo mides la sostenibilidad de tu carga de trabajo?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/2 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                Cost Explorer no accesible
+                <br><em>Gap: Limitada visibilidad de métricas de sostenibilidad</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch no está en uso o no tiene alarmas/dashboards configurados
+                <br><em>Gap: Falta de medición de sostenibilidad</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Medir utilización de recursos</li><li>Rastrear métricas de eficiencia energética</li><li>Usar dashboards de sostenibilidad</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SUS2</span>
+            <span>¿Cómo reduces el impacto ambiental de tu carga de trabajo?</span>
+            <span class="badge badge-warning">Parcial</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-partial">Parcialmente cumplido: 1/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-ok">
+                Lambda (serverless) es más eficiente energéticamente
+                
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Dimensionar recursos correctamente</li><li>Usar regiones eficientes</li><li>Minimizar capacidad inactiva</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+        <details>
+          <summary>
+            <span class="q-id">SUS3</span>
+            <span>¿Cómo mejoras continuamente la sostenibilidad?</span>
+            <span class="badge badge-danger">Crítico</span>
+          </summary>
+          <div class="content">
+            <div class="compliance-msg status-not-compliant">No cumplido: 0/3 servicios detectados</div>
+            
+            <p><strong>Evidencias</strong></p>
+            <ul class="evidences">
+              
+              <li class="ev-fail">
+                Cost Explorer no accesible
+                <br><em>Gap: Limitada visibilidad de métricas de sostenibilidad</em>
+              </li>
+              
+              <li class="ev-fail">
+                Trusted Advisor no está disponible o no se tienen datos recolectados
+                <br><em>Gap: Falta de recomendaciones automatizadas de sostenibilidad (requiere plan de soporte Business o Enterprise)</em>
+              </li>
+              
+              <li class="ev-fail">
+                CloudWatch no está en uso o no tiene alarmas/dashboards configurados
+                <br><em>Gap: Falta de medición de sostenibilidad</em>
+              </li>
+              
+            </ul>
+            
+            
+            <p><strong>Mejores prácticas</strong></p>
+            <ul class="practices">
+              <li>Revisar métricas de sostenibilidad</li><li>Optimizar arquitecturas regularmente</li><li>Adoptar servicios más nuevos y eficientes</li>
+            </ul>
+            
+          </div>
+        </details>
+        
+      </div>
+    </section>
+    
+    </div>
+  </main>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">AWS Cloud Architecture Diagnostic (ECAD)</div>
+  </footer>
+</body>
+</html>

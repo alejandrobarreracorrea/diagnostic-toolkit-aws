@@ -4,160 +4,531 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Well-Architected Evidence Pack — {{ metadata.account_id }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --success: #059669;
-      --warning: #d97706;
-      --danger: #dc2626;
-      --info: #6b7280;
-      --bg: #fafafa;
-      --card-bg: #ffffff;
-      --text: #1f2937;
-      --text-muted: #6b7280;
-      --radius: 12px;
-      --shadow: 0 1px 3px rgba(0,0,0,.08);
-      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+      --bg: #09090b;
+      --surface: #18181b;
+      --surface-hover: #27272a;
+      --border: rgba(255,255,255,.08);
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #06b6d4;
+      --accent-dim: rgba(6, 182, 212, .25);
+      --success: #22c55e;
+      --success-dim: rgba(34, 197, 94, .2);
+      --warning: #f59e0b;
+      --warning-dim: rgba(245, 158, 11, .2);
+      --danger: #ef4444;
+      --danger-dim: rgba(239, 68, 68, .2);
+      --info: #71717a;
+      --info-dim: rgba(113, 113, 122, .2);
+      --radius: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: 0.3s var(--ease);
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.03) 0%, transparent 50%),
+        linear-gradient(180deg, transparent 0%, var(--bg) 100%);
       color: var(--text);
       line-height: 1.6;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
     }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 28px; }
     .hero {
-      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
-      color: #fff;
-      padding: 2.5rem 0 3rem;
-      margin-bottom: 2rem;
+      position: relative;
+      padding: 72px 0 64px;
+      overflow: hidden;
     }
-    .hero h1 { margin: 0 0 .5rem; font-size: 1.75rem; font-weight: 700; }
-    .hero .meta { opacity: .85; font-size: .95rem; }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, .18), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 50%, rgba(99, 102, 241, .12), transparent 45%),
+        radial-gradient(ellipse 50% 30% at 20% 80%, rgba(6, 182, 212, .08), transparent 40%);
+      pointer-events: none;
+    }
+    .hero .container { position: relative; z-index: 1; }
+    .hero .label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,.85) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .meta {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
     .hero .meta span + span::before { content: " · "; }
     .pillar-cards {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1rem;
-      margin-top: 2rem;
+      gap: 20px;
     }
     .pillar-card {
+      position: relative;
       display: block;
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
       text-decoration: none;
       color: inherit;
-      box-shadow: var(--shadow);
-      border-left: 4px solid var(--pillar-color, var(--info));
-      transition: transform .15s, box-shadow .15s;
+      border: 1px solid var(--border);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      overflow: hidden;
     }
-    .pillar-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .pillar-card .name { font-weight: 600; font-size: .9rem; margin-bottom: .25rem; }
+    .pillar-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--pillar-color), transparent 50%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: .6;
+      transition: opacity var(--transition);
+    }
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--pillar-color);
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,.5), 0 0 0 1px var(--pillar-color);
+    }
+    .pillar-card:hover::before { opacity: 1; }
+    .pillar-card .name {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
     .pillar-card .badge {
       display: inline-block;
-      font-size: .7rem;
-      padding: .2rem .5rem;
-      border-radius: 999px;
-      font-weight: 500;
-      margin-top: .35rem;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 10px;
+      letter-spacing: 0.02em;
     }
-    .badge-success { background: #d1fae5; color: #065f46; }
-    .badge-warning { background: #fef3c7; color: #92400e; }
-    .badge-danger { background: #fee2e2; color: #991b1b; }
-    .badge-info { background: #e5e7eb; color: #374151; }
-    .pillar-card .summary { font-size: .8rem; color: var(--text-muted); margin-top: .35rem; }
+    .badge-success { background: var(--success-dim); color: #4ade80; }
+    .badge-warning { background: var(--warning-dim); color: #fbbf24; }
+    .badge-danger { background: var(--danger-dim); color: #f87171; }
+    .badge-info { background: var(--info-dim); color: #a1a1aa; }
+    .pillar-card .summary { font-size: 13px; color: var(--text-muted); line-height: 1.45; }
+    .pillar-hero-icon {
+      width: 44px;
+      height: 44px;
+      margin-bottom: 14px;
+      color: var(--pillar-color);
+      flex-shrink: 0;
+    }
+    .pillar-hero-icon svg { width: 100%; height: 100%; display: block; }
+    .pillar-section-icon {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 20px;
+      color: var(--pillar-color);
+    }
+    .pillar-section-icon svg { width: 100%; height: 100%; display: block; }
     .nav-pillars {
       position: sticky;
       top: 0;
-      z-index: 50;
-      background: var(--card-bg);
-      box-shadow: var(--shadow);
-      padding: .75rem 0;
-      margin-bottom: 2rem;
+      z-index: 100;
+      background: rgba(9, 9, 11, .8);
+      backdrop-filter: saturate(180%) blur(24px);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
     }
-    .nav-pillars .container { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+    .nav-pillars .container { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
     .nav-pillars a {
-      padding: .5rem 1rem;
-      border-radius: 999px;
+      padding: 10px 18px;
+      border-radius: 100px;
       text-decoration: none;
-      font-size: .875rem;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+    .nav-pillars a:hover {
       color: var(--text);
-      border: 2px solid transparent;
+      border-color: var(--pillar-color);
+      background: rgba(255,255,255,.03);
     }
-    .nav-pillars a:hover { background: var(--bg); }
     .nav-pillars a[data-color] { border-color: var(--pillar-color); color: var(--pillar-color); }
+    .nav-pillars a[data-color]:hover { background: var(--pillar-color); color: var(--bg); }
+    main { padding: 48px 0 100px; }
     .section-pillar {
-      margin-bottom: 3rem;
-      border-radius: var(--radius);
-      background: var(--card-bg);
-      box-shadow: var(--shadow);
-      padding: 2rem 1.5rem;
-      border-top: 4px solid var(--pillar-color, var(--info));
+      margin-bottom: 56px;
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      padding: 40px 36px;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--pillar-color);
+      box-shadow: 0 4px 24px -4px rgba(0,0,0,.3);
     }
-    .section-pillar h2 { margin: 0 0 .5rem; font-size: 1.5rem; }
-    .section-pillar .pillar-summary { color: var(--text-muted); margin-bottom: 1.5rem; font-size: .95rem; }
-    .accordion { margin-top: 1rem; }
+    .section-pillar h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+    .section-pillar .pillar-summary {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .accordion { margin-top: 12px; }
     .accordion details {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      margin-bottom: .75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
       overflow: hidden;
+      background: rgba(255,255,255,.02);
+      transition: border-color var(--transition), box-shadow var(--transition);
     }
-    .accordion details[open] { border-color: var(--pillar-color, #e5e7eb); }
+    .accordion details:hover { border-color: rgba(255,255,255,.12); }
+    .accordion details[open] {
+      border-color: var(--pillar-color);
+      box-shadow: 0 0 0 1px var(--pillar-color), 0 8px 24px -8px rgba(0,0,0,.4);
+    }
     .accordion summary {
-      padding: 1rem 1.25rem;
+      padding: 20px 24px;
       font-weight: 600;
       cursor: pointer;
       list-style: none;
       display: flex;
       align-items: center;
-      gap: .75rem;
+      gap: 14px;
       flex-wrap: wrap;
+      font-size: 16px;
+      transition: background var(--transition);
     }
+    .accordion summary:hover { background: rgba(255,255,255,.04); }
     .accordion summary::-webkit-details-marker { display: none; }
-    .accordion summary::after { content: "▼"; font-size: .7rem; opacity: .6; margin-left: auto; }
-    .accordion details[open] summary::after { transform: rotate(180deg); }
-    .accordion .q-id { font-size: .8rem; color: var(--text-muted); flex-shrink: 0; }
-    .accordion .content { padding: 0 1.25rem 1.25rem; border-top: 1px solid #f3f4f6; }
-    .accordion .compliance-msg { margin: 1rem 0 .75rem; padding: .75rem; border-radius: 8px; font-size: .9rem; }
-    .accordion .compliance-msg.status-compliant { background: #d1fae5; color: #065f46; }
-    .accordion .compliance-msg.status-partial { background: #fef3c7; color: #92400e; }
-    .accordion .compliance-msg.status-not-compliant { background: #fee2e2; color: #991b1b; }
-    .accordion .compliance-msg.status-na { background: #f3f4f6; color: #4b5563; }
-    .accordion ul.evidences, .accordion ul.practices { margin: .5rem 0; padding-left: 1.25rem; }
-    .accordion ul.evidences li { margin: .35rem 0; font-size: .9rem; }
-    .accordion .ev-ok { color: var(--success); }
-    .accordion .ev-warn { color: var(--warning); }
-    .accordion .ev-fail { color: var(--danger); }
-    .accordion .ev-info { color: var(--info); }
-    .accordion .practices { font-size: .9rem; color: var(--text-muted); }
-    .footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: .85rem; }
+    .accordion summary::after {
+      content: "";
+      width: 12px; height: 12px;
+      margin-left: auto;
+      border-right: 2px solid var(--text-muted);
+      border-bottom: 2px solid var(--text-muted);
+      transform: rotate(45deg);
+      transition: transform var(--transition);
+    }
+    .accordion details[open] summary::after { transform: rotate(-135deg); }
+    .accordion .q-id {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pillar-color);
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .accordion .content {
+      padding: 0 24px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .accordion .compliance-msg {
+      margin: 18px 0 14px;
+      padding: 18px 22px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .accordion .compliance-msg.status-compliant { background: var(--success-dim); color: #86efac; border: 1px solid rgba(34, 197, 94, .3); }
+    .accordion .compliance-msg.status-partial { background: var(--warning-dim); color: #fcd34d; border: 1px solid rgba(245, 158, 11, .3); }
+    .accordion .compliance-msg.status-not-compliant { background: var(--danger-dim); color: #fca5a5; border: 1px solid rgba(239, 68, 68, .3); }
+    .accordion .compliance-msg.status-na { background: var(--info-dim); color: #d4d4d8; border: 1px solid rgba(113, 113, 122, .3); }
+    .accordion ul.evidences, .accordion ul.practices { margin: 12px 0; padding-left: 22px; }
+    .accordion ul.evidences li { margin: 8px 0; font-size: 15px; line-height: 1.5; }
+    .accordion .ev-ok { color: #4ade80; }
+    .accordion .ev-warn { color: #fbbf24; }
+    .accordion .ev-fail { color: #f87171; }
+    .accordion .ev-info { color: #a1a1aa; }
+    .accordion .practices { font-size: 15px; color: var(--text-muted); line-height: 1.55; }
+    .accordion p strong {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .footer {
+      text-align: center;
+      padding: 40px 28px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+    .tabs-wrap { margin: 0 0 32px; }
+    .tabs-wrap .tab-labels {
+      display: flex;
+      gap: 8px;
+      padding: 0 28px;
+      max-width: 1000px;
+      margin: 0 auto 24px;
+    }
+    .tabs-wrap .tab-labels label {
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      transition: all var(--transition);
+    }
+    .tabs-wrap .tab-labels label:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+    .tabs-wrap input[name="main-tab"] { display: none; }
+    .tabs-wrap input#tab-scorecard:checked ~ .tab-labels label[for="tab-scorecard"],
+    .tabs-wrap input#tab-evidence:checked ~ .tab-labels label[for="tab-evidence"],
+    .tabs-wrap input#tab-caf:checked ~ .tab-labels label[for="tab-caf"],
+    .tabs-wrap input#tab-maturity:checked ~ .tab-labels label[for="tab-maturity"],
+    .tabs-wrap input#tab-executive:checked ~ .tab-labels label[for="tab-executive"],
+    .tabs-wrap input#tab-findings:checked ~ .tab-labels label[for="tab-findings"],
+    .tabs-wrap input#tab-roadmap:checked ~ .tab-labels label[for="tab-roadmap"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+    .tabs-wrap .tab-panel { display: none; }
+    .tabs-wrap input#tab-scorecard:checked ~ .tab-panel#panel-scorecard,
+    .tabs-wrap input#tab-evidence:checked ~ .tab-panel#panel-evidence,
+    .tabs-wrap input#tab-caf:checked ~ .tab-panel#panel-caf,
+    .tabs-wrap input#tab-maturity:checked ~ .tab-panel#panel-maturity,
+    .tabs-wrap input#tab-executive:checked ~ .tab-panel#panel-executive,
+    .tabs-wrap input#tab-findings:checked ~ .tab-panel#panel-findings,
+    .tabs-wrap input#tab-roadmap:checked ~ .tab-panel#panel-roadmap { display: block; }
+    .tab-report-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 32px 28px 48px;
+    }
+    .tab-report-content h1,.tab-report-content h2,.tab-report-content h3 { margin: 1.25em 0 0.5em; color: var(--text); }
+    .tab-report-content p { margin: 0.75em 0; }
+    .tab-report-content ul, .tab-report-content ol { margin: 0.75em 0; padding-left: 1.5em; }
+    .tab-report-content pre { background: var(--surface); padding: 1rem; border-radius: var(--radius); overflow-x: auto; font-size: 14px; }
+    .tab-report-placeholder { color: var(--text-muted); text-align: center; padding: 48px 28px; }
+    .tab-report-placeholder p { margin: 0.5em 0; }
+    .maturity-phase { margin-bottom: 32px; }
+    .maturity-phase h3 { font-size: 18px; margin: 0 0 12px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .maturity-category { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .maturity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: var(--surface); border-radius: var(--radius); margin-bottom: 8px; border: 1px solid var(--border); }
+    .maturity-item .name { flex: 1; font-weight: 500; }
+    .maturity-item .detail { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+    .maturity-item .badge { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px; }
+    .maturity-summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); }
+    .maturity-summary .phase-sum { font-size: 14px; }
+    .maturity-summary .phase-sum strong { color: var(--accent); }
+    .scorecard-hero {
+      text-align: center;
+      padding: 40px 28px 32px;
+    }
+    .scorecard-hero .score-big {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .scorecard-hero .score-big span { font-size: 28px; color: var(--text-muted); font-weight: 600; }
+    .scorecard-hero p { color: var(--text-muted); margin-top: 8px; }
+    .scorecard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 28px 48px;
+    }
+    .scorecard-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--pillar-color);
+    }
+    .scorecard-card .name { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+    .scorecard-card .score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .scorecard-card .score-num { font-size: 28px; font-weight: 800; color: var(--pillar-color); }
+    .scorecard-card .score-label { font-size: 14px; color: var(--text-muted); }
+    .scorecard-card .summary { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+    @media (max-width: 768px) {
+      .hero { padding: 48px 0 44px; }
+      .hero h1 { font-size: 32px; }
+      .section-pillar { padding: 28px 24px; }
+      .section-pillar h2 { font-size: 24px; }
+    }
   </style>
 </head>
 <body>
   <header class="hero">
     <div class="container">
-      <h1>Well-Architected Evidence Pack</h1>
+      <span class="label">Well-Architected Framework</span>
+      <h1>Evidence Pack</h1>
       <p class="meta">
-        <span>Account ID: {{ metadata.account_id }}</span>
-        <span>Generado: {{ metadata.generated_at }}</span>
+        <span>Account {{ metadata.account_id }}</span>
+        <span>{{ metadata.generated_at }}</span>
       </p>
-      <div class="pillar-cards">
-        {% for p in pillar_summaries %}
-        <a class="pillar-card" href="#pillar-{{ p.slug }}" style="--pillar-color: {{ p.color }}">
-          <span class="name">{{ p.name }}</span>
-          <span class="badge badge-{{ p.badge_class }}">{{ p.status_label }}</span>
-          <p class="summary">{{ p.summary }}</p>
-        </a>
-        {% endfor %}
-      </div>
     </div>
   </header>
 
+  <div class="tabs-wrap">
+    <input type="radio" name="main-tab" id="tab-scorecard" checked>
+    <input type="radio" name="main-tab" id="tab-evidence">
+    <input type="radio" name="main-tab" id="tab-caf">
+    <input type="radio" name="main-tab" id="tab-maturity">
+    <input type="radio" name="main-tab" id="tab-executive">
+    <input type="radio" name="main-tab" id="tab-findings">
+    <input type="radio" name="main-tab" id="tab-roadmap">
+    <div class="tab-labels">
+      <label for="tab-scorecard">Scorecard</label>
+      <label for="tab-evidence">Evidence Pack</label>
+      <label for="tab-caf">CAF</label>
+      <label for="tab-maturity">Modelo de Madurez</label>
+      <label for="tab-executive">Resumen ejecutivo</label>
+      <label for="tab-findings">Hallazgos</label>
+      <label for="tab-roadmap">Roadmap</label>
+    </div>
+    <div id="panel-scorecard" class="tab-panel">
+      <div class="scorecard-hero">
+        <div class="score-big">{{ average_score }}<span>/5.0</span></div>
+        <p>Score promedio por pilar (coherente con evidencias)</p>
+      </div>
+      <div class="scorecard-grid">
+        {% for s in scorecard_list %}
+        <div class="scorecard-card" style="--pillar-color: {{ s.color }}">
+          <div class="name">{{ s.name }}</div>
+          <div class="score-row">
+            <span class="score-num">{{ s.score }}/5</span>
+            <span class="score-label">{{ s.label }}</span>
+          </div>
+          <p class="summary">{{ pillars[s.name].summary }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div id="panel-caf" class="tab-panel">
+      <div class="tab-report-content">
+        <p>Esta sección está reservada para contenido del <strong>AWS Cloud Adoption Framework (CAF)</strong>. Próximamente.</p>
+      </div>
+    </div>
+    <div id="panel-maturity" class="tab-panel">
+      <div class="tab-report-content">
+        {% if security_maturity and security_maturity.results %}
+        <p style="margin-bottom: 24px;">Evaluación según el <a href="{{ security_maturity.source }}" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS</a> (v2.0), basada en los datos recolectados por ECAD. Los puntos marcados como <em>No evaluable</em> requieren revisión manual (procesos u organización).</p>
+        {% if security_maturity.summary %}
+        <div class="maturity-summary">
+          {% for phase in security_maturity.phases %}
+          {% set s = security_maturity.summary[phase.id] %}
+          <span class="phase-sum"><strong>{{ phase.name }}</strong>: {{ s.met }} cumple, {{ s.not_met }} no cumple, {{ s.partial }} parcial, {{ s.not_evaluable }} no evaluable ({{ s.total }} total)</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% for phase in security_maturity.phases %}
+        <div class="maturity-phase">
+          <h3>{{ phase.name }}</h3>
+          {% for r in security_maturity.results %}
+          {% if r.phase == phase.id %}
+          <div class="maturity-item">
+            <span class="name">
+              {{ r.name }}
+              <span class="maturity-category">— {{ r.category }}</span>
+              <div class="detail">{{ r.detail }}</div>
+            </span>
+            {% if r.status == 'met' %}<span class="badge badge-success">Cumple</span>
+            {% elif r.status == 'not_met' %}<span class="badge badge-danger">No cumple</span>
+            {% elif r.status == 'partial' %}<span class="badge badge-warning">Parcial</span>
+            {% else %}<span class="badge badge-info">No evaluable</span>{% endif %}
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="tab-report-placeholder">
+          <p>Ejecute <code>make evidence RUN_DIR=...</code> o <code>make reports RUN_DIR=...</code> para generar la evaluación del Modelo de Madurez en Seguridad de AWS.</p>
+          <p><a href="https://maturitymodel.security.aws.dev/es/" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS (es)</a></p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div id="panel-executive" class="tab-panel">
+      {% if executive_summary_html %}
+      <div class="tab-report-content">{{ executive_summary_html }}</div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el resumen ejecutivo en esta vista.</p>
+      </div>
+      {% endif %}
+    </div>
+    <div id="panel-findings" class="tab-panel">
+      {% if findings_html %}
+      <div class="tab-report-content">{{ findings_html }}</div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el reporte de hallazgos en esta vista.</p>
+      </div>
+      {% endif %}
+    </div>
+    <div id="panel-roadmap" class="tab-panel">
+      {% if roadmap_html %}
+      <div class="tab-report-content">{{ roadmap_html }}</div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el roadmap en esta vista.</p>
+      </div>
+      {% endif %}
+    </div>
+    <div id="panel-evidence" class="tab-panel">
+      <div class="container" style="padding-bottom: 24px;">
+        <div class="pillar-cards">
+          {% for p in pillar_summaries %}
+          <a class="pillar-card" href="#pillar-{{ p.slug }}" style="--pillar-color: {{ p.color }}">
+            <span class="pillar-hero-icon">{{ pillar_icons[p.name] }}</span>
+            <span class="name">{{ p.name }}</span>
+            <span class="badge badge-{{ p.badge_class }}">{{ p.status_label }}</span>
+            <p class="summary">{{ p.summary }}</p>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
   <nav class="nav-pillars">
     <div class="container">
       {% for p in pillar_summaries %}
@@ -170,6 +541,7 @@
     <div class="container">
     {% for p in pillar_summaries %}
     <section id="pillar-{{ p.slug }}" class="section-pillar" style="--pillar-color: {{ p.color }}">
+      <div class="pillar-section-icon">{{ pillar_icons[p.name] }}</div>
       <h2>{{ p.name }}</h2>
       <p class="pillar-summary">{{ pillars[p.name].summary }}</p>
       <div class="accordion">
@@ -207,9 +579,11 @@
     {% endfor %}
     </div>
   </main>
+    </div>
+  </div>
 
   <footer class="footer">
-    <div class="container">AWS Cloud Architecture Diagnostic (ECAD) — Evidence Pack generado a partir de datos de cuenta.</div>
+    <div class="container">AWS Cloud Architecture Diagnostic (ECAD)</div>
   </footer>
 </body>
 </html>

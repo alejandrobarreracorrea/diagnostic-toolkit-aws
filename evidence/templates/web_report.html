@@ -319,7 +319,8 @@
     .tabs-wrap input#tab-maturity:checked ~ .tab-labels label[for="tab-maturity"],
     .tabs-wrap input#tab-executive:checked ~ .tab-labels label[for="tab-executive"],
     .tabs-wrap input#tab-findings:checked ~ .tab-labels label[for="tab-findings"],
-    .tabs-wrap input#tab-roadmap:checked ~ .tab-labels label[for="tab-roadmap"] {
+    .tabs-wrap input#tab-roadmap:checked ~ .tab-labels label[for="tab-roadmap"],
+    .tabs-wrap input#tab-tagging:checked ~ .tab-labels label[for="tab-tagging"] {
       background: var(--accent);
       border-color: var(--accent);
       color: var(--bg);
@@ -331,7 +332,8 @@
     .tabs-wrap input#tab-maturity:checked ~ .tab-panel#panel-maturity,
     .tabs-wrap input#tab-executive:checked ~ .tab-panel#panel-executive,
     .tabs-wrap input#tab-findings:checked ~ .tab-panel#panel-findings,
-    .tabs-wrap input#tab-roadmap:checked ~ .tab-panel#panel-roadmap { display: block; }
+    .tabs-wrap input#tab-roadmap:checked ~ .tab-panel#panel-roadmap,
+    .tabs-wrap input#tab-tagging:checked ~ .tab-panel#panel-tagging { display: block; }
     .tab-report-content {
       max-width: 1000px;
       margin: 0 auto;
@@ -411,11 +413,13 @@
     <input type="radio" name="main-tab" id="tab-executive">
     <input type="radio" name="main-tab" id="tab-findings">
     <input type="radio" name="main-tab" id="tab-roadmap">
+    <input type="radio" name="main-tab" id="tab-tagging">
     <div class="tab-labels">
       <label for="tab-scorecard">Scorecard</label>
       <label for="tab-evidence">Evidence Pack</label>
       <label for="tab-caf">CAF</label>
       <label for="tab-maturity">Modelo de Madurez</label>
+      <label for="tab-tagging">Tags por servicio</label>
       <label for="tab-executive">Resumen ejecutivo</label>
       <label for="tab-findings">Hallazgos</label>
       <label for="tab-roadmap">Roadmap</label>
@@ -477,6 +481,16 @@
       {% else %}
       <div class="tab-report-placeholder">
         <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el roadmap en esta vista.</p>
+      </div>
+      {% endif %}
+    </div>
+    <div id="panel-tagging" class="tab-panel">
+      {% if tagging_html %}
+      <div class="tab-report-content">{{ tagging_html }}</div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el reporte de tags por servicio.</p>
+        <p>Asegúrate de que la política IAM incluya <code>tag:GetResources</code>, <code>tag:GetTagKeys</code> y <code>tag:GetTagValues</code>.</p>
       </div>
       {% endif %}
     </div>

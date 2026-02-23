@@ -4585,6 +4585,7 @@ class EvidenceGenerator:
             "findings_html": Markup(er.get("findings_html", "")) if er.get("findings_html") else "",
             "roadmap_html": Markup(er.get("roadmap_html", "")) if er.get("roadmap_html") else "",
             "security_maturity_html": Markup(er.get("security_maturity_html", "")) if er.get("security_maturity_html") else "",
+            "tagging_html": Markup(er.get("tagging_html", "")) if er.get("tagging_html") else "",
         }
         html = template.render(**ctx)
         out_file = web_dir / "index.html"

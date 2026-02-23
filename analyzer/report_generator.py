@@ -53,6 +53,7 @@ class ReportGenerator:
         self._generate_scorecard(data)
         self._generate_inventory_report(data)
         self._generate_security_maturity_report(data)
+        self._generate_tagging_report(data)
         self._generate_web_unified(data)
 
         logger.info(f"Reportes generados en: {self.output_dir}")
@@ -537,6 +538,46 @@ class ReportGenerator:
             f.write("\n".join(lines))
         logger.info(f"Reporte Modelo de Madurez generado: {output_file}")
 
+    def _generate_tagging_report(self, data: Dict) -> None:
+        """Generar reporte de tags por servicio (Resource Groups Tagging API)."""
+        try:
+            from evidence.tagging_evaluator import evaluate as evaluate_tagging
+            tagging = evaluate_tagging(data.get("index", {}), run_dir=self.run_dir)
+        except Exception as e:
+            logger.debug("No se pudo evaluar tagging: %s", e)
+            return
+        lines = [
+            "# Tags por servicio",
+            "",
+            "Resumen de tags detectados por servicio mediante **Resource Groups Tagging API** (GetResources).",
+            "",
+        ]
+        if tagging.get("error"):
+            lines.append(f"**Nota:** {tagging['error']}")
+            lines.append("")
+            lines.append("Asegúrate de que la política IAM incluya `tag:GetResources`, `tag:GetTagKeys` y `tag:GetTagValues`.")
+            lines.append("")
+        elif tagging.get("by_service"):
+            lines.append(f"- **Total de recursos con tags:** {tagging.get('total_resources', 0)}")
+            lines.append(f"- **Claves de tag únicas (todas):** {', '.join(tagging.get('all_tag_keys', [])[:30])}{'...' if len(tagging.get('all_tag_keys', [])) > 30 else ''}")
+            lines.append("")
+            lines.append("## Por servicio")
+            lines.append("")
+            lines.append("| Servicio | Recursos | Tags |")
+            lines.append("|----------|----------|------|")
+            for svc, info in tagging.get("by_service", {}).items():
+                keys = info.get("tag_keys", [])
+                keys_str = ", ".join(keys[:15]) + ("..." if len(keys) > 15 else "")
+                lines.append(f"| {svc} | {info.get('resource_count', 0)} | {keys_str} |")
+            lines.append("")
+        else:
+            lines.append("No se encontraron recursos con tags.")
+            lines.append("")
+        output_file = self.output_dir / "tagging_report.md"
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+        logger.info(f"Reporte de tags generado: {output_file}")
+
     def _security_maturity_to_html(self, security_maturity: Dict) -> str:
         """Generar HTML del modelo de madurez (fallback cuando markdown no está instalado)."""
         import html
@@ -591,6 +632,7 @@ class ReportGenerator:
                     ("findings_html", "findings_report.md"),
                     ("roadmap_html", "roadmap_30_60_90.md"),
                     ("security_maturity_html", "security_maturity.md"),
+                    ("tagging_html", "tagging_report.md"),
                 ]:
                     path = reports_dir / filename
                     if path.exists():

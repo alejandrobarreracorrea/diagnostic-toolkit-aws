@@ -52,6 +52,7 @@ class ReportGenerator:
         self._generate_technical_annex(data)
         self._generate_scorecard(data)
         self._generate_inventory_report(data)
+        self._generate_security_maturity_report(data)
         self._generate_web_unified(data)
 
         logger.info(f"Reportes generados en: {self.output_dir}")
@@ -478,6 +479,94 @@ class ReportGenerator:
             f.write(output)
         logger.info(f"Reporte de inventario generado: {output_file}")
 
+    def _generate_security_maturity_report(self, data: Dict) -> None:
+        """Generar reporte en Markdown del Modelo de Madurez en Seguridad de AWS (homogéneo con el resto de reportes)."""
+        evidence_pack = data.get("evidence_pack", {})
+        security_maturity = evidence_pack.get("security_maturity")
+        if not security_maturity and data.get("index"):
+            try:
+                from evidence.security_maturity import evaluate as evaluate_maturity
+                security_maturity = evaluate_maturity(data["index"], run_dir=self.run_dir)
+            except Exception as e:
+                logger.debug("No se pudo evaluar modelo de madurez para reporte: %s", e)
+        if not security_maturity or not security_maturity.get("results"):
+            return
+        lines = [
+            "# Modelo de Madurez en Seguridad de AWS",
+            "",
+            f"Evaluación basada en los datos recolectados por ECAD. Fuente: [Modelo de Madurez en Seguridad de AWS]({security_maturity.get('source', 'https://maturitymodel.security.aws.dev/es/')}) (v2.0).",
+            "",
+            "Los puntos marcados como **No evaluable** requieren revisión manual (procesos u organización).",
+            "",
+            "## Resumen por fase",
+            "",
+        ]
+        summary = security_maturity.get("summary", {})
+        phases = security_maturity.get("phases", [])
+        for phase in phases:
+            pid = phase["id"]
+            name = phase["name"]
+            s = summary.get(pid, {})
+            met = s.get("met", 0)
+            not_met = s.get("not_met", 0)
+            partial = s.get("partial", 0)
+            ne = s.get("not_evaluable", 0)
+            total = s.get("total", 0)
+            lines.append(f"- **{name}**: {met} cumple, {not_met} no cumple, {partial} parcial, {ne} no evaluable ({total} total)")
+        lines.extend(["", "---", ""])
+        results = security_maturity.get("results", [])
+        status_label = {"met": "Cumple", "not_met": "No cumple", "partial": "Parcial", "not_evaluable": "No evaluable"}
+        for phase in phases:
+            lines.append(f"## {phase['name']}")
+            lines.append("")
+            lines.append("| Capacidad | Categoría | Estado | Detalle |")
+            lines.append("|----------|-----------|--------|--------|")
+            for r in results:
+                if r["phase"] != phase["id"]:
+                    continue
+                name_cell = r["name"].replace("|", "\\|")
+                cat_cell = (r.get("category") or "").replace("|", "\\|")
+                st = status_label.get(r["status"], r["status"])
+                detail_cell = (r.get("detail") or "").replace("|", "\\|").replace("\n", " ")
+                if len(detail_cell) > 80:
+                    detail_cell = detail_cell[:77] + "..."
+                lines.append(f"| {name_cell} | {cat_cell} | {st} | {detail_cell} |")
+            lines.append("")
+        output_file = self.output_dir / "security_maturity.md"
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+        logger.info(f"Reporte Modelo de Madurez generado: {output_file}")
+
+    def _security_maturity_to_html(self, security_maturity: Dict) -> str:
+        """Generar HTML del modelo de madurez (fallback cuando markdown no está instalado)."""
+        import html
+        source = security_maturity.get("source", "https://maturitymodel.security.aws.dev/es/")
+        lines = [
+            f'<p><a href="{html.escape(source)}" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS</a> (v2.0). '
+            "Los puntos marcados como <em>No evaluable</em> requieren revisión manual.</p>",
+            "<h2>Resumen por fase</h2>",
+            "<ul>",
+        ]
+        for phase in security_maturity.get("phases", []):
+            s = security_maturity.get("summary", {}).get(phase["id"], {})
+            met, not_met, partial, ne, total = s.get("met", 0), s.get("not_met", 0), s.get("partial", 0), s.get("not_evaluable", 0), s.get("total", 0)
+            lines.append(f"<li><strong>{html.escape(phase['name'])}</strong>: {met} cumple, {not_met} no cumple, {partial} parcial, {ne} no evaluable ({total} total)</li>")
+        lines.append("</ul>")
+        status_label = {"met": "Cumple", "not_met": "No cumple", "partial": "Parcial", "not_evaluable": "No evaluable"}
+        for phase in security_maturity.get("phases", []):
+            lines.append(f"<h2>{html.escape(phase['name'])}</h2>")
+            lines.append("<table><thead><tr><th>Capacidad</th><th>Categoría</th><th>Estado</th><th>Detalle</th></tr></thead><tbody>")
+            for r in security_maturity.get("results", []):
+                if r["phase"] != phase["id"]:
+                    continue
+                name = html.escape(r.get("name", ""))
+                cat = html.escape(r.get("category", ""))
+                st = html.escape(status_label.get(r.get("status", ""), r.get("status", "")))
+                detail = html.escape((r.get("detail") or "")[:200])
+                lines.append(f"<tr><td>{name}</td><td>{cat}</td><td>{st}</td><td>{detail}</td></tr>")
+            lines.append("</tbody></table>")
+        return "\n".join(lines)
+
     def _generate_web_unified(self, data: Dict) -> None:
         """Regenerar reporte web unificado con todos los reportes (Scorecard, Evidence, CAF, Modelo de Madurez, Resumen, Hallazgos, Roadmap)."""
         evidence_pack = data.get("evidence_pack", {})
@@ -493,7 +582,7 @@ class ReportGenerator:
                     )
                 except Exception as e:
                     logger.debug("No se pudo evaluar modelo de madurez: %s", e)
-            reports_dir = self.run_dir / "outputs" / "reports"
+            reports_dir = Path(self.run_dir).resolve() / "outputs" / "reports"
             extra = {}
             try:
                 import markdown
@@ -501,6 +590,7 @@ class ReportGenerator:
                     ("executive_summary_html", "executive_summary.md"),
                     ("findings_html", "findings_report.md"),
                     ("roadmap_html", "roadmap_30_60_90.md"),
+                    ("security_maturity_html", "security_maturity.md"),
                 ]:
                     path = reports_dir / filename
                     if path.exists():
@@ -508,6 +598,9 @@ class ReportGenerator:
                             extra[key] = markdown.markdown(f.read(), extensions=["extra"])
             except ImportError:
                 logger.debug("Paquete markdown no instalado; pestañas de reportes mostrarán placeholder. pip install markdown para contenido completo.")
+            # Fallback: si no hay security_maturity_html (p. ej. markdown no instalado) pero sí datos, generar HTML desde evidence_pack
+            if "security_maturity_html" not in extra and evidence_pack.get("security_maturity", {}).get("results"):
+                extra["security_maturity_html"] = self._security_maturity_to_html(evidence_pack["security_maturity"])
             from evidence.generator import EvidenceGenerator
             gen = EvidenceGenerator(str(self.run_dir))
             gen._generate_web_report(evidence_pack, extra_reports=extra)

@@ -56,8 +56,12 @@ function Start-Collection {
     Write-Host "Iniciando recolección de datos AWS..." -ForegroundColor Yellow
     
     if ([string]::IsNullOrEmpty($env:RUN_DIR)) {
-        $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-        $runDir = "runs\run-$timestamp"
+        $runDir = python -c "from collector.run_dir import get_run_dir; print(get_run_dir())"
+        if ($LASTEXITCODE -ne 0) {
+            $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+            $runDir = "runs\run-$timestamp"
+        }
+        $runDir = $runDir -replace "/", "\"
     } else {
         $runDir = $env:RUN_DIR
     }

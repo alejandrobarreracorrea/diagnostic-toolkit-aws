@@ -343,16 +343,10 @@
     .tab-report-content pre { background: var(--surface); padding: 1rem; border-radius: var(--radius); overflow-x: auto; font-size: 14px; }
     .tab-report-placeholder { color: var(--text-muted); text-align: center; padding: 48px 28px; }
     .tab-report-placeholder p { margin: 0.5em 0; }
-    .maturity-phase { margin-bottom: 32px; }
-    .maturity-phase h3 { font-size: 18px; margin: 0 0 12px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .maturity-category { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-    .maturity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: var(--surface); border-radius: var(--radius); margin-bottom: 8px; border: 1px solid var(--border); }
-    .maturity-item .name { flex: 1; font-weight: 500; }
-    .maturity-item .detail { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
-    .maturity-item .badge { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px; }
-    .maturity-summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); }
-    .maturity-summary .phase-sum { font-size: 14px; }
-    .maturity-summary .phase-sum strong { color: var(--accent); }
+    .tab-report-content table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 14px; }
+    .tab-report-content th, .tab-report-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+    .tab-report-content th { background: var(--surface); color: var(--accent); font-weight: 600; }
+    .tab-report-content tr:nth-child(even) { background: rgba(255,255,255,.02); }
     .scorecard-hero {
       text-align: center;
       padding: 40px 28px 32px;
@@ -450,44 +444,14 @@
       </div>
     </div>
     <div id="panel-maturity" class="tab-panel">
-      <div class="tab-report-content">
-        {% if security_maturity and security_maturity.results %}
-        <p style="margin-bottom: 24px;">Evaluación según el <a href="{{ security_maturity.source }}" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS</a> (v2.0), basada en los datos recolectados por ECAD. Los puntos marcados como <em>No evaluable</em> requieren revisión manual (procesos u organización).</p>
-        {% if security_maturity.summary %}
-        <div class="maturity-summary">
-          {% for phase in security_maturity.phases %}
-          {% set s = security_maturity.summary[phase.id] %}
-          <span class="phase-sum"><strong>{{ phase.name }}</strong>: {{ s.met }} cumple, {{ s.not_met }} no cumple, {{ s.partial }} parcial, {{ s.not_evaluable }} no evaluable ({{ s.total }} total)</span>
-          {% endfor %}
-        </div>
-        {% endif %}
-        {% for phase in security_maturity.phases %}
-        <div class="maturity-phase">
-          <h3>{{ phase.name }}</h3>
-          {% for r in security_maturity.results %}
-          {% if r.phase == phase.id %}
-          <div class="maturity-item">
-            <span class="name">
-              {{ r.name }}
-              <span class="maturity-category">— {{ r.category }}</span>
-              <div class="detail">{{ r.detail }}</div>
-            </span>
-            {% if r.status == 'met' %}<span class="badge badge-success">Cumple</span>
-            {% elif r.status == 'not_met' %}<span class="badge badge-danger">No cumple</span>
-            {% elif r.status == 'partial' %}<span class="badge badge-warning">Parcial</span>
-            {% else %}<span class="badge badge-info">No evaluable</span>{% endif %}
-          </div>
-          {% endif %}
-          {% endfor %}
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="tab-report-placeholder">
-          <p>Ejecute <code>make evidence RUN_DIR=...</code> o <code>make reports RUN_DIR=...</code> para generar la evaluación del Modelo de Madurez en Seguridad de AWS.</p>
-          <p><a href="https://maturitymodel.security.aws.dev/es/" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS (es)</a></p>
-        </div>
-        {% endif %}
+      {% if security_maturity_html %}
+      <div class="tab-report-content">{{ security_maturity_html }}</div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el Modelo de Madurez en Seguridad de AWS en esta vista.</p>
+        <p><a href="https://maturitymodel.security.aws.dev/es/" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS (es)</a></p>
       </div>
+      {% endif %}
     </div>
     <div id="panel-executive" class="tab-panel">
       {% if executive_summary_html %}

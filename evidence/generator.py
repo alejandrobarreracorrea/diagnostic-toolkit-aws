@@ -4361,6 +4361,51 @@ class EvidenceGenerator:
             f.write(md_content)
         logger.info(f"Evidence pack Markdown guardado: {md_file}")
 
+        # Resumen de cuenta a nivel de run (para identificar fácilmente el origen)
+        try:
+            account_id = evidence_pack.get("metadata", {}).get("account_id") or "N/A"
+            account_alias = None
+            arn = None
+            user_id = None
+            regions = []
+            timestamp = None
+            metadata_file = self.run_dir / "metadata.json"
+            if metadata_file.exists():
+                with open(metadata_file, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                account_alias = meta.get("account_alias")
+                arn = meta.get("arn")
+                user_id = meta.get("user_id")
+                regions = meta.get("regions") or []
+                timestamp = meta.get("timestamp")
+
+            lines = []
+            lines.append("# Información de la cuenta para este run")
+            lines.append("")
+            lines.append(f"- **Account ID**: `{account_id}`")
+            if account_alias:
+                lines.append(f"- **Alias**: `{account_alias}`")
+            if arn:
+                lines.append(f"- **ARN**: `{arn}`")
+            if user_id:
+                lines.append(f"- **User/Role ID**: `{user_id}`")
+            if timestamp:
+                lines.append(f"- **Timestamp de recolección**: {timestamp}")
+            if regions:
+                regions_str = ", ".join(regions)
+                lines.append(f"- **Regiones escaneadas**: {regions_str}")
+            lines.append("")
+            lines.append("Fuente: `metadata.json` y `outputs/evidence/evidence_pack.json`.")
+            lines.append("")
+            lines.append("Este archivo se genera para identificar rápidamente de qué cuenta/regiones proviene este run.")
+
+            account_info_file = self.run_dir / "account_info.md"
+            with open(account_info_file, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines))
+            logger.info(f"Resumen de cuenta guardado: {account_info_file}")
+        except Exception as e:
+            logger.debug(f"No se pudo generar resumen de cuenta para el run: {e}")
+
     # Colores por categoría del pilar (semánticos y distinguibles)
     _PILLAR_WEB = {
         "Operational Excellence": {"color": "#2563eb", "slug": "operational-excellence"},   # Azul: operaciones, sistemas, automatización
@@ -4528,7 +4573,6 @@ class EvidenceGenerator:
         average_score = sum(scorecard_scores.get(p, 5) for p in self.PILLARS) / len(self.PILLARS) if self.PILLARS else 0
 
         er = extra_reports or {}
-        security_maturity = evidence_pack.get("security_maturity") or {}
         ctx = {
             "metadata": evidence_pack["metadata"],
             "pillar_summaries": pillar_summaries,
@@ -4540,7 +4584,7 @@ class EvidenceGenerator:
             "executive_summary_html": Markup(er.get("executive_summary_html", "")) if er.get("executive_summary_html") else "",
             "findings_html": Markup(er.get("findings_html", "")) if er.get("findings_html") else "",
             "roadmap_html": Markup(er.get("roadmap_html", "")) if er.get("roadmap_html") else "",
-            "security_maturity": security_maturity,
+            "security_maturity_html": Markup(er.get("security_maturity_html", "")) if er.get("security_maturity_html") else "",
         }
         html = template.render(**ctx)
         out_file = web_dir / "index.html"

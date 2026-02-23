@@ -8,10 +8,10 @@ install:
 	pip3 install -r requirements.txt
 
 # Recolección de datos desde AWS
-# IMPORTANTE: Evaluar timestamp UNA SOLA VEZ para evitar crear múltiples runs
+# Si RUN_DIR no se especifica, se genera run-YYYYMMDD-HHMMSS-ACCOUNTID (cuenta en el nombre)
 collect:
 	@if [ -z "$(RUN_DIR)" ]; then \
-		RUN_DIR="./runs/run-$$(date +%Y%m%d-%H%M%S)"; \
+		RUN_DIR=$$(python3 -c "from collector.run_dir import get_run_dir; print(get_run_dir())"); \
 	else \
 		RUN_DIR="$(RUN_DIR)"; \
 	fi; \
@@ -71,7 +71,7 @@ clean:
 help:
 	@echo "Comandos disponibles:"
 	@echo "  make install          - Instalar dependencias"
-	@echo "  make collect          - Recolectar datos desde AWS"
+	@echo "  make collect          - Recolectar datos (run = run-YYYYMMDD-HHMMSS-ACCOUNTID)"
 	@echo "  make analyze RUN_DIR=... - Analizar un run específico"
 	@echo "  make evidence RUN_DIR=... - Generar evidence pack"
 	@echo "  make reports RUN_DIR=... - Generar todos los reportes"

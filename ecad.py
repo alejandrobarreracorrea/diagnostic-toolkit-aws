@@ -284,8 +284,29 @@ def list_runs():
         return []
     
     print("\n📁 Runs disponibles:\n")
-    for i, run_dir in enumerate(runs, 1):
-        print(f"  {i}. {run_dir.name}")
+    enriched = []
+    for run_dir in runs:
+        account_id = None
+        account_alias = None
+        try:
+            metadata_file = run_dir / "metadata.json"
+            if metadata_file.exists():
+                with open(metadata_file, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                account_id = meta.get("account_id")
+                account_alias = meta.get("account_alias")
+        except Exception:
+            pass
+        enriched.append((run_dir, account_id, account_alias))
+    
+    for i, (run_dir, account_id, account_alias) in enumerate(enriched, 1):
+        suffix_parts = []
+        if account_id:
+            suffix_parts.append(f"acct: {account_id}")
+        if account_alias:
+            suffix_parts.append(f"alias: {account_alias}")
+        suffix = f" ({' | '.join(suffix_parts)})" if suffix_parts else ""
+        print(f"  {i}. {run_dir.name}{suffix}")
     
     return runs
 

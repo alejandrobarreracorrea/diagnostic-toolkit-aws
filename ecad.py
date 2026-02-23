@@ -1625,15 +1625,44 @@ def show_maturity_summary():
         print(f"  {name}")
         print(f"    Cumple: {met}  |  No cumple: {not_met}  |  Parcial: {partial}  |  No evaluable: {ne}  (total: {total})")
         print()
+    # Generar reportes y reporte web implícitamente para que la pestaña «Modelo de Madurez» tenga contenido
+    web_updated = False
+    try:
+        # Si no hay evidence pack con pilares, el reporte web no se regenera; generar evidence primero
+        pack = {}
+        if evidence_file.exists():
+            try:
+                with open(evidence_file, "r", encoding="utf-8") as f:
+                    pack = json.load(f)
+            except Exception:
+                pass
+        if not pack.get("pillars"):
+            try:
+                from evidence.generator import EvidenceGenerator
+                EvidenceGenerator(str(run_dir)).generate()
+            except Exception:
+                pass
+        from analyzer.report_generator import ReportGenerator
+        base = Path(__file__).resolve().parent
+        templates_dir = base / "analyzer" / "templates"
+        if not templates_dir.exists():
+            templates_dir = base / "templates"
+        gen = ReportGenerator(str(run_dir), templates_dir)
+        gen.generate_all()
+        web_updated = True
+    except Exception:
+        pass  # Si falla, se muestra la ruta manual más abajo
     web_path = run_dir / "outputs" / "web" / "index.html"
     if web_path.exists():
         print("  Ver reporte completo (todas las capacidades y detalles):")
         print(f"    {web_path}")
-        print("  Abre el archivo y usa la pestaña «Modelo de Madurez».")
+        if web_updated:
+            print("  La pestaña «Modelo de Madurez» ya está actualizada.")
+        else:
+            print("  Abre el archivo y usa la pestaña «Modelo de Madurez».")
     else:
-        print("  Para generar el reporte web con el detalle completo, ejecuta:")
+        print("  Para generar el reporte web, ejecuta antes Evidence (4) y luego esta opción de nuevo:")
         print(f"    make evidence RUN_DIR={run_dir}")
-        print(f"    make reports RUN_DIR={run_dir}")
     print("="*70 + "\n")
     return True
 

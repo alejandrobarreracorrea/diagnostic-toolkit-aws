@@ -4,7 +4,16 @@
 
 **Framework evaluado:** AWS Well-Architected Framework (versión {{ well_arch_version }})
 
-Este documento estructura las mejoras en **dos clasificaciones**: **Pronta solución (30 días)** —tareas realizables en el corto plazo— y **Medium Risk Issues (MRI)** —mejoras que requieren mayor planificación o esfuerzo.
+Este documento estructura las mejoras en **dos clasificaciones**:
+
+- **Pronta solución (30 días)**: tareas realizables en el corto plazo (esfuerzo bajo, quick wins).
+- **Medium Risk Issues (MRI)**: mejoras que requieren mayor planificación, coordinación o esfuerzo.
+
+Las acciones se construyen a partir de tres fuentes:
+
+- **Hallazgos**: problemas detectados automáticamente en la cuenta.
+- **Evidence Pack**: preguntas del Well-Architected con cumplimiento parcial o no cumplido.
+- **Modelo de Madurez**: capacidades de seguridad en estado parcial o no cumplido.
 
 ---
 
@@ -19,9 +28,11 @@ Este documento estructura las mejoras en **dos clasificaciones**: **Pronta soluc
 
 - **Dominio:** {{ finding.domain }}
 {% if finding.source %}- **Origen:** {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}
-{% endif %}- **Impacto:** {{ finding.impact }}
-- **Descripción:** {{ finding.description }}
-- **Recomendación:** {{ finding.recommendation }}
+{% endif %}- **Impacto estimado:** {{ finding.impact }}
+- **Descripción actual:** {{ finding.description }}
+- **Recomendación prioritaria:** {{ finding.recommendation }}
+
+---
 
 {% endfor %}
 {% if not improvement_plan_pronta %}
@@ -44,10 +55,12 @@ Este documento estructura las mejoras en **dos clasificaciones**: **Pronta soluc
 - **Dominio:** {{ finding.domain }}
 - **Riesgo:** Medio (MRI)
 {% if finding.source %}- **Origen:** {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}
-{% endif %}- **Impacto:** {{ finding.impact }}
-{% if finding.effort %}- **Esfuerzo:** {{ finding.effort }}
-{% endif %}- **Descripción:** {{ finding.description }}
-- **Recomendación:** {{ finding.recommendation }}
+{% endif %}- **Impacto estimado:** {{ finding.impact }}
+{% if finding.effort %}- **Esfuerzo estimado:** {{ finding.effort }}
+{% endif %}- **Descripción actual:** {{ finding.description }}
+- **Recomendación prioritaria:** {{ finding.recommendation }}
+
+---
 
 {% endfor %}
 {% if not improvement_plan_mri %}

@@ -331,23 +331,40 @@ class EvidenceGenerator:
                 if not found:
                     missing.append(service)
         
+        # Deduplicar solo por nombre exacto (evitar duplicados en related_services) para que el conteo coincida con la lista
+        seen_d = {}
+        for s in detected:
+            k = s.lower().strip()
+            if k not in seen_d:
+                seen_d[k] = s
+        detected = list(seen_d.values())
+        seen_m = {}
+        for s in missing:
+            k = s.lower().strip()
+            if k not in seen_m:
+                seen_m[k] = s
+        missing = list(seen_m.values())
+        
+        total_related = len(related_services)
+        num_detected = len(detected)
+        
         # Determinar estado de cumplimiento
-        if len(detected) == len(related_services):
+        if num_detected >= total_related:
             status = "compliant"
-            message = f"Completamente cumplido: {len(detected)}/{len(related_services)} servicios detectados"
-        elif len(detected) > 0:
+            message = f"Completamente cumplido: {num_detected}/{total_related} servicios detectados"
+        elif num_detected > 0:
             status = "partially_compliant"
-            message = f"Parcialmente cumplido: {len(detected)}/{len(related_services)} servicios detectados"
+            message = f"Parcialmente cumplido: {num_detected}/{total_related} servicios detectados"
         else:
             status = "not_compliant"
-            message = f"No cumplido: 0/{len(related_services)} servicios detectados"
+            message = f"No cumplido: 0/{total_related} servicios detectados"
         
         return {
             "status": status,
             "message": message,
             "detected_services": detected,
             "missing_services": missing,
-            "compliance_percentage": (len(detected) / len(related_services) * 100) if related_services else 0
+            "compliance_percentage": (num_detected / total_related * 100) if total_related else 0
         }
     
     def _check_service_enabled(self, service_name: str, operation_name: str, services: Dict) -> bool:

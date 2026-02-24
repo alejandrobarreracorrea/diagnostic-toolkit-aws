@@ -338,6 +338,8 @@
     .accordion .compliance-msg.status-na { background: var(--info-dim); color: #d4d4d8; border: 1px solid rgba(113, 113, 122, .3); }
     .accordion ul.evidences, .accordion ul.practices { margin: 12px 0; padding-left: 22px; }
     .accordion ul.evidences li { margin: 8px 0; font-size: 15px; line-height: 1.5; }
+    .accordion .servicios-list { margin: 8px 0; font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+    .accordion .servicios-list.missing { color: var(--danger); }
     .accordion .ev-ok { color: #4ade80; }
     .accordion .ev-warn { color: #fbbf24; }
     .accordion .ev-fail { color: #f87171; }
@@ -633,6 +635,15 @@
           </summary>
           <div class="content">
             <div class="compliance-msg status-{{ q.compliance_class }}">{{ q.compliance.message }}</div>
+            {% if q.compliance.detected_services or q.compliance.missing_services %}
+            <p><strong>Servicios evaluados</strong></p>
+            {% if q.compliance.detected_services %}
+            <p class="servicios-list"><strong>Detectados ({{ q.compliance.detected_services|length }}):</strong> {{ q.compliance.detected_services|join(', ') }}</p>
+            {% endif %}
+            {% if q.compliance.missing_services %}
+            <p class="servicios-list missing"><strong>No detectados ({{ q.compliance.missing_services|length }}):</strong> {{ q.compliance.missing_services|join(', ') }}</p>
+            {% endif %}
+            {% endif %}
             {% if q.related_evidences %}
             <p><strong>Evidencias</strong></p>
             <ul class="evidences">

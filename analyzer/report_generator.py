@@ -643,6 +643,18 @@ class ReportGenerator:
             # Fallback: si no hay security_maturity_html (p. ej. markdown no instalado) pero sí datos, generar HTML desde evidence_pack
             if "security_maturity_html" not in extra and evidence_pack.get("security_maturity", {}).get("results"):
                 extra["security_maturity_html"] = self._security_maturity_to_html(evidence_pack["security_maturity"])
+            # Fallback simple para tagging_html cuando markdown no está disponible:
+            # mostrar el contenido Markdown como texto preformateado para que no quede la pestaña vacía.
+            if "tagging_html" not in extra:
+                tagging_md = reports_dir / "tagging_report.md"
+                if tagging_md.exists():
+                    try:
+                        import html as _html
+                        with open(tagging_md, "r", encoding="utf-8") as f:
+                            raw = f.read()
+                        extra["tagging_html"] = "<pre>" + _html.escape(raw) + "</pre>"
+                    except Exception as e:
+                        logger.debug("No se pudo generar fallback HTML para tagging_report.md: %s", e)
             from evidence.generator import EvidenceGenerator
             gen = EvidenceGenerator(str(self.run_dir))
             gen._generate_web_report(evidence_pack, extra_reports=extra)

@@ -2,7 +2,8 @@
 
 **Fecha:** {{ date }}  
 **Account ID:** {{ account_id }}  
-**Account Alias:** {{ account_alias }}
+**Account Alias:** {{ account_alias }}  
+**Framework evaluado:** AWS Well-Architected Framework (versión {{ well_arch_version }})
 
 ---
 

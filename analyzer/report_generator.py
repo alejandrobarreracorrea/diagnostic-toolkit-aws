@@ -12,6 +12,8 @@ from typing import Dict, Any, List
 from datetime import datetime
 from jinja2 import Template
 
+from evidence import WELL_ARCH_VERSION
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -173,6 +175,11 @@ class ReportGenerator:
         else:
             top_regions = inventory.get("top_regions", [])[:5]
         
+        # Versión del Well-Architected Framework usada en la evaluación
+        evidence_pack = data.get("evidence_pack", {})
+        wa_meta = evidence_pack.get("metadata", {}) if isinstance(evidence_pack, dict) else {}
+        well_arch_version = wa_meta.get("well_arch_version") or WELL_ARCH_VERSION
+
         context = {
             "date": datetime.now().strftime("%Y-%m-%d"),
             "account_id": data.get("metadata", {}).get("account_id", "N/A"),
@@ -183,6 +190,7 @@ class ReportGenerator:
             "findings_count": data.get("findings", {}).get("total_findings", 0),
             "top_services": top_services,
             "top_regions": top_regions,
+            "well_arch_version": well_arch_version,
         }
         
         output = template.render(**context)
@@ -335,10 +343,14 @@ class ReportGenerator:
         mri_mat = [i for i in items_maturity if i not in pronta_mat]
         improvement_plan_mri = mri_f + mri_ev + mri_mat
         
+        wa_meta = evidence_pack.get("metadata", {}) if isinstance(evidence_pack, dict) else {}
+        well_arch_version = wa_meta.get("well_arch_version") or WELL_ARCH_VERSION
+
         context = {
             "date": datetime.now().strftime("%Y-%m-%d"),
             "improvement_plan_pronta": improvement_plan_pronta[:35],
             "improvement_plan_mri": improvement_plan_mri[:40],
+            "well_arch_version": well_arch_version,
         }
         
         output = template.render(**context)
@@ -451,10 +463,14 @@ class ReportGenerator:
                     score = max(1, min(5, int(base_score)))
                 domain_scores[domain] = score
         
+        wa_meta = evidence_pack.get("metadata", {}) if isinstance(evidence_pack, dict) else {}
+        well_arch_version = wa_meta.get("well_arch_version") or WELL_ARCH_VERSION
+
         context = {
             "date": datetime.now().strftime("%Y-%m-%d"),
             "domain_scores": domain_scores,
-            "average_score": sum(domain_scores.values()) / len(domain_scores) if domain_scores else 0
+            "average_score": sum(domain_scores.values()) / len(domain_scores) if domain_scores else 0,
+            "well_arch_version": well_arch_version,
         }
         
         output = template.render(**context)

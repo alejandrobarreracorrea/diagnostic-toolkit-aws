@@ -19,6 +19,8 @@ from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
 
+from evidence import WELL_ARCH_VERSION, WELL_ARCH_DOC_URL
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -100,7 +102,9 @@ class EvidenceGenerator:
             "metadata": {
                 "run_dir": str(self.run_dir),
                 "generated_at": None,
-                "account_id": self._get_account_id()
+                "account_id": self._get_account_id(),
+                "well_arch_version": WELL_ARCH_VERSION,
+                "well_arch_url": WELL_ARCH_DOC_URL,
             },
             "pillars": {}
         }
@@ -4630,8 +4634,15 @@ class EvidenceGenerator:
         lines = []
         lines.append("# Well-Architected Framework - Evidence Pack")
         lines.append("")
-        lines.append(f"**Generado:** {evidence_pack['metadata']['generated_at']}")
-        lines.append(f"**Account ID:** {evidence_pack['metadata']['account_id']}")
+        meta = evidence_pack.get("metadata", {})
+        lines.append(f"**Generado:** {meta.get('generated_at')}")
+        lines.append(f"**Account ID:** {meta.get('account_id')}")
+        wa_ver = meta.get("well_arch_version")
+        if wa_ver:
+            lines.append(f"**Framework evaluado:** AWS Well-Architected Framework (versión {wa_ver})")
+        wa_url = meta.get("well_arch_url")
+        if wa_url:
+            lines.append(f"**Referencia oficial:** {wa_url}")
         lines.append("")
         
         for pillar, pillar_data in evidence_pack["pillars"].items():

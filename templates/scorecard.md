@@ -2,11 +2,13 @@
 
 **Fecha:** {{ date }}
 
+**Framework evaluado:** AWS Well-Architected Framework (versión {{ well_arch_version }})
+
 ---
 
 ## Resumen de Scores
 
-Este scorecard evalúa la arquitectura AWS según los 6 pilares del Well-Architected Framework. Los scores van de 1 (crítico) a 5 (excelente).
+Este scorecard evalúa la arquitectura AWS según los 6 pilares del Well-Architected Framework (versión {{ well_arch_version }}). Los scores van de 1 (crítico) a 5 (excelente).
 
 **Score Promedio:** {{ "%.1f" | format(average_score) }}/5.0
 

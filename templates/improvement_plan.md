@@ -2,6 +2,8 @@
 
 **Fecha:** {{ date }}
 
+**Framework evaluado:** AWS Well-Architected Framework (versión {{ well_arch_version }})
+
 Este documento estructura las mejoras en **dos clasificaciones**: **Pronta solución (30 días)** —tareas realizables en el corto plazo— y **Medium Risk Issues (MRI)** —mejoras que requieren mayor planificación o esfuerzo.
 
 ---

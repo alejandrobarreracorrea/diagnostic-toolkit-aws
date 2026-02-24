@@ -558,7 +558,7 @@
         <span class="icon-dark" aria-hidden="true">🌙</span>
         <span class="icon-light" aria-hidden="true">☀️</span>
       </button>
-      <span class="label">Well-Architected Framework</span>
+      <span class="label">Well-Architected Framework{% if metadata.well_arch_version %} · v{{ metadata.well_arch_version }}{% endif %}</span>
       <h1>Evidence Pack</h1>
       <p class="meta">
         <span>Account {{ metadata.account_id }}</span>

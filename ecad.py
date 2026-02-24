@@ -224,7 +224,8 @@ def check_dependencies():
     """Verificar e instalar dependencias."""
     print("\n📦 Verificando dependencias Python...\n")
     
-    required_modules = ['boto3', 'botocore', 'yaml', 'jinja2', 'tqdm']
+    # Incluir también 'markdown' para renderizar reportes (.md) en el reporte web
+    required_modules = ['boto3', 'botocore', 'yaml', 'jinja2', 'tqdm', 'markdown']
     missing = []
     
     for module in required_modules:

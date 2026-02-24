@@ -4,39 +4,45 @@
 
 **Framework evaluado:** AWS Well-Architected Framework (versión {{ well_arch_version }})
 
-Este documento estructura las mejoras en **dos clasificaciones**:
+<p>
+Este documento estructura las mejoras en <strong>dos clasificaciones</strong>:
+</p>
+<ul>
+  <li><strong>Pronta solución (30 días)</strong>: tareas realizables en el corto plazo (esfuerzo bajo, quick wins).</li>
+  <li><strong>Medium Risk Issues (MRI)</strong>: mejoras que requieren mayor planificación, coordinación o esfuerzo.</li>
+</ul>
 
-- **Pronta solución (30 días)**: tareas realizables en el corto plazo (esfuerzo bajo, quick wins).
-- **Medium Risk Issues (MRI)**: mejoras que requieren mayor planificación, coordinación o esfuerzo.
-
-Las acciones se construyen a partir de tres fuentes:
-
-- **Hallazgos**: problemas detectados automáticamente en la cuenta.
-- **Evidence Pack**: preguntas del Well-Architected con cumplimiento parcial o no cumplido.
-- **Modelo de Madurez**: capacidades de seguridad en estado parcial o no cumplido.
+<p>Las acciones se construyen a partir de tres fuentes:</p>
+<ul>
+  <li><strong>Hallazgos</strong>: problemas detectados automáticamente en la cuenta.</li>
+  <li><strong>Evidence Pack</strong>: preguntas del Well-Architected con cumplimiento parcial o no cumplido.</li>
+  <li><strong>Modelo de Madurez</strong>: capacidades de seguridad en estado parcial o no cumplido.</li>
+</ul>
 
 ---
 
 <div class="improvement-section improvement-pronta">
 
-## 1. Pronta solución (30 días)
+<h2>1. Pronta solución (30 días)</h2>
 
-**Objetivo:** Tareas que se pueden abordar en un plazo de 30 días (esfuerzo bajo, quick wins). Priorizar estas para obtener avances visibles de forma rápida.
+<p><strong>Objetivo:</strong> Tareas que se pueden abordar en un plazo de 30 días (esfuerzo bajo, quick wins). Priorizar estas para obtener avances visibles de forma rápida.</p>
 
 {% for finding in improvement_plan_pronta %}
-### {{ finding.title }} ({{ finding.id }})
+<h3>{{ finding.title }} ({{ finding.id }})</h3>
 
-- **Dominio:** {{ finding.domain }}
-{% if finding.source %}- **Origen:** {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}
-{% endif %}- **Impacto estimado:** {{ finding.impact }}
-- **Descripción actual:** {{ finding.description }}
-- **Recomendación prioritaria:** {{ finding.recommendation }}
+<ul>
+  <li><strong>Dominio:</strong> {{ finding.domain }}</li>
+  {% if finding.source %}<li><strong>Origen:</strong> {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}</li>{% endif %}
+  <li><strong>Impacto estimado:</strong> {{ finding.impact }}</li>
+  <li><strong>Descripción actual:</strong> {{ finding.description }}</li>
+  <li><strong>Recomendación prioritaria:</strong> {{ finding.recommendation }}</li>
+</ul>
 
----
+<hr />
 
 {% endfor %}
 {% if not improvement_plan_pronta %}
-*No se identificaron tareas de pronta solución (30 días) en este diagnóstico.*
+<p><em>No se identificaron tareas de pronta solución (30 días) en este diagnóstico.</em></p>
 {% endif %}
 
 </div>
@@ -45,26 +51,28 @@ Las acciones se construyen a partir de tres fuentes:
 
 <div class="improvement-section improvement-mri">
 
-## 2. Mejoras de mayor complejidad (MRI)
+<h2>2. Mejoras de mayor complejidad (MRI)</h2>
 
-**Objetivo:** Mejoras de riesgo medio que requieren mayor planificación, coordinación o esfuerzo (más de 30 días). Incluye hallazgos de mayor impacto y capacidades que exigen cambios estructurales o organizacionales.
+<p><strong>Objetivo:</strong> Mejoras de riesgo medio que requieren mayor planificación, coordinación o esfuerzo (más de 30 días). Incluye hallazgos de mayor impacto y capacidades que exigen cambios estructurales o organizacionales.</p>
 
 {% for finding in improvement_plan_mri %}
-### {{ finding.title }} ({{ finding.id }})
+<h3>{{ finding.title }} ({{ finding.id }})</h3>
 
-- **Dominio:** {{ finding.domain }}
-- **Riesgo:** Medio (MRI)
-{% if finding.source %}- **Origen:** {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}
-{% endif %}- **Impacto estimado:** {{ finding.impact }}
-{% if finding.effort %}- **Esfuerzo estimado:** {{ finding.effort }}
-{% endif %}- **Descripción actual:** {{ finding.description }}
-- **Recomendación prioritaria:** {{ finding.recommendation }}
+<ul>
+  <li><strong>Dominio:</strong> {{ finding.domain }}</li>
+  <li><strong>Riesgo:</strong> Medio (MRI)</li>
+  {% if finding.source %}<li><strong>Origen:</strong> {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}</li>{% endif %}
+  <li><strong>Impacto estimado:</strong> {{ finding.impact }}</li>
+  {% if finding.effort %}<li><strong>Esfuerzo estimado:</strong> {{ finding.effort }}</li>{% endif %}
+  <li><strong>Descripción actual:</strong> {{ finding.description }}</li>
+  <li><strong>Recomendación prioritaria:</strong> {{ finding.recommendation }}</li>
+</ul>
 
----
+<hr />
 
 {% endfor %}
 {% if not improvement_plan_mri %}
-*No hay MRI en este diagnóstico.*
+<p><em>No hay MRI en este diagnóstico.</em></p>
 {% endif %}
 
 </div>

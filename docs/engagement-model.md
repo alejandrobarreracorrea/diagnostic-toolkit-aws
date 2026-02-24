@@ -11,7 +11,7 @@ AWS Cloud Architecture Diagnostic (ECAD) es un producto de diagnóstico técnico
 - **Inventario Completo**: Descubrimiento automático de todos los recursos AWS
 - **Análisis Offline**: Procesamiento sin conexión a AWS
 - **Evidence Pack**: Generación automática de evidencias para Well-Architected Framework
-- **Reportes Ejecutivos**: Reportes y roadmaps listos para presentar
+- **Reportes Ejecutivos**: Reportes y Plan de mejoras (Well-Architected Improvement Plan) listos para presentar
 - **Modo Demo**: Ejecución con datos de ejemplo
 
 ### ❌ NO Incluido
@@ -70,7 +70,7 @@ AWS Cloud Architecture Diagnostic (ECAD) es un producto de diagnóstico técnico
 1. **Workshop de Presentación**
    - Presentar resumen ejecutivo
    - Revisar hallazgos principales
-   - Discutir roadmap 30/60/90
+   - Discutir Plan de mejoras (HRI/MRI)
 
 2. **Entrega de Artefactos**
    - Raw dumps (JSON comprimido)
@@ -80,7 +80,7 @@ AWS Cloud Architecture Diagnostic (ECAD) es un producto de diagnóstico técnico
 
 3. **Q&A y Próximos Pasos**
    - Responder preguntas técnicas
-   - Discutir priorización de mejoras
+   - Discutir priorización según Plan de mejoras (HRI/MRI)
    - Establecer seguimiento si aplica
 
 ## Entregables
@@ -106,7 +106,7 @@ AWS Cloud Architecture Diagnostic (ECAD) es un producto de diagnóstico técnico
 - **Contenido**:
   - Executive Summary (1 página)
   - Findings Report (hallazgos detallados)
-  - Roadmap 30/60/90
+  - Plan de mejoras (improvement_plan.md)
   - Technical Annex (inventario técnico)
   - Scorecard (scores por pilar)
 

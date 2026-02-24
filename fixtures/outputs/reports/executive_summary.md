@@ -51,7 +51,7 @@ Este diagnóstico proporciona una base objetiva para:
 
 1. Revisar reporte de hallazgos detallado
 2. Ejecutar workshop de Well-Architected usando evidence pack
-3. Priorizar acciones según roadmap 30/60/90 días
+3. Priorizar acciones según el Plan de mejoras (HRI/MRI)
 4. Implementar mejoras según plan acordado
 
 ---

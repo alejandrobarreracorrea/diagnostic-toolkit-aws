@@ -9,7 +9,7 @@ ECAD es un producto de diagnóstico técnico para clientes B2B en AWS que propor
 - **Inventario Completo**: Descubrimiento automático de todos los recursos AWS desde cero
 - **Análisis Offline**: Procesamiento sin conexión a AWS usando datos pre-recolectados
 - **Evidence Pack**: Generación automática de evidencias para Well-Architected Framework
-- **Reportes Ejecutivos**: Reportes y roadmaps listos para presentar a clientes
+- **Reportes Ejecutivos**: Reportes y Plan de mejoras (Well-Architected Improvement Plan) listos para presentar a clientes
 - **Modo Demo**: Ejecución con datos de ejemplo sin necesidad 0de credenciales AWS
 
 ## Estructura del Repositorio

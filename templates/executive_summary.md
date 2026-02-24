@@ -37,13 +37,13 @@ Este diagnóstico proporciona una base objetiva para:
 
 1. **Inventario Completo**: Identificación de todos los recursos y servicios en uso
 2. **Evidencias para Well-Architected Review**: Datos objetivos para evaluación de los 6 pilares
-3. **Roadmap de Mejoras**: Priorización de acciones basada en severidad e impacto
+3. **Plan de mejoras (Well-Architected Improvement Plan)**: HRI para pronta solución y MRI clasificadas por complejidad
 
 ### Próximos Pasos
 
 1. Revisar reporte de hallazgos detallado
 2. Ejecutar workshop de Well-Architected usando evidence pack
-3. Priorizar acciones según roadmap 30/60/90 días
+3. Priorizar acciones según el Plan de mejoras (HRI primero, luego MRI por complejidad)
 4. Implementar mejoras según plan acordado
 
 ---

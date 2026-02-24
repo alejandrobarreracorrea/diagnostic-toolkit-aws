@@ -48,7 +48,7 @@ class ReportGenerator:
         # Generar reportes
         self._generate_executive_summary(data)
         self._generate_findings_report(data)
-        self._generate_roadmap(data)
+        self._generate_improvement_plan(data)
         self._generate_technical_annex(data)
         self._generate_scorecard(data)
         self._generate_inventory_report(data)
@@ -225,9 +225,9 @@ class ReportGenerator:
             f.write(output)
         logger.info(f"Reporte de hallazgos generado: {output_file}")
     
-    def _generate_roadmap(self, data: Dict):
-        """Generar roadmap 30/60/90."""
-        template_file = self.templates_dir / "roadmap.md"
+    def _generate_improvement_plan(self, data: Dict):
+        """Generar Plan de mejoras (Well-Architected Improvement Plan): HRI = pronta solución, MRI por complejidad media/alto."""
+        template_file = self.templates_dir / "improvement_plan.md"
         if not template_file.exists():
             logger.warning(f"Template no encontrado: {template_file}")
             return
@@ -237,23 +237,25 @@ class ReportGenerator:
         
         findings = data.get("findings", {}).get("findings", [])
         
-        # Clasificar hallazgos por esfuerzo y severidad para roadmap
-        roadmap_30 = [f for f in findings if f.get("effort") == "Bajo" and f.get("severity") in ["high", "medium"]]
-        roadmap_60 = [f for f in findings if f.get("effort") == "Medio"]
-        roadmap_90 = [f for f in findings if f.get("effort") == "Alto"]
+        # HRI (High Risk Issues) = pronta solución → severidad high
+        improvement_plan_hri = [f for f in findings if (f.get("severity") or "").lower() == "high"]
+        # MRI (Medium Risk Issues) → severidad medium, low, info. Subclasificar por complejidad según esfuerzo
+        mri = [f for f in findings if (f.get("severity") or "").lower() in ("medium", "low", "info")]
+        improvement_plan_mri_media = [f for f in mri if (f.get("effort") or "").strip() == "Bajo"]
+        improvement_plan_mri_alto = [f for f in mri if (f.get("effort") or "").strip() in ("Medio", "Alto")]
         
         context = {
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "roadmap_30": roadmap_30[:10],
-            "roadmap_60": roadmap_60[:10],
-            "roadmap_90": roadmap_90[:10]
+            "improvement_plan_hri": improvement_plan_hri[:20],
+            "improvement_plan_mri_media": improvement_plan_mri_media[:20],
+            "improvement_plan_mri_alto": improvement_plan_mri_alto[:20],
         }
         
         output = template.render(**context)
-        output_file = self.output_dir / "roadmap_30_60_90.md"
+        output_file = self.output_dir / "improvement_plan.md"
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
-        logger.info(f"Roadmap generado: {output_file}")
+        logger.info(f"Plan de mejoras generado: {output_file}")
     
     def _generate_technical_annex(self, data: Dict):
         """Generar anexo técnico."""
@@ -609,7 +611,7 @@ class ReportGenerator:
         return "\n".join(lines)
 
     def _generate_web_unified(self, data: Dict) -> None:
-        """Regenerar reporte web unificado con todos los reportes (Scorecard, Evidence, CAF, Modelo de Madurez, Resumen, Hallazgos, Roadmap)."""
+        """Regenerar reporte web unificado con todos los reportes (Scorecard, Evidence, CAF, Modelo de Madurez, Resumen, Hallazgos, Plan de mejoras)."""
         evidence_pack = data.get("evidence_pack", {})
         if not evidence_pack.get("pillars"):
             logger.debug("Evidence pack sin pilares; no se regenera web unificado.")
@@ -630,7 +632,7 @@ class ReportGenerator:
                 for key, filename in [
                     ("executive_summary_html", "executive_summary.md"),
                     ("findings_html", "findings_report.md"),
-                    ("roadmap_html", "roadmap_30_60_90.md"),
+                    ("improvement_plan_html", "improvement_plan.md"),
                     ("security_maturity_html", "security_maturity.md"),
                     ("tagging_html", "tagging_report.md"),
                 ]:
@@ -655,6 +657,16 @@ class ReportGenerator:
                         extra["tagging_html"] = "<pre>" + _html.escape(raw) + "</pre>"
                     except Exception as e:
                         logger.debug("No se pudo generar fallback HTML para tagging_report.md: %s", e)
+            if "improvement_plan_html" not in extra:
+                improvement_plan_md = reports_dir / "improvement_plan.md"
+                if improvement_plan_md.exists():
+                    try:
+                        import html as _html
+                        with open(improvement_plan_md, "r", encoding="utf-8") as f:
+                            raw = f.read()
+                        extra["improvement_plan_html"] = "<pre>" + _html.escape(raw) + "</pre>"
+                    except Exception as e:
+                        logger.debug("No se pudo generar fallback HTML para improvement_plan.md: %s", e)
             from evidence.generator import EvidenceGenerator
             gen = EvidenceGenerator(str(self.run_dir))
             gen._generate_web_report(evidence_pack, extra_reports=extra)

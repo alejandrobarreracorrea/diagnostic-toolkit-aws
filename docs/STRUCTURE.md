@@ -24,7 +24,7 @@ diagnostic-toolkit-aws/
 │   ├── executive_summary.md
 │   ├── findings_report.md
 │   ├── inventory_report.md
-│   ├── roadmap.md
+│   ├── improvement_plan.md
 │   ├── scorecard.md
 │   └── technical_annex.md
 │
@@ -93,7 +93,7 @@ Módulo de análisis offline que procesa datos pre-recolectados sin necesidad de
 Generador de evidence pack para Well-Architected Framework. Produce evidencias objetivas por pilar.
 
 ### `templates/`
-Plantillas Jinja2 para generar reportes en Markdown. Incluye reportes ejecutivos, técnicos y roadmaps.
+Plantillas Jinja2 para generar reportes en Markdown. Incluye reportes ejecutivos, técnicos y Plan de mejoras (improvement_plan).
 
 ### `fixtures/`
 Datos de ejemplo para ejecutar demos sin necesidad de credenciales AWS. Útil para pruebas y demostraciones.

@@ -319,7 +319,7 @@
     .tabs-wrap input#tab-maturity:checked ~ .tab-labels label[for="tab-maturity"],
     .tabs-wrap input#tab-executive:checked ~ .tab-labels label[for="tab-executive"],
     .tabs-wrap input#tab-findings:checked ~ .tab-labels label[for="tab-findings"],
-    .tabs-wrap input#tab-roadmap:checked ~ .tab-labels label[for="tab-roadmap"] {
+    .tabs-wrap input#tab-improvement-plan:checked ~ .tab-labels label[for="tab-improvement-plan"] {
       background: var(--accent);
       border-color: var(--accent);
       color: var(--bg);
@@ -331,7 +331,7 @@
     .tabs-wrap input#tab-maturity:checked ~ .tab-panel#panel-maturity,
     .tabs-wrap input#tab-executive:checked ~ .tab-panel#panel-executive,
     .tabs-wrap input#tab-findings:checked ~ .tab-panel#panel-findings,
-    .tabs-wrap input#tab-roadmap:checked ~ .tab-panel#panel-roadmap { display: block; }
+    .tabs-wrap input#tab-improvement-plan:checked ~ .tab-panel#panel-improvement-plan { display: block; }
     .tab-report-content {
       max-width: 1000px;
       margin: 0 auto;
@@ -416,7 +416,7 @@
     <input type="radio" name="main-tab" id="tab-maturity">
     <input type="radio" name="main-tab" id="tab-executive">
     <input type="radio" name="main-tab" id="tab-findings">
-    <input type="radio" name="main-tab" id="tab-roadmap">
+    <input type="radio" name="main-tab" id="tab-improvement-plan">
     <div class="tab-labels">
       <label for="tab-scorecard">Scorecard</label>
       <label for="tab-evidence">Evidence Pack</label>
@@ -424,7 +424,7 @@
       <label for="tab-maturity">Modelo de Madurez</label>
       <label for="tab-executive">Resumen ejecutivo</label>
       <label for="tab-findings">Hallazgos</label>
-      <label for="tab-roadmap">Roadmap</label>
+      <label for="tab-improvement-plan">Plan de mejoras</label>
     </div>
     <div id="panel-scorecard" class="tab-panel">
       <div class="scorecard-hero">
@@ -1856,10 +1856,10 @@
       </div>
       
     </div>
-    <div id="panel-roadmap" class="tab-panel">
+    <div id="panel-improvement-plan" class="tab-panel">
       
       <div class="tab-report-placeholder">
-        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el roadmap en esta vista.</p>
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el Plan de mejoras (Well-Architected Improvement Plan) en esta vista.</p>
       </div>
       
     </div>

@@ -156,14 +156,14 @@
     .pillar-cards {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 20px;
+      gap: 16px;
     }
     .pillar-card {
       position: relative;
       display: block;
       background: var(--surface);
       border-radius: var(--radius-lg);
-      padding: 24px 20px;
+      padding: 16px 16px;
       text-decoration: none;
       color: inherit;
       border: 1px solid var(--border);
@@ -209,11 +209,19 @@
     .badge-warning { background: var(--warning-dim); color: #fbbf24; }
     .badge-danger { background: var(--danger-dim); color: #f87171; }
     .badge-info { background: var(--info-dim); color: #a1a1aa; }
-    .pillar-card .summary { font-size: 13px; color: var(--text-muted); line-height: 1.45; }
+    .pillar-card .summary {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .pillar-hero-icon {
-      width: 44px;
-      height: 44px;
-      margin-bottom: 14px;
+      width: 36px;
+      height: 36px;
+      margin-bottom: 10px;
       color: var(--pillar-color);
       flex-shrink: 0;
     }
@@ -428,6 +436,21 @@
     .tab-report-content th, .tab-report-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
     .tab-report-content th { background: var(--surface); color: var(--accent); font-weight: 600; }
     .tab-report-content tr:nth-child(even) { background: rgba(255,255,255,.02); }
+    /* Estilos para Plan de mejoras por dificultad */
+    #panel-improvement-plan .improvement-section {
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+    #panel-improvement-plan .improvement-pronta {
+      border-left: 4px solid #22c55e; /* verde – más fácil / 30 días */
+      background: rgba(34, 197, 94, 0.05);
+    }
+    #panel-improvement-plan .improvement-mri {
+      border-left: 4px solid #f97316; /* naranja – mayor complejidad */
+      background: rgba(249, 115, 22, 0.05);
+    }
     .scorecard-hero {
       text-align: center;
       padding: 40px 28px 32px;
@@ -459,6 +482,47 @@
     }
     .scorecard-hero .score-formula strong { color: var(--text); }
     .scorecard-hero .score-formula code { background: var(--surface-hover); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+    .score-radar-wrap {
+      margin-top: 32px;
+      text-align: center;
+    }
+    .score-radar-wrap h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .score-radar {
+      display: inline-block;
+      max-width: 320px;
+      width: 100%;
+    }
+    .score-radar svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .score-radar-grid {
+      stroke: var(--border);
+      stroke-width: 1;
+      fill: none;
+    }
+    .score-radar-axis {
+      stroke: var(--border);
+      stroke-width: 1;
+      stroke-dasharray: 2 3;
+    }
+    .score-radar-polygon {
+      fill: var(--accent);
+      fill-opacity: 0.12;
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-linejoin: round;
+      stroke-dasharray: 4 3;
+    }
+    .score-radar-label {
+      font-size: 11px;
+      fill: var(--text-muted);
+    }
     .scorecard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -530,6 +594,17 @@
           <strong>Fórmula de ponderación:</strong><br>
           Por pilar: <code>score_pilar = redondeo(media(puntos por pregunta))</code>, con puntos: compliant=5, partially_compliant=4, not_compliant=2 (not_applicable se excluye). Límites 1–5.<br>
           Score global: <code>average_score = media(score_Operational Excellence, …, score_Sustainability)</code> (promedio simple de los 6 pilares).
+        </div>
+        <div class="score-radar-wrap">
+          <h2>Radar de valores por pilar</h2>
+          <div id="score-radar" class="score-radar"
+               data-max="5"
+               data-items='[
+               {% for s in scorecard_list %}
+                 {"name": "{{ s.name }}", "score": {{ s.score }}}{% if not loop.last %},{% endif %}
+               {% endfor %}
+               ]'>
+          </div>
         </div>
       </div>
       <div class="scorecard-grid">
@@ -698,6 +773,81 @@
         var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         setTheme(next);
       });
+
+      // Radar chart en Scorecard
+      function renderScoreRadar() {
+        var el = document.getElementById('score-radar');
+        if (!el) return;
+        var raw = el.getAttribute('data-items') || '[]';
+        var items;
+        try {
+          items = JSON.parse(raw);
+        } catch (e) {
+          return;
+        }
+        if (!items || !items.length) return;
+        var max = parseFloat(el.getAttribute('data-max') || '5') || 5;
+        var size = 260;
+        var cx = size / 2;
+        var cy = size / 2;
+        var radius = size * 0.35;
+        var levels = 5;
+        var n = items.length;
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent') || '#38bdf8';
+
+        function point(angle, r) {
+          return {
+            x: cx + r * Math.cos(angle),
+            y: cy + r * Math.sin(angle),
+          };
+        }
+
+        var svgParts = [];
+        svgParts.push('<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">');
+
+        // Grid (polígonos concéntricos)
+        for (var level = 1; level <= levels; level++) {
+          var r = (radius * level) / levels;
+          var pts = [];
+          for (var i = 0; i < n; i++) {
+            var angle = -Math.PI / 2 + (2 * Math.PI * i) / n;
+            var p = point(angle, r);
+            pts.push(p.x.toFixed(1) + ',' + p.y.toFixed(1));
+          }
+          svgParts.push('<polygon class="score-radar-grid" points="' + pts.join(' ') + '"/>');
+        }
+
+        // Ejes y etiquetas
+        for (var j = 0; j < n; j++) {
+          var a = -Math.PI / 2 + (2 * Math.PI * j) / n;
+          var end = point(a, radius);
+          svgParts.push('<line class="score-radar-axis" x1="' + cx + '" y1="' + cy + '" x2="' + end.x.toFixed(1) + '" y2="' + end.y.toFixed(1) + '"/>');
+          var labelPoint = point(a, radius + 20);
+          var name = (items[j].name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          svgParts.push('<text class="score-radar-label" x="' + labelPoint.x.toFixed(1) + '" y="' + labelPoint.y.toFixed(1) + '" text-anchor="middle">' + name + '</text>');
+        }
+
+        // Polígono de datos
+        var dataPts = [];
+        for (var k = 0; k < n; k++) {
+          var item = items[k];
+          var val = Math.max(0, Math.min(max, parseFloat(item.score || 0)));
+          var rr = (val / max) * radius;
+          var ang = -Math.PI / 2 + (2 * Math.PI * k) / n;
+          var dp = point(ang, rr);
+          dataPts.push(dp.x.toFixed(1) + ',' + dp.y.toFixed(1));
+        }
+        svgParts.push('<polygon class="score-radar-polygon" points="' + dataPts.join(' ') + '" style="stroke:' + accent + '; fill:' + accent + ';"/>');
+
+        svgParts.push('</svg>');
+        el.innerHTML = svgParts.join('');
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderScoreRadar);
+      } else {
+        renderScoreRadar();
+      }
     })();
   </script>
 </body>

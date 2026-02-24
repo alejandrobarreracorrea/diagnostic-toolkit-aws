@@ -323,26 +323,22 @@ class ReportGenerator:
         items_evidence = self._improvement_items_from_evidence(evidence_pack)
         items_maturity = self._improvement_items_from_maturity(security_maturity or {})
         
-        # HRI: solo hallazgos con severidad high
-        improvement_plan_hri = [f for f in findings if (f.get("severity") or "").lower() == "high"]
-        # MRI desde hallazgos (medium/low/info)
-        mri_findings = [f for f in findings if (f.get("severity") or "").lower() in ("medium", "low", "info")]
-        mri_media_f = [f for f in mri_findings if (f.get("effort") or "").strip() == "Bajo"]
-        mri_alto_f = [f for f in mri_findings if (f.get("effort") or "").strip() in ("Medio", "Alto")]
-        # MRI desde evidence y maturity
-        mri_media_ev = [i for i in items_evidence if (i.get("effort") or "").strip() == "Bajo"]
-        mri_alto_ev = [i for i in items_evidence if (i.get("effort") or "").strip() in ("Medio", "Alto")]
-        mri_media_mat = [i for i in items_maturity if (i.get("effort") or "").strip() == "Bajo"]
-        mri_alto_mat = [i for i in items_maturity if (i.get("effort") or "").strip() in ("Medio", "Alto")]
+        # 1. Pronta solución (30 días): tareas realizables en 30 días = esfuerzo Bajo (hallazgos + evidence + maturity)
+        pronta_f = [f for f in findings if (f.get("effort") or "").strip() == "Bajo"]
+        pronta_ev = [i for i in items_evidence if (i.get("effort") or "").strip() == "Bajo"]
+        pronta_mat = [i for i in items_maturity if (i.get("effort") or "").strip() == "Bajo"]
+        improvement_plan_pronta = pronta_f + pronta_ev + pronta_mat
         
-        improvement_plan_mri_media = mri_media_f + mri_media_ev + mri_media_mat
-        improvement_plan_mri_alto = mri_alto_f + mri_alto_ev + mri_alto_mat
+        # 2. MRI (una sola clasificación): todo lo que no está en pronta solución (esfuerzo Medio/Alto o sin definir)
+        mri_f = [f for f in findings if f not in pronta_f]
+        mri_ev = [i for i in items_evidence if i not in pronta_ev]
+        mri_mat = [i for i in items_maturity if i not in pronta_mat]
+        improvement_plan_mri = mri_f + mri_ev + mri_mat
         
         context = {
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "improvement_plan_hri": improvement_plan_hri[:25],
-            "improvement_plan_mri_media": improvement_plan_mri_media[:30],
-            "improvement_plan_mri_alto": improvement_plan_mri_alto[:30],
+            "improvement_plan_pronta": improvement_plan_pronta[:35],
+            "improvement_plan_mri": improvement_plan_mri[:40],
         }
         
         output = template.render(**context)

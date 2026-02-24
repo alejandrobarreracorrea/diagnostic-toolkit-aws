@@ -15,7 +15,8 @@ Este documento estructura las mejoras identificadas en el diagnóstico según el
 
 - **Dominio:** {{ finding.domain }}
 - **Riesgo:** Alto (HRI)
-- **Impacto:** {{ finding.impact }}
+{% if finding.source %}- **Origen:** {{ finding.source }}
+{% endif %}- **Impacto:** {{ finding.impact }}
 - **Descripción:** {{ finding.description }}
 - **Recomendación:** {{ finding.recommendation }}
 
@@ -35,7 +36,8 @@ Este documento estructura las mejoras identificadas en el diagnóstico según el
 
 - **Dominio:** {{ finding.domain }}
 - **Riesgo:** Medio (MRI) – complejidad media
-- **Impacto:** {{ finding.impact }}
+{% if finding.source %}- **Origen:** {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}
+{% endif %}- **Impacto:** {{ finding.impact }}
 - **Esfuerzo:** {{ finding.effort }}
 - **Descripción:** {{ finding.description }}
 - **Recomendación:** {{ finding.recommendation }}
@@ -56,7 +58,8 @@ Este documento estructura las mejoras identificadas en el diagnóstico según el
 
 - **Dominio:** {{ finding.domain }}
 - **Riesgo:** Medio (MRI) – complejidad alta
-- **Impacto:** {{ finding.impact }}
+{% if finding.source %}- **Origen:** {{ finding.source }}{% if finding.category %} – {{ finding.category }}{% endif %}
+{% endif %}- **Impacto:** {{ finding.impact }}
 - **Esfuerzo:** {{ finding.effort }}
 - **Descripción:** {{ finding.description }}
 - **Recomendación:** {{ finding.recommendation }}

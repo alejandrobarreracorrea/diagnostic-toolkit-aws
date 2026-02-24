@@ -8,7 +8,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 from datetime import datetime
 from jinja2 import Template
 
@@ -225,8 +225,79 @@ class ReportGenerator:
             f.write(output)
         logger.info(f"Reporte de hallazgos generado: {output_file}")
     
+    def _improvement_items_from_evidence(self, evidence_pack: Dict) -> List[Dict]:
+        """Construir ítems de mejora desde el evidence pack (preguntas no cumplidas o parciales)."""
+        items = []
+        pillars = evidence_pack.get("pillars", {})
+        for pillar_name, pillar_data in pillars.items():
+            questions = pillar_data.get("well_architected_questions", [])
+            for q in questions:
+                comp = q.get("compliance", {})
+                status = (comp.get("status") or "").strip()
+                if status not in ("not_compliant", "partially_compliant"):
+                    continue
+                missing = comp.get("missing_services", [])
+                detected = comp.get("detected_services", [])
+                num_missing = len(missing)
+                num_detected = len(detected)
+                total = num_detected + num_missing
+                if total == 0:
+                    continue
+                q_id = q.get("id", "")
+                question_text = (q.get("question") or "")[:120]
+                if len((q.get("question") or "")) > 120:
+                    question_text += "..."
+                msg = comp.get("message", "")
+                rec = f"Revisar evidencias del pilar {pillar_name} y habilitar o documentar los servicios faltantes."
+                if missing:
+                    rec = f"Habilitar o documentar: {', '.join(missing[:5])}{'...' if len(missing) > 5 else ''}. Revisar evidencias del pilar {pillar_name}."
+                effort = "Medio" if (status == "not_compliant" or num_missing >= 3) else "Bajo"
+                impact = f"Cumplimiento parcial o no cumplido en {pillar_name}: {msg}"
+                items.append({
+                    "id": f"EVID-{pillar_name[:3].upper()}-{q_id}",
+                    "domain": pillar_name,
+                    "title": question_text or f"Cumplimiento {status} ({q_id})",
+                    "description": msg,
+                    "recommendation": rec,
+                    "impact": impact,
+                    "effort": effort,
+                    "source": "Evidence Pack",
+                })
+        return items
+
+    def _improvement_items_from_maturity(self, security_maturity: Dict) -> List[Dict]:
+        """Construir ítems de mejora desde el modelo de madurez (not_met, partial)."""
+        if not security_maturity or not security_maturity.get("results"):
+            return []
+        items = []
+        phases_by_id = {p["id"]: p for p in security_maturity.get("phases", [])}
+        for r in security_maturity.get("results", []):
+            status = (r.get("status") or "").strip()
+            if status not in ("not_met", "partial"):
+                continue
+            phase_id = r.get("phase", "")
+            phase = phases_by_id.get(phase_id, {})
+            phase_name = phase.get("name", phase_id)
+            name = r.get("name", "")
+            category = r.get("category", "")
+            detail = (r.get("detail") or "")[:200]
+            effort = "Medio" if status == "not_met" else "Bajo"
+            rec = f"Implementar o revisar: {name}. Ver modelo en https://maturitymodel.security.aws.dev/es/"
+            items.append({
+                "id": f"MAT-{phase_id[:4].upper()}-{r.get('id', '') or name[:20].replace(' ', '-')}",
+                "domain": "Security",
+                "title": name,
+                "description": detail or f"Capacidad del modelo de madurez ({phase_name}): {category}.",
+                "recommendation": rec,
+                "impact": f"Modelo de madurez en seguridad: {phase_name} – {category}.",
+                "effort": effort,
+                "source": "Modelo de Madurez",
+                "category": category,
+            })
+        return items
+
     def _generate_improvement_plan(self, data: Dict):
-        """Generar Plan de mejoras (Well-Architected Improvement Plan): HRI = pronta solución, MRI por complejidad media/alto."""
+        """Generar Plan de mejoras (Well-Architected Improvement Plan): HRI = pronta solución, MRI por complejidad media/alto. Incluye hallazgos, evidence pack y modelo de madurez."""
         template_file = self.templates_dir / "improvement_plan.md"
         if not template_file.exists():
             logger.warning(f"Template no encontrado: {template_file}")
@@ -236,19 +307,42 @@ class ReportGenerator:
             template = Template(f.read())
         
         findings = data.get("findings", {}).get("findings", [])
+        evidence_pack = data.get("evidence_pack", {})
+        security_maturity = evidence_pack.get("security_maturity")
+        if not security_maturity and data.get("index"):
+            try:
+                from evidence.security_maturity import evaluate as evaluate_maturity
+                security_maturity = evaluate_maturity(data["index"], run_dir=self.run_dir)
+            except Exception as e:
+                logger.debug("No se pudo evaluar modelo de madurez para plan de mejoras: %s", e)
         
-        # HRI (High Risk Issues) = pronta solución → severidad high
+        # Formato común: id, domain, title, description, recommendation, impact, effort, source (opcional)
+        for f in findings:
+            f["source"] = f.get("source") or "Hallazgos"
+        
+        items_evidence = self._improvement_items_from_evidence(evidence_pack)
+        items_maturity = self._improvement_items_from_maturity(security_maturity or {})
+        
+        # HRI: solo hallazgos con severidad high
         improvement_plan_hri = [f for f in findings if (f.get("severity") or "").lower() == "high"]
-        # MRI (Medium Risk Issues) → severidad medium, low, info. Subclasificar por complejidad según esfuerzo
-        mri = [f for f in findings if (f.get("severity") or "").lower() in ("medium", "low", "info")]
-        improvement_plan_mri_media = [f for f in mri if (f.get("effort") or "").strip() == "Bajo"]
-        improvement_plan_mri_alto = [f for f in mri if (f.get("effort") or "").strip() in ("Medio", "Alto")]
+        # MRI desde hallazgos (medium/low/info)
+        mri_findings = [f for f in findings if (f.get("severity") or "").lower() in ("medium", "low", "info")]
+        mri_media_f = [f for f in mri_findings if (f.get("effort") or "").strip() == "Bajo"]
+        mri_alto_f = [f for f in mri_findings if (f.get("effort") or "").strip() in ("Medio", "Alto")]
+        # MRI desde evidence y maturity
+        mri_media_ev = [i for i in items_evidence if (i.get("effort") or "").strip() == "Bajo"]
+        mri_alto_ev = [i for i in items_evidence if (i.get("effort") or "").strip() in ("Medio", "Alto")]
+        mri_media_mat = [i for i in items_maturity if (i.get("effort") or "").strip() == "Bajo"]
+        mri_alto_mat = [i for i in items_maturity if (i.get("effort") or "").strip() in ("Medio", "Alto")]
+        
+        improvement_plan_mri_media = mri_media_f + mri_media_ev + mri_media_mat
+        improvement_plan_mri_alto = mri_alto_f + mri_alto_ev + mri_alto_mat
         
         context = {
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "improvement_plan_hri": improvement_plan_hri[:20],
-            "improvement_plan_mri_media": improvement_plan_mri_media[:20],
-            "improvement_plan_mri_alto": improvement_plan_mri_alto[:20],
+            "improvement_plan_hri": improvement_plan_hri[:25],
+            "improvement_plan_mri_media": improvement_plan_mri_media[:30],
+            "improvement_plan_mri_alto": improvement_plan_mri_alto[:30],
         }
         
         output = template.render(**context)

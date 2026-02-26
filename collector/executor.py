@@ -5,6 +5,7 @@ retry, y seguimiento de operaciones que requieren parámetros.
 
 import logging
 import time
+import random
 import re
 import signal
 from typing import Dict, List, Optional, Any
@@ -150,10 +151,12 @@ class OperationExecutor:
             # Ejecutar con retry (usar method_name para paginación)
             result = self._execute_with_retry(operation)
             
-            # Si es paginada, obtener todas las páginas
+            # Si es paginada, obtener todas las páginas.
+            # Pasamos operation_name (PascalCase original) para que el check de catálogo funcione.
             if operation_info.get("paginated", False):
                 result = self._paginate_operation(
-                    client, method_name, result, operation_info
+                    client, method_name, result, operation_info,
+                    original_operation_name=operation_name
                 )
             
             # Cachear resultados de List* para uso posterior
@@ -420,94 +423,170 @@ class OperationExecutor:
         return None
     
     def _execute_with_retry(self, operation, **kwargs) -> Any:
-        """Ejecutar operación con retry y backoff exponencial, con timeout general."""
-        max_retries = 2  # Reducir retries para evitar esperas largas
-        base_delay = 1
-        
-        # Timeout general para evitar que operaciones se cuelguen
+        """Ejecutar operación con retry, backoff exponencial + jitter, y timeout global."""
+        max_retries = 3
+        base_delay = 0.5
+
         start_time = time.time()
-        
+
         for attempt in range(max_retries):
             try:
-                # Verificar timeout antes de ejecutar
                 elapsed = time.time() - start_time
                 if elapsed > self.operation_timeout:
                     raise TimeoutError(f"Operación excedió timeout de {self.operation_timeout}s")
-                
+
                 result = operation(**kwargs)
-                
-                # Verificar timeout después de ejecutar
+
                 elapsed = time.time() - start_time
                 if elapsed > self.operation_timeout:
                     logger.warning(f"Operación completó pero excedió timeout de {self.operation_timeout}s")
-                
+
                 return result
+
             except ClientError as e:
                 error_code = e.response.get('Error', {}).get('Code', '')
-                
-                # Throttling - retry con backoff
-                if error_code in ['Throttling', 'TooManyRequestsException', 'RequestLimitExceeded']:
+
+                if error_code in (
+                    'Throttling', 'ThrottlingException', 'TooManyRequestsException',
+                    'RequestLimitExceeded', 'SlowDown', 'ServiceUnavailable',
+                    'RequestThrottled',
+                ):
                     if attempt < max_retries - 1:
-                        delay = base_delay * (2 ** attempt)
-                        logger.debug(f"Throttling, retry en {delay}s (intento {attempt + 1}/{max_retries})")
+                        # Backoff exponencial con jitter completo (full jitter) para evitar
+                        # thundering herd cuando varios threads reintentan a la vez.
+                        cap = base_delay * (2 ** attempt) * 4
+                        delay = random.uniform(base_delay, cap)
+                        logger.debug(
+                            f"Throttling, retry en {delay:.2f}s "
+                            f"(intento {attempt + 1}/{max_retries})"
+                        )
                         time.sleep(delay)
                         continue
-                
-                # Otros errores - no retry
+                # Otros errores ClientError — no retry
                 raise
-            
-            except (EndpointConnectionError, ConnectTimeoutError, ReadTimeoutError, BotoConnectionError, TimeoutError) as e:
-                # Error de conexión o timeout - no hacer retry para evitar esperas largas
-                error_str = str(e).lower()
-                if "timeout" in error_str:
-                    logger.debug(f"Timeout en operación: {e}")
-                    # No hacer retry en timeouts - probablemente el servicio está lento o no disponible
-                    raise
-                # Si es "could not connect", probablemente el servicio no está disponible
-                # No hacer retry para evitar esperas largas
+
+            except (EndpointConnectionError, ConnectTimeoutError, ReadTimeoutError,
+                    BotoConnectionError, TimeoutError):
+                # Errores de conectividad o timeout — no reintentar
                 raise
+
             except Exception as e:
-                # Otros errores - verificar timeout
                 elapsed = time.time() - start_time
                 if elapsed > self.operation_timeout:
-                    logger.warning(f"Operación falló después de {elapsed:.1f}s (timeout: {self.operation_timeout}s)")
+                    logger.warning(
+                        f"Operación falló después de {elapsed:.1f}s "
+                        f"(timeout: {self.operation_timeout}s)"
+                    )
                     raise TimeoutError(f"Operación excedió timeout de {self.operation_timeout}s")
                 raise
-        
+
         raise Exception("Max retries exceeded")
     
+    # Operaciones con catálogos muy grandes o historiales: 1 página es suficiente.
+    # El diagnóstico Well-Architected no necesita el catálogo completo de precios/reservas.
+    _MAX_PAGES_CATALOG = 1
+    _CATALOG_OPERATIONS = frozenset({
+        # CloudTrail — historial de eventos, no inventario
+        "LookupEvents",
+        "lookup_events",
+        # SSM — catálogo de documentos del sistema (puede ser enorme)
+        "ListDocuments",
+        "list_documents",
+        # RDS
+        "DescribeReservedDBInstancesOfferings",
+        "describe_reserved_db_instances_offerings",
+        "DescribeOrderableDBInstanceOptions",
+        "describe_orderable_db_instance_options",
+        "DescribeCertificates",
+        "describe_certificates",
+        # EC2 — catálogos y precios
+        "DescribeReservedInstancesOfferings",
+        "describe_reserved_instances_offerings",
+        "DescribeInstanceTypeOfferings",
+        "describe_instance_type_offerings",
+        "DescribeInstanceTypes",
+        "describe_instance_types",
+        "DescribeSpotPriceHistory",
+        "describe_spot_price_history",
+        "DescribeAvailabilityZones",
+        "describe_availability_zones",
+        "DescribeRegions",
+        "describe_regions",
+        # ElastiCache
+        "DescribeReservedCacheNodesOfferings",
+        "describe_reserved_cache_nodes_offerings",
+        "DescribeCacheParameterGroups",
+        "describe_cache_parameter_groups",
+        "DescribeCacheEngineVersions",
+        "describe_cache_engine_versions",
+        # OpenSearch
+        "ListVersions",
+        "list_versions",
+        # Pricing / Savings Plans
+        "DescribeSavingsPlansOfferings",
+        "describe_savings_plans_offerings",
+        "DescribeSavingsPlansOfferingRates",
+        "describe_savings_plans_offering_rates",
+        # Redshift
+        "DescribeReservedNodeOfferings",
+        "describe_reserved_node_offerings",
+        "DescribeNodeConfigurationOptions",
+        "describe_node_configuration_options",
+        # Neptune / DocDB
+        "DescribeOrderableDBInstanceOptions",
+        "describe_orderable_db_instance_options",
+        # CloudHSM — operaciones lentas de catálogo
+        "ListAvailableZones",
+        "list_available_zones",
+    })
+
     def _paginate_operation(
         self,
         client: BaseClient,
         operation_name: str,
         first_result: Any,
-        operation_info: Dict
+        operation_info: Dict,
+        original_operation_name: str = "",
     ) -> Dict:
-        """Obtener todas las páginas de una operación paginada."""
+        """Obtener todas las páginas de una operación paginada.
+
+        `operation_name` puede ser snake_case (para el paginator de boto3).
+        `original_operation_name` es el nombre PascalCase original; se usa para
+        determinar si la operación es un catálogo.
+        """
         all_data = []
-        
+
         if isinstance(first_result, dict):
             all_data.append(first_result)
         else:
             all_data.append({"result": first_result})
-        
-        # Intentar paginación usando paginator si está disponible
+
+        # Verificar con ambas formas del nombre para robustez
+        check_name = original_operation_name or operation_name
+        is_catalog = check_name in self._CATALOG_OPERATIONS or operation_name in self._CATALOG_OPERATIONS
+        page_limit = self._MAX_PAGES_CATALOG if is_catalog else self.max_pages
+
         try:
             paginator = client.get_paginator(operation_name)
             page_iterator = paginator.paginate()
-            
+
             page_count = 0
             for page in page_iterator:
-                if page_count >= self.max_pages:
-                    logger.warning(f"Límite de páginas alcanzado para {operation_name}")
+                # Ya tenemos la primera página (first_result); sumamos desde ahí.
+                if page_count >= page_limit - 1:
+                    if is_catalog:
+                        logger.debug(
+                            f"Catálogo limitado a {page_limit} páginas para {check_name}"
+                        )
+                    else:
+                        logger.warning(f"Límite de páginas alcanzado para {check_name}")
                     break
                 all_data.append(page)
                 page_count += 1
-            
-        except Exception as e:
-            # Si no hay paginator, intentar paginación manual
+
+        except Exception:
             logger.debug(f"No hay paginator para {operation_name}, usando resultado inicial")
-        
+
         return {
             "pages": len(all_data),
             "data": all_data

@@ -12,6 +12,7 @@ import gzip
 import os
 import sys
 import time
+import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Set
@@ -34,6 +35,67 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Servicios globales de AWS: no tienen endpoint por región — se consultan solo en us-east-1
+# para evitar duplicados y errores de endpoint en regiones que no los soportan.
+_GLOBAL_SERVICES = frozenset({
+    "iam",           # Users, Roles, Policies — global
+    "route53",       # Hosted Zones, Records — global
+    "route53domains",
+    "cloudfront",    # Distributions, OAC — global
+    "waf",           # WAFv1 global (distinto de wafv2 regional)
+    "shield",        # Shield Advanced — global (us-east-1)
+    "s3",            # Buckets son globales; ListBuckets devuelve todo
+    "sts",           # GetCallerIdentity — global
+    "account",       # Contactos de cuenta — global
+    "organizations", # Organización, SCPs — global
+    "ce",            # Cost Explorer — solo us-east-1
+    "budgets",       # Budgets — solo us-east-1
+    "support",       # Support API — solo us-east-1
+    "health",        # Health API — solo us-east-1
+    "trustedadvisor",
+    "artifact",
+    "marketplace",
+})
+
+# Servicios irrelevantes para el diagnóstico Well-Architected o que siempre fallan
+# con errores de endpoint / permisos que no aportan datos útiles.
+_DEFAULT_SOFT_DENYLIST = frozenset({
+    "s3control",        # S3 control-plane require account-id en endpoint
+    "s3outposts",
+    "iotevents-data",   # Requiere endpoint privado
+    "iot-data",
+    "greengrass",
+    "robomaker",
+    "braket",
+    "workmail",
+    "chime",
+    "connect",          # Contact Center — endpoint complejo
+    "pinpoint-sms-voice",
+    "pinpoint-sms-voice-v2",
+    "marketplace-catalog",
+    "marketplace-entitlement",
+    "codestar-notifications",
+    "codestar-connections",
+    "datazone",
+    "omics",
+    "privatenetworks",
+    "simspaceweaver",
+    "ivschat",
+    "ivs",
+    "cleanrooms",
+    "verifiedpermissions",
+    "taxsettings",
+    "entityresolution",
+    "resourceexplorer2",  # Requiere activación previa
+    "b2bi",
+    "repostspace",
+    "managedblockchain",
+    "managedblockchain-query",
+    "tnb",               # Telco Network Builder
+    "freetier",
+    "workspacesthinclient",
+})
+
 
 class Collector:
     """Coordinador principal de recolección de datos AWS."""
@@ -44,11 +106,12 @@ class Collector:
         role_arn: Optional[str] = None,
         external_id: Optional[str] = None,
         regions: Optional[List[str]] = None,
-        max_threads: int = 20,
-        max_pages: int = 100,
+        max_threads: int = 15,
+        max_pages: int = 20,
         max_followups: int = 5,
         service_allowlist: Optional[List[str]] = None,
         service_denylist: Optional[List[str]] = None,
+        max_service_seconds: int = 90,
     ):
         self.output_dir = Path(output_dir)
         self.raw_dir = self.output_dir / "raw"
@@ -61,9 +124,15 @@ class Collector:
         self.max_pages = max_pages
         self.max_followups = max_followups
         self.service_allowlist = set(service_allowlist) if service_allowlist else None
-        self.service_denylist = set(service_denylist) if service_denylist else set()
+        # Denylist = explícito del usuario + soft denylist incorporado
+        user_denylist = set(service_denylist) if service_denylist else set()
+        self.service_denylist = user_denylist | _DEFAULT_SOFT_DENYLIST
+        # Tiempo máximo por tarea (servicio+región). Si un servicio tiene 200+ ops y algunas son lentas,
+        # se corta para no bloquear el pool de threads.
+        self.max_service_seconds = max_service_seconds
         
-        # Estadísticas
+        # Estadísticas — protegidas con lock para uso seguro en múltiples threads
+        self._stats_lock = threading.Lock()
         self.stats = {
             "services_discovered": 0,
             "operations_executed": 0,
@@ -72,6 +141,9 @@ class Collector:
             "operations_skipped": 0,
             "errors": []
         }
+        # Cache para saltarse rápido servicios cuyo endpoint no está disponible en una región
+        self._unavailable_endpoints: Set[str] = set()  # "{service}:{region}"
+        self._unavailable_lock = threading.Lock()
         
         # Inicializar sesión AWS
         self.session = self._create_session()
@@ -81,7 +153,7 @@ class Collector:
         # Configurar timeouts para evitar operaciones que se cuelguen
         connect_timeout = int(os.getenv("ECAD_CONNECT_TIMEOUT", "10"))
         read_timeout = int(os.getenv("ECAD_READ_TIMEOUT", "30"))
-        operation_timeout = int(os.getenv("ECAD_OPERATION_TIMEOUT", "120"))
+        operation_timeout = int(os.getenv("ECAD_OPERATION_TIMEOUT", "60"))
         self.executor = OperationExecutor(
             self.session,
             max_pages=max_pages,
@@ -158,6 +230,17 @@ class Collector:
         if self.service_allowlist and service_name not in self.service_allowlist:
             return False
         return True
+
+    def _effective_region_for_service(self, service_name: str) -> str:
+        """Devuelve la región efectiva para el servicio.
+
+        Los servicios globales siempre se consultan en us-east-1, independientemente
+        de qué regiones se estén recolectando, para evitar errores de endpoint y
+        resultados duplicados.
+        """
+        if service_name in _GLOBAL_SERVICES:
+            return "us-east-1"
+        return None  # None → usar la región del task normalmente
     
     def collect(self):
         """Ejecutar recolección completa."""
@@ -189,12 +272,24 @@ class Collector:
         except Exception as e:
             logger.warning(f"Error recolectando metadatos: {e}")
         
-        # Recolectar por servicio y región
+        # Recolectar por servicio y región.
+        # Los servicios globales se asignan solo a us-east-1 (una tarea, no N por región).
+        seen_global: Set[str] = set()
         tasks = []
         for service_name in services_to_collect:
-            for region in self.regions:
-                tasks.append((service_name, region))
-        
+            fixed_region = self._effective_region_for_service(service_name)
+            if fixed_region is not None:
+                # Servicio global: solo una tarea
+                if service_name not in seen_global:
+                    tasks.append((service_name, fixed_region))
+                    seen_global.add(service_name)
+            else:
+                for region in self.regions:
+                    tasks.append((service_name, region))
+
+        logger.info(f"Tareas de recolección: {len(tasks)} "
+                    f"({len(seen_global)} servicios globales → us-east-1 únicamente)")
+
         # Ejecutar en paralelo
         with ThreadPoolExecutor(max_workers=self.max_threads) as executor:
             futures = {
@@ -209,11 +304,12 @@ class Collector:
                         future.result()
                     except Exception as e:
                         logger.error(f"Error en {service}/{region}: {e}")
-                        self.stats["errors"].append({
-                            "service": service,
-                            "region": region,
-                            "error": str(e)
-                        })
+                        with self._stats_lock:
+                            self.stats["errors"].append({
+                                "service": service,
+                                "region": region,
+                                "error": str(e)
+                            })
                     finally:
                         pbar.update(1)
         
@@ -233,6 +329,15 @@ class Collector:
     
     def _collect_service_region(self, service_name: str, region: str):
         """Recolectar datos de un servicio en una región específica."""
+        endpoint_key = f"{service_name}:{region}"
+
+        # Early-exit: si ya sabemos que el endpoint no está disponible en esta región, saltar
+        with self._unavailable_lock:
+            if endpoint_key in self._unavailable_endpoints:
+                with self._stats_lock:
+                    self.stats["operations_skipped"] += 1
+                return
+
         try:
             # Descubrir operaciones del servicio
             operations = self.discovery.discover_operations(service_name, region)
@@ -241,30 +346,58 @@ class Collector:
                 logger.debug(f"No se encontraron operaciones para {service_name} en {region}")
                 return
             
-            # Contar operaciones safe_to_call
             safe_ops = [op for op, info in operations.items() if info.get("safe_to_call", False)]
             logger.debug(
                 f"{service_name}/{region}: {len(operations)} operaciones, "
                 f"{len(safe_ops)} safe_to_call"
             )
             
-            # Ejecutar operaciones
+            # Ejecutar operaciones — si la primera devuelve EndpointNotAvailable, saltar el resto
             executed_count = 0
+            first_op = True
+            service_start = time.time()
             for op_name, op_info in operations.items():
+                # Timeout por tarea de servicio: si llevamos demasiado tiempo, dejamos de ejecutar
+                # más operaciones para este servicio y liberamos el thread.
+                elapsed_service = time.time() - service_start
+                if elapsed_service > self.max_service_seconds:
+                    remaining = len(operations) - executed_count
+                    logger.warning(
+                        f"{service_name}/{region}: timeout de tarea ({elapsed_service:.0f}s), "
+                        f"se omiten {remaining} operaciones restantes"
+                    )
+                    with self._stats_lock:
+                        self.stats["operations_skipped"] += remaining
+                    break
+
                 result = self.executor.execute_operation(
                     service_name, region, op_name, op_info
                 )
                 
                 if result:
+                    # Si el primer intento ya indica que el endpoint no existe, marcar y salir
+                    if first_op and result.get("not_available"):
+                        with self._unavailable_lock:
+                            self._unavailable_endpoints.add(endpoint_key)
+                        with self._stats_lock:
+                            self.stats["operations_skipped"] += len(operations) - 1
+                        return
+
                     self._save_result(service_name, region, op_name, result)
-                    self.stats["operations_executed"] += 1
+                    with self._stats_lock:
+                        self.stats["operations_executed"] += 1
                     executed_count += 1
                     if result.get("success"):
-                        self.stats["operations_successful"] += 1
+                        with self._stats_lock:
+                            self.stats["operations_successful"] += 1
                     else:
-                        self.stats["operations_failed"] += 1
+                        with self._stats_lock:
+                            self.stats["operations_failed"] += 1
                 else:
-                    self.stats["operations_skipped"] += 1
+                    with self._stats_lock:
+                        self.stats["operations_skipped"] += 1
+
+                first_op = False
             
             if executed_count > 0:
                 logger.debug(f"{service_name}/{region}: {executed_count} operaciones ejecutadas")
@@ -338,14 +471,14 @@ def main():
     parser.add_argument(
         "--max-threads",
         type=int,
-        default=int(os.getenv("ECAD_MAX_THREADS", "20")),
-        help="Número máximo de threads paralelos"
+        default=int(os.getenv("ECAD_MAX_THREADS", "15")),
+        help="Número máximo de threads paralelos (default: 15)"
     )
     parser.add_argument(
         "--max-pages",
         type=int,
-        default=int(os.getenv("ECAD_MAX_PAGES", "100")),
-        help="Número máximo de páginas por operación paginada"
+        default=int(os.getenv("ECAD_MAX_PAGES", "20")),
+        help="Número máximo de páginas por operación paginada (default: 20)"
     )
     parser.add_argument(
         "--max-followups",
@@ -361,7 +494,13 @@ def main():
         "--service-denylist",
         help="Servicios excluidos separados por coma"
     )
-    
+    parser.add_argument(
+        "--max-service-seconds",
+        type=int,
+        default=int(os.getenv("ECAD_MAX_SERVICE_SECONDS", "90")),
+        help="Timeout en segundos por tarea de servicio/región (default: 90)"
+    )
+
     args = parser.parse_args()
     
     # Parsear listas
@@ -390,6 +529,7 @@ def main():
         max_followups=args.max_followups,
         service_allowlist=service_allowlist,
         service_denylist=service_denylist,
+        max_service_seconds=args.max_service_seconds,
     )
     
     try:

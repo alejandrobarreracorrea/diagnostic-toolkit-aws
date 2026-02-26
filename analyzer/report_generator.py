@@ -569,6 +569,7 @@ class ReportGenerator:
             "Cost Optimization",
             "Sustainability",
         ]
+        # Temporalmente mantenemos solo el lente oficial base (WA Core).
         return [
             {
                 "id": "wa-core",
@@ -578,60 +579,6 @@ class ReportGenerator:
                 "pillars": all_pillars,
                 "services": [],
                 "control_type": "question",
-            },
-            {
-                "id": "security-foundations",
-                "name": "Security Foundations Lens",
-                "description": "Controles fundacionales de identidad, deteccion, trazabilidad y cifrado.",
-                "origin": "ecad_custom",
-                "pillars": ["Security", "Operational Excellence", "Reliability"],
-                "services": ["iam", "cloudtrail", "config", "securityhub", "guardduty", "kms", "secretsmanager", "wafv2", "acm", "ssm"],
-                "control_type": "service",
-            },
-            {
-                "id": "reliability-resilience",
-                "name": "Reliability & Resilience Lens",
-                "description": "Controles de recuperacion, continuidad y operaciones resilientes.",
-                "origin": "ecad_custom",
-                "pillars": ["Reliability", "Operational Excellence", "Security"],
-                "services": ["backup", "route53", "autoscaling", "elb", "cloudwatch", "rds", "ec2", "s3", "sqs", "sns"],
-                "control_type": "service",
-            },
-            {
-                "id": "serverless-modern",
-                "name": "Serverless Modernization Lens",
-                "description": "Cobertura de workloads serverless y de integracion.",
-                "origin": "ecad_custom",
-                "pillars": ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"],
-                "services": ["lambda", "apigateway", "dynamodb", "eventbridge", "stepfunctions", "sqs", "sns", "cloudwatch", "xray"],
-                "control_type": "service",
-            },
-            {
-                "id": "container-platform",
-                "name": "Container Platform Lens",
-                "description": "Cobertura para plataformas de contenedores administradas.",
-                "origin": "ecad_custom",
-                "pillars": ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization"],
-                "services": ["ecs", "eks", "ecr", "elb", "autoscaling", "cloudwatch", "iam", "kms"],
-                "control_type": "service",
-            },
-            {
-                "id": "data-analytics",
-                "name": "Data & Analytics Lens",
-                "description": "Controles de datos, gobierno y analitica.",
-                "origin": "ecad_custom",
-                "pillars": ["Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"],
-                "services": ["s3", "rds", "redshift", "athena", "glue", "emr", "kinesis", "lakeformation", "kms"],
-                "control_type": "service",
-            },
-            {
-                "id": "finops-efficiency",
-                "name": "FinOps Efficiency Lens",
-                "description": "Controles de costo, rightsizing y eficiencia de consumo.",
-                "origin": "ecad_custom",
-                "pillars": ["Cost Optimization", "Operational Excellence", "Sustainability"],
-                "services": ["ce", "budgets", "computeoptimizer", "savingsplans", "ec2", "rds", "lambda", "s3", "cloudwatch"],
-                "control_type": "service",
             },
         ]
 

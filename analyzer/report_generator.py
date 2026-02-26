@@ -9,7 +9,7 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Set
 from datetime import datetime
 from jinja2 import Template
 
@@ -503,11 +503,218 @@ class ReportGenerator:
             json.dump(plan_data, f, indent=2, ensure_ascii=False)
         logger.info(f"Plan de mejoras (JSON) generado: {output_json}")
 
+    def _normalize_service_name(self, service: str) -> str:
+        """Normalizar nombres de servicio para correlación entre index/evidencia/mapeos."""
+        raw = (service or "").strip().lower()
+        raw = re.sub(r"^aws\s+", "", raw)
+        raw = raw.replace("_", " ").replace("-", " ")
+        raw = re.sub(r"\s+", " ", raw).strip()
+        aliases = {
+            "api gateway": "apigateway",
+            "apigatewayv2": "apigateway",
+            "amazon cloudwatch": "cloudwatch",
+            "aws config": "config",
+            "security hub": "securityhub",
+            "aws security hub": "securityhub",
+            "cost explorer": "ce",
+            "savings plans": "savingsplans",
+            "reserved instances": "reservedinstances",
+            "service quotas": "servicequotas",
+            "route 53": "route53",
+            "elastic load balancing": "elb",
+            "elbv2": "elb",
+            "systems manager": "ssm",
+            "x ray": "xray",
+            "cloud trail": "cloudtrail",
+            "event bridge": "eventbridge",
+            "step functions": "stepfunctions",
+            "cloud front": "cloudfront",
+            "resource groups tagging api": "tagging",
+            "secrets manager": "secretsmanager",
+        }
+        return aliases.get(raw, raw.replace(" ", ""))
+
+    def _pillar_key(self, pillar: str) -> str:
+        """Mapear nombre de pilar a clave de archivos de mapeo."""
+        pillar_key_map = {
+            "Operational Excellence": "operational_excellence",
+            "Security": "security",
+            "Reliability": "reliability",
+            "Performance Efficiency": "performance_efficiency",
+            "Cost Optimization": "cost_optimization",
+            "Sustainability": "sustainability",
+        }
+        return pillar_key_map.get(pillar, "")
+
+    def _load_question_service_mapping(self) -> Dict[str, Any]:
+        """Cargar mapeo pregunta->servicios para enriquecer cobertura fase 2."""
+        mapping_file = Path(__file__).resolve().parent.parent / "evidence" / "question_service_mapping.json"
+        if not mapping_file.exists():
+            return {}
+        try:
+            with open(mapping_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.debug("No se pudo cargar question_service_mapping.json: %s", e)
+            return {}
+
+    def _phase2_lens_definitions(self) -> List[Dict[str, Any]]:
+        """Definiciones de lentes técnicos para evaluación profunda (fase 2)."""
+        all_pillars = [
+            "Operational Excellence",
+            "Security",
+            "Reliability",
+            "Performance Efficiency",
+            "Cost Optimization",
+            "Sustainability",
+        ]
+        return [
+            {
+                "id": "wa-core",
+                "name": "Well-Architected Core",
+                "description": "Preguntas base del AWS Well-Architected Framework.",
+                "pillars": all_pillars,
+                "services": [],
+                "control_type": "question",
+            },
+            {
+                "id": "security-foundations",
+                "name": "Security Foundations Lens",
+                "description": "Controles fundacionales de identidad, deteccion, trazabilidad y cifrado.",
+                "pillars": ["Security", "Operational Excellence", "Reliability"],
+                "services": ["iam", "cloudtrail", "config", "securityhub", "guardduty", "kms", "secretsmanager", "wafv2", "acm", "ssm"],
+                "control_type": "service",
+            },
+            {
+                "id": "reliability-resilience",
+                "name": "Reliability & Resilience Lens",
+                "description": "Controles de recuperacion, continuidad y operaciones resilientes.",
+                "pillars": ["Reliability", "Operational Excellence", "Security"],
+                "services": ["backup", "route53", "autoscaling", "elb", "cloudwatch", "rds", "ec2", "s3", "sqs", "sns"],
+                "control_type": "service",
+            },
+            {
+                "id": "serverless-modern",
+                "name": "Serverless Modernization Lens",
+                "description": "Cobertura de workloads serverless y de integracion.",
+                "pillars": ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"],
+                "services": ["lambda", "apigateway", "dynamodb", "eventbridge", "stepfunctions", "sqs", "sns", "cloudwatch", "xray"],
+                "control_type": "service",
+            },
+            {
+                "id": "container-platform",
+                "name": "Container Platform Lens",
+                "description": "Cobertura para plataformas de contenedores administradas.",
+                "pillars": ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization"],
+                "services": ["ecs", "eks", "ecr", "elb", "autoscaling", "cloudwatch", "iam", "kms"],
+                "control_type": "service",
+            },
+            {
+                "id": "data-analytics",
+                "name": "Data & Analytics Lens",
+                "description": "Controles de datos, gobierno y analitica.",
+                "pillars": ["Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"],
+                "services": ["s3", "rds", "redshift", "athena", "glue", "emr", "kinesis", "lakeformation", "kms"],
+                "control_type": "service",
+            },
+            {
+                "id": "finops-efficiency",
+                "name": "FinOps Efficiency Lens",
+                "description": "Controles de costo, rightsizing y eficiencia de consumo.",
+                "pillars": ["Cost Optimization", "Operational Excellence", "Sustainability"],
+                "services": ["ce", "budgets", "computeoptimizer", "savingsplans", "ec2", "rds", "lambda", "s3", "cloudwatch"],
+                "control_type": "service",
+            },
+        ]
+
+    def _phase2_pillar_service_baseline(self) -> Dict[str, List[str]]:
+        """Servicios de referencia por pilar para generar controles por servicio."""
+        return {
+            "Operational Excellence": ["cloudwatch", "cloudtrail", "config", "cloudformation", "ssm", "backup", "eventbridge"],
+            "Security": ["iam", "kms", "secretsmanager", "securityhub", "guardduty", "cloudtrail", "config", "wafv2", "acm"],
+            "Reliability": ["ec2", "rds", "route53", "elb", "autoscaling", "backup", "s3", "cloudwatch", "sqs", "sns"],
+            "Performance Efficiency": ["ec2", "rds", "lambda", "apigateway", "cloudfront", "dynamodb", "eks", "ecs", "cloudwatch"],
+            "Cost Optimization": ["ce", "budgets", "computeoptimizer", "savingsplans", "ec2", "rds", "s3", "lambda"],
+            "Sustainability": ["computeoptimizer", "cloudwatch", "lambda", "eks", "ecs", "ec2", "s3", "rds"],
+        }
+
+    def _collect_phase2_service_signals(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Construir señales de servicios detectados para evaluación de controles fase 2."""
+        evidence_pack = data.get("evidence_pack", {})
+        pillars = evidence_pack.get("pillars", {}) if isinstance(evidence_pack, dict) else {}
+        index_services = data.get("index", {}).get("services", {})
+
+        active_index_services: Set[str] = set()
+        for service_name, service_data in index_services.items():
+            normalized = self._normalize_service_name(service_name)
+            total_ops = int(service_data.get("total_operations", 0) or 0)
+            if total_ops > 0:
+                active_index_services.add(normalized)
+                continue
+            for region_data in service_data.get("regions", {}).values():
+                for op_info in region_data.get("operations", []):
+                    if op_info.get("success"):
+                        active_index_services.add(normalized)
+                        break
+                if normalized in active_index_services:
+                    break
+
+        direct_present: Set[str] = set()
+        direct_missing: Set[str] = set()
+        question_signals: Dict[str, Set[str]] = {}
+        question_map = self._load_question_service_mapping()
+
+        for pillar, p_data in pillars.items():
+            for ev in p_data.get("evidence", []):
+                service_name = self._normalize_service_name(ev.get("service", ""))
+                if not service_name:
+                    continue
+                ev_type = str(ev.get("type", "")).strip().lower()
+                status = str(ev.get("status", "")).strip().lower()
+                if status == "detected" or ev_type == "service_present":
+                    direct_present.add(service_name)
+                if status == "not_detected" or ev_type == "service_missing":
+                    direct_missing.add(service_name)
+
+            pillar_key = self._pillar_key(pillar)
+            p_question_map = question_map.get(pillar_key, {})
+            for q in p_data.get("well_architected_questions", []):
+                status = (q.get("compliance", {}).get("status") or "").strip()
+                if status not in ("compliant", "partially_compliant", "not_compliant"):
+                    continue
+                qid = q.get("id", "")
+                q_map = p_question_map.get(qid, {})
+                for svc in q_map.get("services", []):
+                    norm = self._normalize_service_name(svc)
+                    if not norm:
+                        continue
+                    question_signals.setdefault(pillar, set()).add(norm)
+
+        direct_signals = sorted(direct_present | direct_missing)
+        all_detected = sorted(set(active_index_services) | direct_present | direct_missing)
+        return {
+            "active_index_services": active_index_services,
+            "direct_present": direct_present,
+            "direct_missing": direct_missing,
+            "direct_signals": set(direct_signals),
+            "all_detected": set(all_detected),
+            "question_signals": question_signals,
+        }
+
     def _build_controls_catalog(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Construir catálogo de controles evaluables (fase 1: Well-Architected por pregunta)."""
+        """Construir catálogo de controles evaluables (fase 2: multi-lens + servicios)."""
         evidence_pack = data.get("evidence_pack", {})
         pillars = evidence_pack.get("pillars", {}) if isinstance(evidence_pack, dict) else {}
         controls: List[Dict[str, Any]] = []
+        lenses = self._phase2_lens_definitions()
+        baselines = self._phase2_pillar_service_baseline()
+        signals = self._collect_phase2_service_signals(data)
+        question_map = self._load_question_service_mapping()
+
+        foundational_services = {
+            "iam", "cloudtrail", "config", "cloudwatch", "kms", "securityhub", "guardduty", "backup", "ce", "budgets"
+        }
+
         pillar_code = {
             "Operational Excellence": "OPS",
             "Security": "SEC",
@@ -517,25 +724,95 @@ class ReportGenerator:
             "Sustainability": "SUS",
         }
 
+        # Controles WA por pregunta (lente core)
         for pillar, p_data in pillars.items():
+            pillar_key = self._pillar_key(pillar)
+            p_question_map = question_map.get(pillar_key, {})
             for q in p_data.get("well_architected_questions", []):
                 qid = q.get("id", "")
                 if not qid:
                     continue
+                status = (q.get("compliance", {}).get("status") or "").strip()
+                related = q.get("related_evidences", [])
+                evaluated = status in ("compliant", "partially_compliant", "not_compliant")
+                confidence = 0.0
+                if evaluated:
+                    confidence = 1.0 if related else 0.6
+
+                services = [
+                    self._normalize_service_name(s)
+                    for s in p_question_map.get(qid, {}).get("services", [])
+                    if self._normalize_service_name(s)
+                ]
                 controls.append({
                     "control_id": f"WA-{pillar_code.get(pillar, 'GEN')}-{qid}",
                     "framework": "AWS Well-Architected",
+                    "lens_id": "wa-core",
+                    "lens_name": "Well-Architected Core",
                     "pillar": pillar,
+                    "control_type": "question",
                     "question_id": qid,
+                    "service": "multi",
+                    "related_services": sorted(set(services)),
                     "title": q.get("question", ""),
+                    "in_scope": True,
+                    "evaluated": evaluated,
+                    "confidence": confidence,
                     "automation_level": "automated_with_evidence",
                     "evaluation_logic": "compliance_status_from_evidence_pack_question",
                 })
 
+        # Controles por servicio/lente
+        for lens in lenses:
+            if lens.get("id") == "wa-core":
+                continue
+            lens_services = {self._normalize_service_name(s) for s in lens.get("services", []) if s}
+            for pillar in lens.get("pillars", []):
+                baseline_services = {self._normalize_service_name(s) for s in baselines.get(pillar, []) if s}
+                for service in sorted(lens_services & baseline_services):
+                    in_scope = service in signals["all_detected"] or service in foundational_services
+                    if not in_scope:
+                        continue
+
+                    has_direct = service in signals["direct_signals"]
+                    has_question = service in signals["question_signals"].get(pillar, set())
+                    has_index = service in signals["active_index_services"]
+                    evaluated = has_direct or has_question or has_index
+                    if has_direct:
+                        confidence = 1.0
+                        evidence_level = "direct"
+                    elif has_question:
+                        confidence = 0.75
+                        evidence_level = "question-correlated"
+                    elif has_index:
+                        confidence = 0.55
+                        evidence_level = "inventory-inferred"
+                    else:
+                        confidence = 0.0
+                        evidence_level = "not-evaluable"
+
+                    controls.append({
+                        "control_id": f"LENS-{lens['id'].upper()}-{pillar_code.get(pillar, 'GEN')}-{service.upper()}",
+                        "framework": "AWS Well-Architected + ECAD Lens",
+                        "lens_id": lens["id"],
+                        "lens_name": lens["name"],
+                        "pillar": pillar,
+                        "control_type": "service",
+                        "service": service,
+                        "title": f"Cobertura de {service} en {pillar}",
+                        "in_scope": in_scope,
+                        "evaluated": evaluated,
+                        "confidence": confidence,
+                        "evidence_level": evidence_level,
+                        "automation_level": "automated_with_service_signals",
+                        "evaluation_logic": "service_signal_from_evidence_or_question_or_index",
+                    })
+
         return {
-            "version": "1.0",
+            "version": "2.0",
             "generated_at": datetime.utcnow().isoformat(),
-            "scope": "Well-Architected questions present in evidence_pack",
+            "scope": "Well-Architected core + multi-lens service controls",
+            "lenses": lenses,
             "controls_count": len(controls),
             "controls": controls,
         }
@@ -549,42 +826,20 @@ class ReportGenerator:
         logger.info(f"Catálogo de controles generado: {output_file}")
 
     def _build_coverage_report(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Construir reporte de cobertura y confianza por pilar."""
-        evidence_pack = data.get("evidence_pack", {})
-        pillars = evidence_pack.get("pillars", {}) if isinstance(evidence_pack, dict) else {}
+        """Construir reporte de cobertura y confianza por pilar, lente y servicio (fase 2)."""
         catalog = self._build_controls_catalog(data)
         controls = catalog.get("controls", [])
+        in_scope = [c for c in controls if c.get("in_scope")]
 
-        def _q_confidence(question: Dict[str, Any], status: str) -> float:
-            rel = question.get("related_evidences", [])
-            if status not in ("compliant", "partially_compliant", "not_compliant"):
-                return 0.0
-            if rel:
-                return 1.0
-            # Cumplimiento sin evidencia directa en la pregunta: confianza media.
-            return 0.6
-
-        pillars_summary: Dict[str, Any] = {}
-        for pillar in sorted(set(c.get("pillar") for c in controls)):
-            questions = pillars.get(pillar, {}).get("well_architected_questions", [])
-            total = len(questions)
-            evaluated = 0
-            not_evaluable = 0
-            confidence_values: List[float] = []
-
-            for q in questions:
-                status = (q.get("compliance", {}).get("status") or "").strip()
-                if status in ("compliant", "partially_compliant", "not_compliant"):
-                    evaluated += 1
-                    confidence_values.append(_q_confidence(q, status))
-                else:
-                    not_evaluable += 1
-
+        def summarize(group_controls: List[Dict[str, Any]]) -> Dict[str, Any]:
+            total = len(group_controls)
+            evaluated = sum(1 for c in group_controls if c.get("evaluated"))
+            not_evaluable = total - evaluated
+            conf_values = [float(c.get("confidence", 0.0)) for c in group_controls if c.get("evaluated")]
+            confidence_pct = round((sum(conf_values) / len(conf_values)) * 100, 1) if conf_values else 0.0
             coverage_pct = round((evaluated / total) * 100, 1) if total else 0.0
-            confidence_pct = round((sum(confidence_values) / len(confidence_values)) * 100, 1) if confidence_values else 0.0
             not_evaluable_pct = round((not_evaluable / total) * 100, 1) if total else 0.0
-
-            pillars_summary[pillar] = {
+            return {
                 "total_controls": total,
                 "evaluated_controls": evaluated,
                 "not_evaluable_controls": not_evaluable,
@@ -593,30 +848,55 @@ class ReportGenerator:
                 "not_evaluable_pct": not_evaluable_pct,
             }
 
-        all_total = sum(v["total_controls"] for v in pillars_summary.values())
-        all_eval = sum(v["evaluated_controls"] for v in pillars_summary.values())
-        all_ne = sum(v["not_evaluable_controls"] for v in pillars_summary.values())
-        # Promedio simple de confianza entre pilares con valores.
-        conf_values = [v["confidence_pct"] for v in pillars_summary.values() if v["evaluated_controls"] > 0]
-        global_conf = round(sum(conf_values) / len(conf_values), 1) if conf_values else 0.0
+        pillars_summary: Dict[str, Any] = {}
+        for pillar in sorted({c.get("pillar") for c in in_scope if c.get("pillar")}):
+            p_controls = [c for c in in_scope if c.get("pillar") == pillar]
+            lens_counts: Dict[str, int] = {}
+            for c in p_controls:
+                lid = c.get("lens_id", "unknown")
+                lens_counts[lid] = lens_counts.get(lid, 0) + 1
+            summary = summarize(p_controls)
+            summary["controls_by_lens"] = lens_counts
+            pillars_summary[pillar] = summary
+
+        lenses_summary: Dict[str, Any] = {}
+        for lens in catalog.get("lenses", []):
+            lid = lens.get("id")
+            l_controls = [c for c in in_scope if c.get("lens_id") == lid]
+            if not l_controls:
+                continue
+            summary = summarize(l_controls)
+            summary["name"] = lens.get("name", lid)
+            summary["description"] = lens.get("description", "")
+            summary["pillars"] = lens.get("pillars", [])
+            lenses_summary[lid] = summary
+
+        services_summary: Dict[str, Any] = {}
+        service_controls = [c for c in in_scope if c.get("control_type") == "service" and c.get("service")]
+        for service in sorted({c.get("service") for c in service_controls}):
+            s_controls = [c for c in service_controls if c.get("service") == service]
+            services_summary[service] = summarize(s_controls)
+            services_summary[service]["pillars"] = sorted({c.get("pillar") for c in s_controls if c.get("pillar")})
+            services_summary[service]["lenses"] = sorted({c.get("lens_id") for c in s_controls if c.get("lens_id")})
+
+        global_summary = summarize(in_scope)
+        global_summary["controls_catalog_total"] = len(controls)
+        global_summary["in_scope_controls"] = len(in_scope)
+        global_summary["lenses_evaluated"] = len(lenses_summary)
+        global_summary["services_evaluated"] = len(services_summary)
 
         return {
-            "version": "1.0",
+            "version": "2.0",
             "generated_at": datetime.utcnow().isoformat(),
-            "framework_scope": "AWS Well-Architected",
-            "global": {
-                "total_controls": all_total,
-                "evaluated_controls": all_eval,
-                "not_evaluable_controls": all_ne,
-                "coverage_pct": round((all_eval / all_total) * 100, 1) if all_total else 0.0,
-                "confidence_pct": global_conf,
-                "not_evaluable_pct": round((all_ne / all_total) * 100, 1) if all_total else 0.0,
-            },
+            "framework_scope": "AWS Well-Architected + multi-lens service depth",
+            "global": global_summary,
             "pillars": pillars_summary,
+            "lenses": lenses_summary,
+            "services": services_summary,
             "notes": [
                 "coverage_pct mide controles evaluados / controles en alcance.",
-                "confidence_pct refleja calidad de evidencia (directa=alta, inferida=media).",
-                "not_evaluable incluye preguntas organizacionales o sin señal automatizable.",
+                "confidence_pct refleja calidad de evidencia: directa (alta), pregunta correlacionada (media-alta), inventario inferido (media).",
+                "Los controles fuera de alcance no inflan el denominador; se incluyen solo fundacionales y servicios detectados.",
             ],
         }
 

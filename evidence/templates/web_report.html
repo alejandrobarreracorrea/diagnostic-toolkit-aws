@@ -693,6 +693,37 @@
     .coverage-bar.conf > span { background: #06b6d4; }
     .coverage-bar.ne > span { background: #f59e0b; }
     .coverage-foot { margin-top: 12px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+    .coverage-lens-tags {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .coverage-lens-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      padding: 5px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .coverage-global {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .coverage-global h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
     .scorecard-hero {
       text-align: center;
       padding: 40px 28px 32px;
@@ -1201,6 +1232,18 @@
     </div>
     <div id="panel-evidence" class="tab-panel">
       <div class="container" style="padding-bottom: 24px;">
+        {% if coverage_report and coverage_report.global %}
+        <article class="coverage-global">
+          <h3>Cobertura Global Fase 2</h3>
+          <div class="coverage-kpis">
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.coverage_pct }}%</div><div class="l">Cobertura</div></div>
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.confidence_pct }}%</div><div class="l">Confianza</div></div>
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.in_scope_controls }}</div><div class="l">Controles en Alcance</div></div>
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.lenses_evaluated }}</div><div class="l">Lentes Evaluados</div></div>
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.services_evaluated }}</div><div class="l">Servicios Evaluados</div></div>
+          </div>
+        </article>
+        {% endif %}
         <div class="pillar-cards">
           {% for p in pillar_summaries %}
           <a class="pillar-card" href="#pillar-{{ p.slug }}" style="--pillar-color: {{ p.color }}">
@@ -1244,6 +1287,17 @@
           <div class="coverage-bar ne"><span style="width: {{ cov.not_evaluable_pct }}%;"></span></div>
         </div>
         <p class="coverage-foot">Controles evaluados: {{ cov.evaluated_controls }}/{{ cov.total_controls }} (no evaluables: {{ cov.not_evaluable_controls }}).</p>
+        {% if cov.controls_by_lens %}
+        <div class="coverage-lens-tags">
+          {% for lid, ccount in cov.controls_by_lens.items() %}
+          {% if coverage_report.lenses and coverage_report.lenses.get(lid) %}
+          <span class="coverage-lens-tag">{{ coverage_report.lenses.get(lid).name }}: {{ ccount }}</span>
+          {% else %}
+          <span class="coverage-lens-tag">{{ lid }}: {{ ccount }}</span>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
       </article>
       {% endif %}
       <div class="accordion">

@@ -968,15 +968,143 @@
       gap: 10px;
       margin-bottom: 14px;
     }
+    .inventory-toolbar {
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .inventory-toolbar label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .inventory-toolbar select {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      min-width: 220px;
+    }
     .inventory-table-wrap {
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       background: var(--surface);
       overflow: auto;
     }
+    .inventory-accordion {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .inventory-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      overflow: hidden;
+    }
+    .inventory-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .inventory-item summary::-webkit-details-marker { display: none; }
+    .inventory-item summary .meta {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .inventory-item .body {
+      border-top: 1px solid var(--border);
+      padding: 12px 14px;
+    }
+    .inventory-item .body h4 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+    }
+    .inventory-item .resource-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text);
+      word-break: break-word;
+      max-height: 240px;
+      overflow: auto;
+    }
+    .inventory-item .source-ops {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
     .inventory-status-ok { color: #86efac; }
     .inventory-status-err { color: #fcd34d; }
     .inventory-status-empty { color: #fca5a5; }
+    .inventory-view { display: none; }
+    .inventory-view.is-active { display: block; }
+    .inventory-pagination {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      padding: 8px 10px;
+    }
+    .inventory-pagination .left,
+    .inventory-pagination .right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .inventory-pagination .info {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .inventory-pagination button {
+      border: 1px solid var(--border);
+      background: var(--surface-hover);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .inventory-pagination button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+    .inventory-pagination select {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+    }
     @media (max-width: 768px) {
       .hero { padding: 48px 0 44px; }
       .hero h1 { font-size: 32px; }
@@ -1171,7 +1299,15 @@
           <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_with_errors }}</div><div class="l">Con Errores</div></div>
           <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_without_data }}</div><div class="l">Sin Datos</div></div>
         </div>
-        <div class="inventory-table-wrap">
+        <div class="inventory-toolbar">
+          <label for="inventory-view-select">Vista de Inventario</label>
+          <select id="inventory-view-select">
+            <option value="consolidado">Consolidado</option>
+            <option value="servicios">Inventario por servicio</option>
+          </select>
+        </div>
+        <div id="inventory-view-consolidado" class="inventory-view is-active">
+          <div class="inventory-table-wrap">
           <table class="tab-report-content" style="padding:0; margin:0; max-width:none;">
             <thead>
               <tr>
@@ -1186,7 +1322,7 @@
             </thead>
             <tbody>
               {% for row in inventory_data.rows %}
-              <tr>
+              <tr class="inventory-row inventory-row-consolidado">
                 <td>{{ row.service }}</td>
                 <td>
                   {% if row.status == 'con_datos' %}
@@ -1206,6 +1342,66 @@
               {% endfor %}
             </tbody>
           </table>
+          </div>
+          <div class="inventory-pagination">
+            <div class="left">
+              <button type="button" id="inv-prev-consolidado">Anterior</button>
+              <button type="button" id="inv-next-consolidado">Siguiente</button>
+              <span class="info" id="inv-page-info-consolidado"></span>
+            </div>
+            <div class="right">
+              <label for="inv-page-size-consolidado" style="font-size:12px;color:var(--text-muted);">Filas por página</label>
+              <select id="inv-page-size-consolidado">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="inventory-view-servicios" class="inventory-view">
+          <div class="inventory-accordion">
+            {% for row in inventory_data.rows %}
+            <details class="inventory-item">
+              <summary>
+                <span>{{ row.service }}</span>
+                <span class="meta">recursos: {{ row.resources }} · ops OK: {{ row.operations_ok }} · error: {{ row.operations_error }}</span>
+              </summary>
+              <div class="body">
+                <h4>Recursos detectados (muestra)</h4>
+                {% if row.resource_samples %}
+                <ul class="resource-list">
+                  {% for r in row.resource_samples %}
+                  <li>{{ r }}</li>
+                  {% endfor %}
+                </ul>
+                {% else %}
+                <p class="tab-report-placeholder" style="padding:0; text-align:left;">No se extrajeron identificadores de recursos para este servicio con los datos disponibles.</p>
+                {% endif %}
+                {% if row.sample_source_ops %}
+                <div class="source-ops">Operaciones fuente: {{ row.sample_source_ops|join(', ') }}</div>
+                {% endif %}
+              </div>
+            </details>
+            {% endfor %}
+          </div>
+          <div class="inventory-pagination">
+            <div class="left">
+              <button type="button" id="inv-prev-servicios">Anterior</button>
+              <button type="button" id="inv-next-servicios">Siguiente</button>
+              <span class="info" id="inv-page-info-servicios"></span>
+            </div>
+            <div class="right">
+              <label for="inv-page-size-servicios" style="font-size:12px;color:var(--text-muted);">Servicios por página</label>
+              <select id="inv-page-size-servicios">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
       {% else %}
@@ -1743,6 +1939,8 @@
           try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
           applyScoreMode(preferred);
           initRemediationFilters();
+          initInventoryView();
+          initInventoryPagination();
         });
       } else {
         var standardBtn = document.getElementById('score-mode-standard');
@@ -1753,6 +1951,110 @@
         try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
         applyScoreMode(preferred);
         initRemediationFilters();
+        initInventoryView();
+        initInventoryPagination();
+      }
+
+      function initInventoryView() {
+        var select = document.getElementById('inventory-view-select');
+        if (!select) return;
+        var viewCon = document.getElementById('inventory-view-consolidado');
+        var viewSvc = document.getElementById('inventory-view-servicios');
+        if (!viewCon || !viewSvc) return;
+
+        var key = 'ecad-inventory-view';
+        function applyView(value) {
+          var selected = value === 'servicios' ? 'servicios' : 'consolidado';
+          viewCon.classList.toggle('is-active', selected === 'consolidado');
+          viewSvc.classList.toggle('is-active', selected === 'servicios');
+          select.value = selected;
+          try { localStorage.setItem(key, selected); } catch (e) {}
+        }
+        var preferred = 'consolidado';
+        try { preferred = localStorage.getItem(key) || 'consolidado'; } catch (e) {}
+        applyView(preferred);
+        select.addEventListener('change', function() { applyView(select.value); });
+      }
+
+      function initInventoryPagination() {
+        function setup(cfg) {
+          var items = Array.prototype.slice.call(document.querySelectorAll(cfg.itemsSelector));
+          if (!items.length) return;
+          var prev = document.getElementById(cfg.prevId);
+          var next = document.getElementById(cfg.nextId);
+          var info = document.getElementById(cfg.infoId);
+          var sizeSel = document.getElementById(cfg.sizeId);
+          if (!prev || !next || !info || !sizeSel) return;
+
+          var keyPage = 'ecad-inv-page-' + cfg.key;
+          var keySize = 'ecad-inv-size-' + cfg.key;
+          var page = 1;
+          var size = parseInt(sizeSel.value || '25', 10) || 25;
+          try {
+            var pStored = parseInt(localStorage.getItem(keyPage) || '1', 10);
+            var sStored = parseInt(localStorage.getItem(keySize) || String(size), 10);
+            if (!isNaN(pStored) && pStored > 0) page = pStored;
+            if (!isNaN(sStored) && sStored > 0) size = sStored;
+          } catch (e) {}
+
+          function render() {
+            var total = items.length;
+            var totalPages = Math.max(1, Math.ceil(total / size));
+            if (page > totalPages) page = totalPages;
+            if (page < 1) page = 1;
+            var start = (page - 1) * size;
+            var end = start + size;
+            items.forEach(function(item, idx) {
+              item.style.display = (idx >= start && idx < end) ? '' : 'none';
+            });
+            prev.disabled = page <= 1;
+            next.disabled = page >= totalPages;
+            info.textContent = 'Página ' + page + ' de ' + totalPages + ' · ' + total + ' elementos';
+            sizeSel.value = String(size);
+            try {
+              localStorage.setItem(keyPage, String(page));
+              localStorage.setItem(keySize, String(size));
+            } catch (e) {}
+          }
+
+          prev.addEventListener('click', function() {
+            if (page > 1) {
+              page -= 1;
+              render();
+            }
+          });
+          next.addEventListener('click', function() {
+            var totalPages = Math.max(1, Math.ceil(items.length / size));
+            if (page < totalPages) {
+              page += 1;
+              render();
+            }
+          });
+          sizeSel.addEventListener('change', function() {
+            var val = parseInt(sizeSel.value || '25', 10);
+            size = (!isNaN(val) && val > 0) ? val : 25;
+            page = 1;
+            render();
+          });
+          render();
+        }
+
+        setup({
+          key: 'consolidado',
+          itemsSelector: '#inventory-view-consolidado .inventory-row-consolidado',
+          prevId: 'inv-prev-consolidado',
+          nextId: 'inv-next-consolidado',
+          infoId: 'inv-page-info-consolidado',
+          sizeId: 'inv-page-size-consolidado'
+        });
+        setup({
+          key: 'servicios',
+          itemsSelector: '#inventory-view-servicios .inventory-item',
+          prevId: 'inv-prev-servicios',
+          nextId: 'inv-next-servicios',
+          infoId: 'inv-page-info-servicios',
+          sizeId: 'inv-page-size-servicios'
+        });
       }
 
       function initRemediationFilters() {

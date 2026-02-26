@@ -8,6 +8,7 @@ import json
 import logging
 import re
 import sys
+import gzip
 from pathlib import Path
 from typing import Dict, Any, List, Set
 from datetime import datetime
@@ -1379,6 +1380,7 @@ class ReportGenerator:
             else:
                 without_data += 1
 
+            samples = self._extract_service_resource_samples(service_data)
             rows.append({
                 "service": service_name,
                 "regions": regions_count,
@@ -1387,6 +1389,8 @@ class ReportGenerator:
                 "operations_error": failed_ops,
                 "resources": total_resources,
                 "status": status,
+                "resource_samples": samples.get("samples", []),
+                "sample_source_ops": samples.get("operations", []),
             })
 
         rows_sorted = sorted(rows, key=lambda r: (0 if r["status"] == "con_datos" else (1 if r["status"] == "errores" else 2), -r["operations_ok"], r["service"]))
@@ -1399,6 +1403,86 @@ class ReportGenerator:
             },
             "rows": rows_sorted[:250],
         }
+
+    def _extract_service_resource_samples(self, service_data: Dict[str, Any], max_samples: int = 20) -> Dict[str, Any]:
+        """Extraer muestras de recursos por servicio leyendo archivos crudos de operaciones exitosas."""
+        key_patterns = [
+            "arn", "id", "name", "bucket", "identifier", "table", "function", "cluster",
+            "queueurl", "topicarn", "distributionid", "dbinstanceidentifier", "vpcid", "subnetid",
+        ]
+        op_candidates: List[Dict[str, Any]] = []
+        for region_data in (service_data.get("regions", {}) or {}).values():
+            for op in region_data.get("operations", []):
+                if not op.get("success"):
+                    continue
+                file_rel = op.get("file")
+                if not file_rel:
+                    continue
+                op_name = str(op.get("operation", ""))
+                rank = 0
+                op_lower = op_name.lower()
+                if "list" in op_lower:
+                    rank += 3
+                if "describe" in op_lower:
+                    rank += 2
+                if "get" in op_lower:
+                    rank += 1
+                rc = int(op.get("resource_count", 0) or 0)
+                rank += 4 if rc > 0 else 0
+                op_candidates.append({
+                    "operation": op_name,
+                    "file": file_rel,
+                    "rank": rank,
+                    "resource_count": rc,
+                })
+        if not op_candidates:
+            return {"samples": [], "operations": []}
+
+        op_candidates.sort(key=lambda x: (x["rank"], x["resource_count"]), reverse=True)
+        picked = op_candidates[:3]
+
+        samples: List[str] = []
+        seen: Set[str] = set()
+        used_ops: List[str] = []
+
+        def _walk(node: Any):
+            if len(samples) >= max_samples:
+                return
+            if isinstance(node, dict):
+                for k, v in node.items():
+                    if len(samples) >= max_samples:
+                        return
+                    key = str(k).lower()
+                    if isinstance(v, str):
+                        v_clean = v.strip()
+                        if v_clean and len(v_clean) <= 220 and any(p in key for p in key_patterns):
+                            if v_clean not in seen:
+                                seen.add(v_clean)
+                                samples.append(v_clean)
+                    else:
+                        _walk(v)
+            elif isinstance(node, list):
+                for item in node:
+                    if len(samples) >= max_samples:
+                        return
+                    _walk(item)
+
+        for op in picked:
+            full_path = self.run_dir / "raw" / op["file"]
+            if not full_path.exists():
+                continue
+            try:
+                with gzip.open(full_path, "rt", encoding="utf-8") as f:
+                    payload = json.load(f)
+                used_ops.append(op["operation"])
+                data_node = payload.get("data", payload)
+                _walk(data_node)
+                if len(samples) >= max_samples:
+                    break
+            except Exception:
+                continue
+
+        return {"samples": samples, "operations": used_ops}
 
     def _security_maturity_to_html(self, security_maturity: Dict) -> str:
         """Generar HTML del modelo de madurez (fallback cuando markdown no está instalado)."""

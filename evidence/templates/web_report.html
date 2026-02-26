@@ -410,6 +410,8 @@
     .tabs-wrap input#tab-evidence:checked ~ .tab-labels label[for="tab-evidence"],
     .tabs-wrap input#tab-caf:checked ~ .tab-labels label[for="tab-caf"],
     .tabs-wrap input#tab-maturity:checked ~ .tab-labels label[for="tab-maturity"],
+    .tabs-wrap input#tab-phases:checked ~ .tab-labels label[for="tab-phases"],
+    .tabs-wrap input#tab-inventory:checked ~ .tab-labels label[for="tab-inventory"],
     .tabs-wrap input#tab-executive:checked ~ .tab-labels label[for="tab-executive"],
     .tabs-wrap input#tab-findings:checked ~ .tab-labels label[for="tab-findings"],
     .tabs-wrap input#tab-improvement-plan:checked ~ .tab-labels label[for="tab-improvement-plan"],
@@ -423,6 +425,8 @@
     .tabs-wrap input#tab-evidence:checked ~ .tab-panel#panel-evidence,
     .tabs-wrap input#tab-caf:checked ~ .tab-panel#panel-caf,
     .tabs-wrap input#tab-maturity:checked ~ .tab-panel#panel-maturity,
+    .tabs-wrap input#tab-phases:checked ~ .tab-panel#panel-phases,
+    .tabs-wrap input#tab-inventory:checked ~ .tab-panel#panel-inventory,
     .tabs-wrap input#tab-executive:checked ~ .tab-panel#panel-executive,
     .tabs-wrap input#tab-findings:checked ~ .tab-panel#panel-findings,
     .tabs-wrap input#tab-improvement-plan:checked ~ .tab-panel#panel-improvement-plan,
@@ -712,6 +716,27 @@
       letter-spacing: .03em;
       text-transform: uppercase;
     }
+    .lens-origin {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      font-size: 10px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .lens-origin-official {
+      color: #86efac;
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.12);
+    }
+    .lens-origin-custom {
+      color: #fcd34d;
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.12);
+    }
     .coverage-global {
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
@@ -857,6 +882,101 @@
     .scorecard-card .score-num { font-size: 28px; font-weight: 800; color: var(--pillar-color); }
     .scorecard-card .score-label { font-size: 14px; color: var(--text-muted); }
     .scorecard-card .summary { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+    .phases-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 28px 48px;
+    }
+    .phases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .phase-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 16px;
+    }
+    .phase-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+    .phase-card p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .phase-metrics {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(100px, 1fr));
+      gap: 8px;
+    }
+    .phase-kpi {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,.02);
+    }
+    .phase-kpi .v { font-size: 18px; font-weight: 800; line-height: 1; }
+    .phase-kpi .l { font-size: 11px; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: .05em; }
+    .phase-status {
+      display: inline-block;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .phase-ready-list {
+      margin-top: 10px;
+      padding-left: 18px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .phase-ready-list li { margin: 6px 0; }
+    .phase-lenses-list {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .phase-lens-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.02);
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .phase-lens-item .meta { color: var(--text-muted); }
+    .inventory-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 28px 48px;
+    }
+    .inventory-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .inventory-table-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      overflow: auto;
+    }
+    .inventory-status-ok { color: #86efac; }
+    .inventory-status-err { color: #fcd34d; }
+    .inventory-status-empty { color: #fca5a5; }
     @media (max-width: 768px) {
       .hero { padding: 48px 0 44px; }
       .hero h1 { font-size: 32px; }
@@ -886,6 +1006,8 @@
     <input type="radio" name="main-tab" id="tab-evidence">
     <input type="radio" name="main-tab" id="tab-caf">
     <input type="radio" name="main-tab" id="tab-maturity">
+    <input type="radio" name="main-tab" id="tab-phases">
+    <input type="radio" name="main-tab" id="tab-inventory">
     <input type="radio" name="main-tab" id="tab-executive">
     <input type="radio" name="main-tab" id="tab-findings">
     <input type="radio" name="main-tab" id="tab-improvement-plan">
@@ -895,6 +1017,8 @@
       <label for="tab-evidence">Evidence Pack</label>
       <label for="tab-caf">CAF</label>
       <label for="tab-maturity">Modelo de Madurez</label>
+      <label for="tab-phases">Evaluación por fases</label>
+      <label for="tab-inventory">Inventario</label>
       <label for="tab-tagging">Tags por servicio</label>
       <label for="tab-executive">Resumen ejecutivo</label>
       <label for="tab-findings">Hallazgos</label>
@@ -970,6 +1094,123 @@
       <div class="tab-report-placeholder">
         <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el Modelo de Madurez en Seguridad de AWS en esta vista.</p>
         <p><a href="https://maturitymodel.security.aws.dev/es/" target="_blank" rel="noopener">Modelo de Madurez en Seguridad de AWS (es)</a></p>
+      </div>
+      {% endif %}
+    </div>
+    <div id="panel-phases" class="tab-panel">
+      {% if phases_data %}
+      <div class="phases-wrap">
+        <div class="phases-grid">
+          {% set p1 = phases_data.phase_1_baseline %}
+          <article class="phase-card">
+            <h3>{{ p1.name }}</h3>
+            <p>{{ p1.description }}</p>
+            <span class="phase-status">Estado: {{ p1.status }}</span>
+            <div class="phase-metrics">
+              <div class="phase-kpi"><div class="v">{{ p1.metrics.coverage_pct }}%</div><div class="l">Cobertura</div></div>
+              <div class="phase-kpi"><div class="v">{{ p1.metrics.confidence_pct }}%</div><div class="l">Confianza</div></div>
+              <div class="phase-kpi"><div class="v">{{ p1.metrics.evaluated_controls }}/{{ p1.metrics.total_controls }}</div><div class="l">Evaluados</div></div>
+              <div class="phase-kpi"><div class="v">{{ p1.metrics.not_evaluable_pct }}%</div><div class="l">No evaluable</div></div>
+            </div>
+          </article>
+          {% set p2 = phases_data.phase_2_extended %}
+          <article class="phase-card">
+            <h3>{{ p2.name }}</h3>
+            <p>{{ p2.description }}</p>
+            <span class="phase-status">Estado: {{ p2.status }}</span>
+            <div class="phase-metrics">
+              <div class="phase-kpi"><div class="v">{{ p2.metrics.coverage_pct }}%</div><div class="l">Cobertura</div></div>
+              <div class="phase-kpi"><div class="v">{{ p2.metrics.confidence_pct }}%</div><div class="l">Confianza</div></div>
+              <div class="phase-kpi"><div class="v">{{ p2.metrics.evaluated_controls }}/{{ p2.metrics.total_controls }}</div><div class="l">Evaluados</div></div>
+              <div class="phase-kpi"><div class="v">{{ p2.metrics.lenses|length }}</div><div class="l">Lentes técnicos</div></div>
+            </div>
+            {% if p2.metrics.lenses %}
+            <div class="phase-lenses-list">
+              {% for lens in p2.metrics.lenses %}
+              <div class="phase-lens-item">
+                <span>{{ lens.name }}</span>
+                <span class="meta">
+                  {% if lens.origin == 'aws_official' %}
+                  <span class="lens-origin lens-origin-official">AWS Official</span>
+                  {% else %}
+                  <span class="lens-origin lens-origin-custom">ECAD Custom</span>
+                  {% endif %}
+                </span>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </article>
+          {% set p3 = phases_data.phase_3_wafr_official %}
+          <article class="phase-card">
+            <h3>{{ p3.name }}</h3>
+            <p>{{ p3.description }}</p>
+            <span class="phase-status">Estado: {{ p3.status }}</span>
+            <ul class="phase-ready-list">
+              <li>Segmentación de workloads: {{ p3.readiness.workload_segmentation }}</li>
+              <li>Selección de official lenses: {{ p3.readiness.lens_selection_by_workload }}</li>
+              <li>Respuestas manuales/híbridas: {{ p3.readiness.manual_non_automatable_answers }}</li>
+              <li>Gobierno de versiones de lens: {{ p3.readiness.lens_version_governance }}</li>
+              <li>Workflow de revisión con owners: {{ p3.readiness.review_workflow_with_owners }}</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para construir la vista por fases.</p>
+      </div>
+      {% endif %}
+    </div>
+    <div id="panel-inventory" class="tab-panel">
+      {% if inventory_data %}
+      <div class="inventory-wrap">
+        <div class="inventory-kpis">
+          <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_total }}</div><div class="l">Servicios Totales</div></div>
+          <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_with_data }}</div><div class="l">Con Datos</div></div>
+          <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_with_errors }}</div><div class="l">Con Errores</div></div>
+          <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_without_data }}</div><div class="l">Sin Datos</div></div>
+        </div>
+        <div class="inventory-table-wrap">
+          <table class="tab-report-content" style="padding:0; margin:0; max-width:none;">
+            <thead>
+              <tr>
+                <th>Servicio</th>
+                <th>Estado</th>
+                <th>Regiones</th>
+                <th>Ops OK</th>
+                <th>Ops Error</th>
+                <th>Ops Totales</th>
+                <th>Recursos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in inventory_data.rows %}
+              <tr>
+                <td>{{ row.service }}</td>
+                <td>
+                  {% if row.status == 'con_datos' %}
+                  <span class="inventory-status-ok">Con datos</span>
+                  {% elif row.status == 'errores' %}
+                  <span class="inventory-status-err">Con errores</span>
+                  {% else %}
+                  <span class="inventory-status-empty">Sin datos</span>
+                  {% endif %}
+                </td>
+                <td>{{ row.regions }}</td>
+                <td>{{ row.operations_ok }}</td>
+                <td>{{ row.operations_error }}</td>
+                <td>{{ row.operations_total }}</td>
+                <td>{{ row.resources }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el inventario de servicios y recursos en esta vista.</p>
       </div>
       {% endif %}
     </div>
@@ -1291,7 +1532,14 @@
         <div class="coverage-lens-tags">
           {% for lid, ccount in cov.controls_by_lens.items() %}
           {% if coverage_report.lenses and coverage_report.lenses.get(lid) %}
-          <span class="coverage-lens-tag">{{ coverage_report.lenses.get(lid).name }}: {{ ccount }}</span>
+          <span class="coverage-lens-tag">
+            {{ coverage_report.lenses.get(lid).name }}: {{ ccount }}
+            {% if coverage_report.lenses.get(lid).origin == 'aws_official' %}
+            <span class="lens-origin lens-origin-official">AWS Official</span>
+            {% else %}
+            <span class="lens-origin lens-origin-custom">ECAD Custom</span>
+            {% endif %}
+          </span>
           {% else %}
           <span class="coverage-lens-tag">{{ lid }}: {{ ccount }}</span>
           {% endif %}

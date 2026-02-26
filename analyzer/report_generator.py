@@ -573,6 +573,7 @@ class ReportGenerator:
                 "id": "wa-core",
                 "name": "Well-Architected Core",
                 "description": "Preguntas base del AWS Well-Architected Framework.",
+                "origin": "aws_official",
                 "pillars": all_pillars,
                 "services": [],
                 "control_type": "question",
@@ -581,6 +582,7 @@ class ReportGenerator:
                 "id": "security-foundations",
                 "name": "Security Foundations Lens",
                 "description": "Controles fundacionales de identidad, deteccion, trazabilidad y cifrado.",
+                "origin": "ecad_custom",
                 "pillars": ["Security", "Operational Excellence", "Reliability"],
                 "services": ["iam", "cloudtrail", "config", "securityhub", "guardduty", "kms", "secretsmanager", "wafv2", "acm", "ssm"],
                 "control_type": "service",
@@ -589,6 +591,7 @@ class ReportGenerator:
                 "id": "reliability-resilience",
                 "name": "Reliability & Resilience Lens",
                 "description": "Controles de recuperacion, continuidad y operaciones resilientes.",
+                "origin": "ecad_custom",
                 "pillars": ["Reliability", "Operational Excellence", "Security"],
                 "services": ["backup", "route53", "autoscaling", "elb", "cloudwatch", "rds", "ec2", "s3", "sqs", "sns"],
                 "control_type": "service",
@@ -597,6 +600,7 @@ class ReportGenerator:
                 "id": "serverless-modern",
                 "name": "Serverless Modernization Lens",
                 "description": "Cobertura de workloads serverless y de integracion.",
+                "origin": "ecad_custom",
                 "pillars": ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"],
                 "services": ["lambda", "apigateway", "dynamodb", "eventbridge", "stepfunctions", "sqs", "sns", "cloudwatch", "xray"],
                 "control_type": "service",
@@ -605,6 +609,7 @@ class ReportGenerator:
                 "id": "container-platform",
                 "name": "Container Platform Lens",
                 "description": "Cobertura para plataformas de contenedores administradas.",
+                "origin": "ecad_custom",
                 "pillars": ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization"],
                 "services": ["ecs", "eks", "ecr", "elb", "autoscaling", "cloudwatch", "iam", "kms"],
                 "control_type": "service",
@@ -613,6 +618,7 @@ class ReportGenerator:
                 "id": "data-analytics",
                 "name": "Data & Analytics Lens",
                 "description": "Controles de datos, gobierno y analitica.",
+                "origin": "ecad_custom",
                 "pillars": ["Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"],
                 "services": ["s3", "rds", "redshift", "athena", "glue", "emr", "kinesis", "lakeformation", "kms"],
                 "control_type": "service",
@@ -621,6 +627,7 @@ class ReportGenerator:
                 "id": "finops-efficiency",
                 "name": "FinOps Efficiency Lens",
                 "description": "Controles de costo, rightsizing y eficiencia de consumo.",
+                "origin": "ecad_custom",
                 "pillars": ["Cost Optimization", "Operational Excellence", "Sustainability"],
                 "services": ["ce", "budgets", "computeoptimizer", "savingsplans", "ec2", "rds", "lambda", "s3", "cloudwatch"],
                 "control_type": "service",
@@ -868,6 +875,7 @@ class ReportGenerator:
             summary = summarize(l_controls)
             summary["name"] = lens.get("name", lid)
             summary["description"] = lens.get("description", "")
+            summary["origin"] = lens.get("origin", "ecad_custom")
             summary["pillars"] = lens.get("pillars", [])
             lenses_summary[lid] = summary
 
@@ -1260,6 +1268,138 @@ class ReportGenerator:
             f.write("\n".join(lines))
         logger.info(f"Reporte de tags generado: {output_file}")
 
+    def _build_evaluation_phases_from_coverage(self, coverage_report: Dict[str, Any]) -> Dict[str, Any]:
+        """Construir resumen por fases para UI: baseline WA, cobertura extendida y roadmap WAFR."""
+        global_cov = coverage_report.get("global", {})
+        lenses = coverage_report.get("lenses", {})
+        wa_core = lenses.get("wa-core", {})
+        extended_ids = [lid for lid in lenses.keys() if lid != "wa-core"]
+
+        extended_total = sum(int(lenses[lid].get("total_controls", 0) or 0) for lid in extended_ids)
+        extended_eval = sum(int(lenses[lid].get("evaluated_controls", 0) or 0) for lid in extended_ids)
+        extended_ne = sum(int(lenses[lid].get("not_evaluable_controls", 0) or 0) for lid in extended_ids)
+        extended_conf_values = [float(lenses[lid].get("confidence_pct", 0) or 0) for lid in extended_ids if int(lenses[lid].get("evaluated_controls", 0) or 0) > 0]
+        extended_conf = round(sum(extended_conf_values) / len(extended_conf_values), 1) if extended_conf_values else 0.0
+        extended_cov = round((extended_eval / extended_total) * 100, 1) if extended_total else 0.0
+        extended_ne_pct = round((extended_ne / extended_total) * 100, 1) if extended_total else 0.0
+
+        return {
+            "phase_1_baseline": {
+                "name": "Fase 1 - WA Core",
+                "description": "Evaluacion oficial base del Well-Architected Framework (preguntas de los 6 pilares).",
+                "status": "implemented",
+                "metrics": {
+                    "total_controls": wa_core.get("total_controls", 0),
+                    "evaluated_controls": wa_core.get("evaluated_controls", 0),
+                    "coverage_pct": wa_core.get("coverage_pct", 0),
+                    "confidence_pct": wa_core.get("confidence_pct", 0),
+                    "not_evaluable_pct": wa_core.get("not_evaluable_pct", 0),
+                },
+            },
+            "phase_2_extended": {
+                "name": "Fase 2 - Cobertura Extendida ECAD",
+                "description": "Controles tecnicos por servicio y pilar para mayor profundidad operativa.",
+                "status": "implemented",
+                "metrics": {
+                    "total_controls": extended_total,
+                    "evaluated_controls": extended_eval,
+                    "coverage_pct": extended_cov,
+                    "confidence_pct": extended_conf,
+                    "not_evaluable_pct": extended_ne_pct,
+                    "lenses": [
+                        {
+                            "id": lid,
+                            "name": lenses[lid].get("name", lid),
+                            "origin": lenses[lid].get("origin", "ecad_custom"),
+                            "controls": lenses[lid].get("total_controls", 0),
+                            "coverage_pct": lenses[lid].get("coverage_pct", 0),
+                            "confidence_pct": lenses[lid].get("confidence_pct", 0),
+                        }
+                        for lid in extended_ids
+                    ],
+                },
+            },
+            "phase_3_wafr_official": {
+                "name": "Fase 3 - WAFR con Official Lenses",
+                "description": "Roadmap para incorporar lentes oficiales AWS por workload (WAFR formal).",
+                "status": "roadmap",
+                "readiness": {
+                    "workload_segmentation": "pending",
+                    "lens_selection_by_workload": "pending",
+                    "manual_non_automatable_answers": "pending",
+                    "lens_version_governance": "pending",
+                    "review_workflow_with_owners": "pending",
+                },
+            },
+            "global_context": {
+                "coverage_pct": global_cov.get("coverage_pct", 0),
+                "confidence_pct": global_cov.get("confidence_pct", 0),
+                "in_scope_controls": global_cov.get("in_scope_controls", 0),
+            },
+        }
+
+    def _build_inventory_web_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Construir inventario resumido para visual web (servicios con/sin datos y con errores)."""
+        index = data.get("index", {}) or {}
+        services = index.get("services", {}) or {}
+
+        rows: List[Dict[str, Any]] = []
+        with_data = 0
+        with_errors = 0
+        without_data = 0
+
+        for service_name in sorted(services.keys()):
+            service_data = services.get(service_name, {})
+            successful_ops = 0
+            failed_ops = 0
+            total_resources = 0
+            regions_count = 0
+            total_ops = 0
+
+            for region_name, region_data in service_data.get("regions", {}).items():
+                regions_count += 1
+                for op_info in region_data.get("operations", []):
+                    total_ops += 1
+                    if op_info.get("success"):
+                        successful_ops += 1
+                        total_resources += int(op_info.get("resource_count", 0) or 0)
+                    else:
+                        failed_ops += 1
+
+            status = "sin_datos"
+            if successful_ops > 0:
+                status = "con_datos"
+            elif failed_ops > 0:
+                status = "errores"
+
+            if status == "con_datos":
+                with_data += 1
+            elif status == "errores":
+                with_errors += 1
+            else:
+                without_data += 1
+
+            rows.append({
+                "service": service_name,
+                "regions": regions_count,
+                "operations_total": total_ops,
+                "operations_ok": successful_ops,
+                "operations_error": failed_ops,
+                "resources": total_resources,
+                "status": status,
+            })
+
+        rows_sorted = sorted(rows, key=lambda r: (0 if r["status"] == "con_datos" else (1 if r["status"] == "errores" else 2), -r["operations_ok"], r["service"]))
+        return {
+            "summary": {
+                "services_total": len(rows),
+                "services_with_data": with_data,
+                "services_with_errors": with_errors,
+                "services_without_data": without_data,
+            },
+            "rows": rows_sorted[:250],
+        }
+
     def _security_maturity_to_html(self, security_maturity: Dict) -> str:
         """Generar HTML del modelo de madurez (fallback cuando markdown no está instalado)."""
         import html
@@ -1371,6 +1511,11 @@ class ReportGenerator:
                             extra["coverage_report"] = json.load(f)
                     except Exception as e:
                         logger.debug("No se pudo cargar coverage_report.json: %s", e)
+            if extra.get("coverage_report"):
+                extra["phases_data"] = self._build_evaluation_phases_from_coverage(extra["coverage_report"])
+            else:
+                extra["phases_data"] = {}
+            extra["inventory_data"] = self._build_inventory_web_data(data)
             from evidence.generator import EvidenceGenerator
             gen = EvidenceGenerator(str(self.run_dir))
             gen._generate_web_report(evidence_pack, extra_reports=extra)

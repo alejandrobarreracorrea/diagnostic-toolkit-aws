@@ -6,6 +6,7 @@ Report Generator - Generación de reportes ejecutivos desde templates.
 import argparse
 import json
 import logging
+import re
 import sys
 from pathlib import Path
 from typing import Dict, Any, List
@@ -304,16 +305,126 @@ class ReportGenerator:
             })
         return items
 
-    def _generate_improvement_plan(self, data: Dict):
-        """Generar Plan de mejoras (Well-Architected Improvement Plan): HRI = pronta solución, MRI por complejidad media/alto. Incluye hallazgos, evidence pack y modelo de madurez."""
-        template_file = self.templates_dir / "improvement_plan.md"
-        if not template_file.exists():
-            logger.warning(f"Template no encontrado: {template_file}")
-            return
-        
-        with open(template_file, 'r', encoding='utf-8') as f:
-            template = Template(f.read())
-        
+    def _extract_missing_services(self, recommendation: str) -> List[str]:
+        """Extraer servicios faltantes desde texto de recomendación."""
+        if not recommendation:
+            return []
+        m = re.search(r"Habilitar o documentar:\s*([^\.]+)", recommendation, flags=re.IGNORECASE)
+        if not m:
+            return []
+        raw = m.group(1)
+        services = [s.strip() for s in raw.split(",") if s.strip()]
+        cleaned = [s for s in services if s != "..."]
+        return cleaned
+
+    def _owner_by_domain(self, domain: str) -> str:
+        """Sugerir owner técnico por dominio."""
+        owners = {
+            "Security": "Equipo de Seguridad Cloud",
+            "Reliability": "Equipo de Plataforma / SRE",
+            "Operational Excellence": "Equipo de Plataforma",
+            "Performance Efficiency": "Arquitectura y Performance",
+            "Cost Optimization": "FinOps + Plataforma",
+            "Sustainability": "Arquitectura Cloud",
+        }
+        return owners.get(domain, "Equipo de Plataforma")
+
+    def _standard_refs_for_item(self, item: Dict[str, Any]) -> List[Dict[str, str]]:
+        """Referencias profesionales sugeridas para ejecutar la remediación."""
+        refs = [
+            {
+                "name": "AWS Well-Architected - Mejorar la carga",
+                "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/improving-your-workload.html",
+            }
+        ]
+        source = (item.get("source") or "").lower()
+        domain = (item.get("domain") or "").lower()
+        if "madurez" in source or "security" in domain:
+            refs.append(
+                {
+                    "name": "AWS Security Hub - Workflow de hallazgos",
+                    "url": "https://docs.aws.amazon.com/securityhub/latest/userguide/finding-workflow-status.html",
+                }
+            )
+            refs.append(
+                {
+                    "name": "NIST CSF 2.0",
+                    "url": "https://www.nist.gov/publications/nist-cybersecurity-framework-csf-20",
+                }
+            )
+        return refs
+
+    def _build_runbook_for_item(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Construir runbook de remediación accionable para un ítem del plan."""
+        source = item.get("source", "")
+        domain = item.get("domain", "General")
+        recommendation = item.get("recommendation", "")
+        effort = (item.get("effort") or "").strip()
+        missing_services = self._extract_missing_services(recommendation)
+        target_days = 30 if effort == "Bajo" else 60
+
+        base_steps = [
+            "Levantar alcance: cuentas, regiones, workloads y owners afectados.",
+            "Crear ticket/cambio con ventana de implementación y responsable técnico.",
+        ]
+        if source == "Evidence Pack":
+            service_hint = ", ".join(missing_services) if missing_services else "servicios faltantes del pilar"
+            remediation_steps = base_steps + [
+                f"Habilitar o configurar {service_hint} siguiendo baseline corporativo.",
+                "Aplicar configuración mínima segura (logs, cifrado, alertas y acceso mínimo necesario).",
+                "Actualizar IaC/políticas para evitar regresiones (CloudFormation/Terraform + SCP/guardrails).",
+            ]
+        elif source == "Modelo de Madurez":
+            remediation_steps = base_steps + [
+                "Definir control objetivo y alcance organizacional (OU/cuentas/regiones).",
+                "Implementar control técnico y guardrails (IAM/SCP/Config/Security Hub según corresponda).",
+                "Documentar excepción formal para workloads no compatibles y su fecha de revisión.",
+            ]
+        else:
+            remediation_steps = base_steps + [
+                f"Implementar corrección principal: {recommendation or 'aplicar hardening recomendado.'}",
+                "Agregar monitoreo y alerta para detectar desviaciones tempranas.",
+                "Actualizar runbook operativo y handoff al owner del servicio.",
+            ]
+
+        validation_steps = [
+            "Validar en consola/CLI que la configuración objetivo está activa en todas las cuentas/regiones en alcance.",
+            "Comprobar ausencia de errores en CloudTrail/CloudWatch para el cambio aplicado.",
+            f"Re-ejecutar diagnóstico: `make analyze RUN_DIR={self.run_dir}` + `make evidence RUN_DIR={self.run_dir}` + `make reports RUN_DIR={self.run_dir}`.",
+            "Confirmar mejora en score/hallazgo (estado mitigado o eliminado).",
+        ]
+        rollback_steps = [
+            "Restaurar configuración previa desde IaC o backup versionado.",
+            "Revertir solo el componente que genere impacto y mantener controles compensatorios temporales.",
+            "Registrar postmortem corto y ajustar plan antes de nueva ventana.",
+        ]
+
+        risk_level = "Medio" if effort == "Bajo" else "Alto"
+        if (item.get("severity") or "").lower() == "high":
+            risk_level = "Alto"
+        elif (item.get("severity") or "").lower() in ("low", "info"):
+            risk_level = "Bajo"
+
+        return {
+            **item,
+            "owner_role": self._owner_by_domain(domain),
+            "target_days": target_days,
+            "risk_level": risk_level,
+            "control_objective": f"Reducir brecha de {domain} y dejar evidencia verificable de remediación.",
+            "missing_services": missing_services,
+            "remediation_steps": remediation_steps,
+            "validation_steps": validation_steps,
+            "rollback_steps": rollback_steps,
+            "success_criteria": [
+                "Control implementado en 100% del alcance definido.",
+                "Hallazgo reducido/eliminado en el siguiente ciclo de evaluación.",
+                "Owner y fecha de revisión registrados en backlog operativo.",
+            ],
+            "standard_refs": self._standard_refs_for_item(item),
+        }
+
+    def _build_improvement_plan_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Construir dataset estructurado del plan de mejoras (markdown + web)."""
         findings = data.get("findings", {}).get("findings", [])
         evidence_pack = data.get("evidence_pack", {})
         security_maturity = evidence_pack.get("security_maturity")
@@ -323,34 +434,59 @@ class ReportGenerator:
                 security_maturity = evaluate_maturity(data["index"], run_dir=self.run_dir)
             except Exception as e:
                 logger.debug("No se pudo evaluar modelo de madurez para plan de mejoras: %s", e)
-        
-        # Formato común: id, domain, title, description, recommendation, impact, effort, source (opcional)
+
+        findings_norm = []
         for f in findings:
-            f["source"] = f.get("source") or "Hallazgos"
-        
+            item = dict(f)
+            item["source"] = item.get("source") or "Hallazgos"
+            findings_norm.append(item)
+
         items_evidence = self._improvement_items_from_evidence(evidence_pack)
         items_maturity = self._improvement_items_from_maturity(security_maturity or {})
-        
-        # 1. Pronta solución (30 días): tareas realizables en 30 días = esfuerzo Bajo (hallazgos + evidence + maturity)
-        pronta_f = [f for f in findings if (f.get("effort") or "").strip() == "Bajo"]
+
+        pronta_f = [f for f in findings_norm if (f.get("effort") or "").strip() == "Bajo"]
         pronta_ev = [i for i in items_evidence if (i.get("effort") or "").strip() == "Bajo"]
         pronta_mat = [i for i in items_maturity if (i.get("effort") or "").strip() == "Bajo"]
         improvement_plan_pronta = pronta_f + pronta_ev + pronta_mat
-        
-        # 2. MRI (una sola clasificación): todo lo que no está en pronta solución (esfuerzo Medio/Alto o sin definir)
-        mri_f = [f for f in findings if f not in pronta_f]
+
+        mri_f = [f for f in findings_norm if f not in pronta_f]
         mri_ev = [i for i in items_evidence if i not in pronta_ev]
         mri_mat = [i for i in items_maturity if i not in pronta_mat]
         improvement_plan_mri = mri_f + mri_ev + mri_mat
-        
+
+        pronta_enriched = [self._build_runbook_for_item(i) for i in improvement_plan_pronta[:35]]
+        mri_enriched = [self._build_runbook_for_item(i) for i in improvement_plan_mri[:40]]
+
         wa_meta = evidence_pack.get("metadata", {}) if isinstance(evidence_pack, dict) else {}
         well_arch_version = wa_meta.get("well_arch_version") or WELL_ARCH_VERSION
+        return {
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "well_arch_version": well_arch_version,
+            "pronta": pronta_enriched,
+            "mri": mri_enriched,
+            "summary": {
+                "pronta_count": len(pronta_enriched),
+                "mri_count": len(mri_enriched),
+                "total": len(pronta_enriched) + len(mri_enriched),
+            },
+        }
+
+    def _generate_improvement_plan(self, data: Dict):
+        """Generar Plan de mejoras (Well-Architected Improvement Plan): HRI = pronta solución, MRI por complejidad media/alto. Incluye hallazgos, evidence pack y modelo de madurez."""
+        template_file = self.templates_dir / "improvement_plan.md"
+        if not template_file.exists():
+            logger.warning(f"Template no encontrado: {template_file}")
+            return
+        
+        with open(template_file, 'r', encoding='utf-8') as f:
+            template = Template(f.read())
+        plan_data = self._build_improvement_plan_data(data)
 
         context = {
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "improvement_plan_pronta": improvement_plan_pronta[:35],
-            "improvement_plan_mri": improvement_plan_mri[:40],
-            "well_arch_version": well_arch_version,
+            "date": plan_data["date"],
+            "improvement_plan_pronta": plan_data["pronta"],
+            "improvement_plan_mri": plan_data["mri"],
+            "well_arch_version": plan_data["well_arch_version"],
         }
         
         output = template.render(**context)
@@ -358,6 +494,12 @@ class ReportGenerator:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output)
         logger.info(f"Plan de mejoras generado: {output_file}")
+
+        # Guardar dataset estructurado para la UI web de remediación
+        output_json = self.output_dir / "improvement_plan.json"
+        with open(output_json, "w", encoding="utf-8") as f:
+            json.dump(plan_data, f, indent=2, ensure_ascii=False)
+        logger.info(f"Plan de mejoras (JSON) generado: {output_json}")
     
     def _generate_technical_annex(self, data: Dict):
         """Generar anexo técnico."""
@@ -771,6 +913,10 @@ class ReportGenerator:
                     if path.exists():
                         with open(path, "r", encoding="utf-8") as f:
                             extra[key] = markdown.markdown(f.read(), extensions=["extra"])
+                improvement_plan_json = reports_dir / "improvement_plan.json"
+                if improvement_plan_json.exists():
+                    with open(improvement_plan_json, "r", encoding="utf-8") as f:
+                        extra["improvement_plan_data"] = json.load(f)
             except ImportError:
                 logger.debug("Paquete markdown no instalado; pestañas de reportes mostrarán placeholder. pip install markdown para contenido completo.")
             # Fallback: si no hay security_maturity_html (p. ej. markdown no instalado) pero sí datos, generar HTML desde evidence_pack
@@ -798,6 +944,14 @@ class ReportGenerator:
                         extra["improvement_plan_html"] = "<pre>" + _html.escape(raw) + "</pre>"
                     except Exception as e:
                         logger.debug("No se pudo generar fallback HTML para improvement_plan.md: %s", e)
+            if "improvement_plan_data" not in extra:
+                improvement_plan_json = reports_dir / "improvement_plan.json"
+                if improvement_plan_json.exists():
+                    try:
+                        with open(improvement_plan_json, "r", encoding="utf-8") as f:
+                            extra["improvement_plan_data"] = json.load(f)
+                    except Exception as e:
+                        logger.debug("No se pudo cargar improvement_plan.json: %s", e)
             from evidence.generator import EvidenceGenerator
             gen = EvidenceGenerator(str(self.run_dir))
             gen._generate_web_report(evidence_pack, extra_reports=extra)

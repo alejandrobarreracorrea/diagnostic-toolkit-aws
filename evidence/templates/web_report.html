@@ -451,6 +451,195 @@
       border-left: 4px solid #f97316; /* naranja – mayor complejidad */
       background: rgba(249, 115, 22, 0.05);
     }
+    .remediation-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 28px 48px;
+    }
+    .remediation-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .remediation-hero h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+    .remediation-meta {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .remediation-stats {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .remediation-stat {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      background: rgba(255,255,255,.02);
+    }
+    .remediation-stat .v {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .remediation-stat .l {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 6px;
+    }
+    .remediation-phase {
+      margin-top: 20px;
+    }
+    .remediation-phase h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      letter-spacing: -0.01em;
+    }
+    .remediation-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .remediation-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      overflow: hidden;
+    }
+    .remediation-card summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 16px 18px;
+      display: grid;
+      gap: 8px;
+      border-left: 4px solid var(--accent);
+    }
+    .remediation-card summary::-webkit-details-marker { display: none; }
+    .remediation-title {
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+    .remediation-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .r-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 600;
+    }
+    .r-risk-high { color: #fca5a5; border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.12); }
+    .r-risk-medium { color: #fcd34d; border-color: rgba(245,158,11,.45); background: rgba(245,158,11,.12); }
+    .r-risk-low { color: #86efac; border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.12); }
+    .remediation-body {
+      border-top: 1px solid var(--border);
+      padding: 16px 18px 18px;
+    }
+    .remediation-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .remediation-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.02);
+      padding: 12px 14px;
+    }
+    .remediation-box h4 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .remediation-box ol, .remediation-box ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .remediation-box li { margin: 6px 0; }
+    .remediation-box p { margin: 0; font-size: 14px; }
+    .remediation-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .remediation-links a:hover { text-decoration: underline; }
+    .remediation-toolbar {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .remediation-filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 8px;
+    }
+    .remediation-filters input,
+    .remediation-filters select {
+      width: 100%;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .remediation-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .remediation-actions .left {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .remediation-actions button {
+      border: 1px solid var(--border);
+      background: var(--surface-hover);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .remediation-actions button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .remediation-count {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
     .scorecard-hero {
       text-align: center;
       padding: 40px 28px 32px;
@@ -719,7 +908,227 @@
       {% endif %}
     </div>
     <div id="panel-improvement-plan" class="tab-panel">
-      {% if improvement_plan_html %}
+      {% if improvement_plan_data %}
+      <div class="remediation-wrap">
+        {% set all_items = improvement_plan_data.pronta + improvement_plan_data.mri %}
+        <section class="remediation-hero">
+          <h2>Plan de Remediación Guiada</h2>
+          <p class="remediation-meta">Playbook accionable consolidado desde Hallazgos, Evidence Pack y Modelo de Madurez.</p>
+          <div class="remediation-stats">
+            <div class="remediation-stat"><div class="v">{{ improvement_plan_data.summary.total }}</div><div class="l">Acciones Totales</div></div>
+            <div class="remediation-stat"><div class="v">{{ improvement_plan_data.summary.pronta_count }}</div><div class="l">Pronta Solución (30 días)</div></div>
+            <div class="remediation-stat"><div class="v">{{ improvement_plan_data.summary.mri_count }}</div><div class="l">MRI (60+ días)</div></div>
+          </div>
+        </section>
+        <section class="remediation-toolbar">
+          <div class="remediation-filters">
+            <input id="rem-filter-search" type="text" placeholder="Buscar por ID, título, dominio..." />
+            <select id="rem-filter-phase">
+              <option value="all">Fase: Todas</option>
+              <option value="pronta">Pronta solución</option>
+              <option value="mri">MRI</option>
+            </select>
+            <select id="rem-filter-domain">
+              <option value="all">Dominio: Todos</option>
+              {% for v in all_items | map(attribute='domain') | unique | sort %}
+              <option value="{{ v }}">{{ v }}</option>
+              {% endfor %}
+            </select>
+            <select id="rem-filter-source">
+              <option value="all">Origen: Todos</option>
+              {% for v in all_items | map(attribute='source') | unique | sort %}
+              <option value="{{ v }}">{{ v }}</option>
+              {% endfor %}
+            </select>
+            <select id="rem-filter-risk">
+              <option value="all">Riesgo: Todos</option>
+              <option value="Alto">Alto</option>
+              <option value="Medio">Medio</option>
+              <option value="Bajo">Bajo</option>
+            </select>
+            <select id="rem-filter-owner">
+              <option value="all">Owner: Todos</option>
+              {% for v in all_items | map(attribute='owner_role') | unique | sort %}
+              <option value="{{ v }}">{{ v }}</option>
+              {% endfor %}
+            </select>
+            <select id="rem-filter-sla">
+              <option value="all">SLA: Todos</option>
+              <option value="30">30 días</option>
+              <option value="60">60+ días</option>
+            </select>
+          </div>
+          <div class="remediation-actions">
+            <div class="left">
+              <button type="button" id="rem-filter-clear">Limpiar filtros</button>
+              <button type="button" id="rem-export-csv">Exportar visible CSV</button>
+              <button type="button" id="rem-export-json">Exportar visible JSON</button>
+            </div>
+            <div class="remediation-count" id="rem-visible-count"></div>
+          </div>
+        </section>
+
+        <section class="remediation-phase">
+          <h3>Pronta solución (30 días)</h3>
+          <div class="remediation-grid">
+            {% for item in improvement_plan_data.pronta %}
+            <details class="remediation-card">
+              <summary
+                data-phase="pronta"
+                data-id="{{ item.id }}"
+                data-title="{{ item.title }}"
+                data-domain="{{ item.domain }}"
+                data-source="{{ item.source }}"
+                data-risk="{{ item.risk_level }}"
+                data-owner="{{ item.owner_role }}"
+                data-sla="{{ item.target_days }}"
+                data-recommendation="{{ item.recommendation }}"
+                data-search="{{ (item.id ~ ' ' ~ item.title ~ ' ' ~ item.domain ~ ' ' ~ item.source ~ ' ' ~ item.owner_role) | lower }}">
+                <div class="remediation-title">{{ item.title }} ({{ item.id }})</div>
+                <div class="remediation-badges">
+                  <span class="r-badge">{{ item.domain }}</span>
+                  <span class="r-badge">{{ item.source }}</span>
+                  <span class="r-badge r-risk-{{ 'high' if item.risk_level == 'Alto' else ('medium' if item.risk_level == 'Medio' else 'low') }}">Riesgo {{ item.risk_level }}</span>
+                  <span class="r-badge">SLA {{ item.target_days }}d</span>
+                  <span class="r-badge">{{ item.owner_role }}</span>
+                </div>
+              </summary>
+              <div class="remediation-body">
+                <div class="remediation-columns">
+                  <div class="remediation-box">
+                    <h4>Objetivo de Control</h4>
+                    <p>{{ item.control_objective }}</p>
+                  </div>
+                  <div class="remediation-box">
+                    <h4>Contexto</h4>
+                    <p><strong>Impacto:</strong> {{ item.impact }}</p>
+                    <p><strong>Estado actual:</strong> {{ item.description }}</p>
+                    <p><strong>Recomendación:</strong> {{ item.recommendation }}</p>
+                  </div>
+                </div>
+                <div class="remediation-columns" style="margin-top: 12px;">
+                  <div class="remediation-box">
+                    <h4>Pasos de Remediación</h4>
+                    <ol>
+                      {% for step in item.remediation_steps %}<li>{{ step }}</li>{% endfor %}
+                    </ol>
+                  </div>
+                  <div class="remediation-box">
+                    <h4>Validación</h4>
+                    <ol>
+                      {% for step in item.validation_steps %}<li>{{ step }}</li>{% endfor %}
+                    </ol>
+                  </div>
+                  <div class="remediation-box">
+                    <h4>Rollback</h4>
+                    <ol>
+                      {% for step in item.rollback_steps %}<li>{{ step }}</li>{% endfor %}
+                    </ol>
+                  </div>
+                </div>
+                <div class="remediation-columns" style="margin-top: 12px;">
+                  <div class="remediation-box">
+                    <h4>Criterio de Cierre</h4>
+                    <ul>
+                      {% for c in item.success_criteria %}<li>{{ c }}</li>{% endfor %}
+                    </ul>
+                  </div>
+                  <div class="remediation-box remediation-links">
+                    <h4>Estándares y Guías</h4>
+                    <ul>
+                      {% for ref in item.standard_refs %}
+                      <li><a href="{{ ref.url }}" target="_blank" rel="noopener">{{ ref.name }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </details>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="remediation-phase">
+          <h3>MRI (60+ días)</h3>
+          <div class="remediation-grid">
+            {% for item in improvement_plan_data.mri %}
+            <details class="remediation-card">
+              <summary
+                data-phase="mri"
+                data-id="{{ item.id }}"
+                data-title="{{ item.title }}"
+                data-domain="{{ item.domain }}"
+                data-source="{{ item.source }}"
+                data-risk="{{ item.risk_level }}"
+                data-owner="{{ item.owner_role }}"
+                data-sla="{{ item.target_days }}"
+                data-recommendation="{{ item.recommendation }}"
+                data-search="{{ (item.id ~ ' ' ~ item.title ~ ' ' ~ item.domain ~ ' ' ~ item.source ~ ' ' ~ item.owner_role) | lower }}">
+                <div class="remediation-title">{{ item.title }} ({{ item.id }})</div>
+                <div class="remediation-badges">
+                  <span class="r-badge">{{ item.domain }}</span>
+                  <span class="r-badge">{{ item.source }}</span>
+                  <span class="r-badge r-risk-{{ 'high' if item.risk_level == 'Alto' else ('medium' if item.risk_level == 'Medio' else 'low') }}">Riesgo {{ item.risk_level }}</span>
+                  <span class="r-badge">SLA {{ item.target_days }}d</span>
+                  <span class="r-badge">{{ item.owner_role }}</span>
+                </div>
+              </summary>
+              <div class="remediation-body">
+                <div class="remediation-columns">
+                  <div class="remediation-box">
+                    <h4>Objetivo de Control</h4>
+                    <p>{{ item.control_objective }}</p>
+                  </div>
+                  <div class="remediation-box">
+                    <h4>Contexto</h4>
+                    <p><strong>Impacto:</strong> {{ item.impact }}</p>
+                    <p><strong>Estado actual:</strong> {{ item.description }}</p>
+                    <p><strong>Recomendación:</strong> {{ item.recommendation }}</p>
+                  </div>
+                </div>
+                <div class="remediation-columns" style="margin-top: 12px;">
+                  <div class="remediation-box">
+                    <h4>Pasos de Remediación</h4>
+                    <ol>
+                      {% for step in item.remediation_steps %}<li>{{ step }}</li>{% endfor %}
+                    </ol>
+                  </div>
+                  <div class="remediation-box">
+                    <h4>Validación</h4>
+                    <ol>
+                      {% for step in item.validation_steps %}<li>{{ step }}</li>{% endfor %}
+                    </ol>
+                  </div>
+                  <div class="remediation-box">
+                    <h4>Rollback</h4>
+                    <ol>
+                      {% for step in item.rollback_steps %}<li>{{ step }}</li>{% endfor %}
+                    </ol>
+                  </div>
+                </div>
+                <div class="remediation-columns" style="margin-top: 12px;">
+                  <div class="remediation-box">
+                    <h4>Criterio de Cierre</h4>
+                    <ul>
+                      {% for c in item.success_criteria %}<li>{{ c }}</li>{% endfor %}
+                    </ul>
+                  </div>
+                  <div class="remediation-box remediation-links">
+                    <h4>Estándares y Guías</h4>
+                    <ul>
+                      {% for ref in item.standard_refs %}
+                      <li><a href="{{ ref.url }}" target="_blank" rel="noopener">{{ ref.name }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </details>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+      {% elif improvement_plan_html %}
       <div class="tab-report-content">{{ improvement_plan_html }}</div>
       {% else %}
       <div class="tab-report-placeholder">
@@ -959,6 +1368,7 @@
           var preferred = 'conservative';
           try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
           applyScoreMode(preferred);
+          initRemediationFilters();
         });
       } else {
         var standardBtn = document.getElementById('score-mode-standard');
@@ -968,6 +1378,116 @@
         var preferred = 'conservative';
         try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
         applyScoreMode(preferred);
+        initRemediationFilters();
+      }
+
+      function initRemediationFilters() {
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.remediation-card'));
+        if (!cards.length) return;
+        var q = document.getElementById('rem-filter-search');
+        var phase = document.getElementById('rem-filter-phase');
+        var domain = document.getElementById('rem-filter-domain');
+        var source = document.getElementById('rem-filter-source');
+        var risk = document.getElementById('rem-filter-risk');
+        var owner = document.getElementById('rem-filter-owner');
+        var sla = document.getElementById('rem-filter-sla');
+        var clearBtn = document.getElementById('rem-filter-clear');
+        var exportCsvBtn = document.getElementById('rem-export-csv');
+        var exportJsonBtn = document.getElementById('rem-export-json');
+        var countEl = document.getElementById('rem-visible-count');
+
+        function pass(v, expected) {
+          if (!expected || expected === 'all') return true;
+          return (v || '') === expected;
+        }
+        function visibleItems() {
+          return cards.filter(function(card) { return card.style.display !== 'none'; });
+        }
+        function apply() {
+          var search = (q && q.value || '').trim().toLowerCase();
+          cards.forEach(function(card) {
+            var s = card.querySelector('summary');
+            if (!s) return;
+            var ok =
+              pass(s.getAttribute('data-phase'), phase && phase.value) &&
+              pass(s.getAttribute('data-domain'), domain && domain.value) &&
+              pass(s.getAttribute('data-source'), source && source.value) &&
+              pass(s.getAttribute('data-risk'), risk && risk.value) &&
+              pass(s.getAttribute('data-owner'), owner && owner.value) &&
+              pass(s.getAttribute('data-sla'), sla && sla.value);
+            if (ok && search) {
+              ok = (s.getAttribute('data-search') || '').indexOf(search) >= 0;
+            }
+            card.style.display = ok ? '' : 'none';
+          });
+          if (countEl) {
+            countEl.textContent = visibleItems().length + ' de ' + cards.length + ' acciones visibles';
+          }
+        }
+        function toExportRows() {
+          return visibleItems().map(function(card) {
+            var s = card.querySelector('summary');
+            return {
+              id: s.getAttribute('data-id') || '',
+              title: s.getAttribute('data-title') || '',
+              phase: s.getAttribute('data-phase') || '',
+              domain: s.getAttribute('data-domain') || '',
+              source: s.getAttribute('data-source') || '',
+              risk: s.getAttribute('data-risk') || '',
+              owner: s.getAttribute('data-owner') || '',
+              sla_days: s.getAttribute('data-sla') || '',
+              recommendation: s.getAttribute('data-recommendation') || ''
+            };
+          });
+        }
+        function download(name, content, type) {
+          var blob = new Blob([content], { type: type });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+        function toCsv(rows) {
+          var cols = ['id','title','phase','domain','source','risk','owner','sla_days','recommendation'];
+          function esc(v) {
+            var s = String(v == null ? '' : v);
+            if (/[",\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+            return s;
+          }
+          var out = [cols.join(',')];
+          rows.forEach(function(r) {
+            out.push(cols.map(function(c){ return esc(r[c]); }).join(','));
+          });
+          return out.join('\n');
+        }
+
+        [q, phase, domain, source, risk, owner, sla].forEach(function(el) {
+          if (el) el.addEventListener('input', apply);
+          if (el) el.addEventListener('change', apply);
+        });
+        if (clearBtn) clearBtn.addEventListener('click', function() {
+          if (q) q.value = '';
+          if (phase) phase.value = 'all';
+          if (domain) domain.value = 'all';
+          if (source) source.value = 'all';
+          if (risk) risk.value = 'all';
+          if (owner) owner.value = 'all';
+          if (sla) sla.value = 'all';
+          apply();
+        });
+        if (exportJsonBtn) exportJsonBtn.addEventListener('click', function() {
+          var rows = toExportRows();
+          download('remediation-plan-visible.json', JSON.stringify(rows, null, 2), 'application/json');
+        });
+        if (exportCsvBtn) exportCsvBtn.addEventListener('click', function() {
+          var rows = toExportRows();
+          download('remediation-plan-visible.csv', toCsv(rows), 'text/csv;charset=utf-8;');
+        });
+        apply();
       }
     })();
   </script>

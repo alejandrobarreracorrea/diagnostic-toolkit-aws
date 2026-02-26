@@ -4671,6 +4671,7 @@ class EvidenceGenerator:
             "executive_summary_html": Markup(er.get("executive_summary_html", "")) if er.get("executive_summary_html") else "",
             "findings_html": Markup(er.get("findings_html", "")) if er.get("findings_html") else "",
             "improvement_plan_html": Markup(er.get("improvement_plan_html", "")) if er.get("improvement_plan_html") else "",
+            "improvement_plan_data": er.get("improvement_plan_data"),
             "security_maturity_html": Markup(er.get("security_maturity_html", "")) if er.get("security_maturity_html") else "",
             "tagging_html": Markup(er.get("tagging_html", "")) if er.get("tagging_html") else "",
         }

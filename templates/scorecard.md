@@ -42,17 +42,17 @@ Este scorecard evalúa la arquitectura AWS según los 6 pilares del Well-Archite
 
 Los scores se calculan basándose en:
 
-1. **Presencia de servicios clave** para cada pilar
-2. **Hallazgos identificados** y su severidad
-3. **Buenas prácticas** detectadas o ausentes
+1. **Cumplimiento por pregunta Well-Architected** (compliant=5, partially=3, not_compliant=1; not_applicable se excluye)
+2. **Penalización por evidencias negativas** (`not_detected`, `warning`, `negative`/`error`)
+3. **Pequeño crédito por evidencias positivas** (`positive`)
 
 ### Escala de Scoring
 
-- **5 (Excelente)**: Sin hallazgos o solo hallazgos informativos
-- **4 (Bueno)**: Hallazgos menores de severidad baja
-- **3 (Aceptable)**: Hallazgos de severidad media o múltiples hallazgos bajos
-- **2 (Necesita Mejora)**: Hallazgos de severidad alta o múltiples hallazgos medios
-- **1 (Crítico)**: Múltiples hallazgos de severidad alta o problemas críticos
+- **5 (Excelente)**: Cumplimiento fuerte y sin brechas relevantes
+- **4 (Bueno)**: Cumplimiento mayormente sólido con brechas menores
+- **3 (Aceptable)**: Riesgo moderado, requiere plan de mejora
+- **2 (Necesita Mejora)**: Brechas importantes y/o repetidas
+- **1 (Crítico)**: Riesgo alto por brechas estructurales
 
 ---
 
@@ -131,5 +131,4 @@ Los scores se calculan basándose en:
 ---
 
 **Nota:** Estos scores son una evaluación inicial basada en inventario automatizado. Se recomienda complementar con revisión manual y workshops con el equipo técnico.
-
 

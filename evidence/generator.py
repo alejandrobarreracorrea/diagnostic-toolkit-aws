@@ -4504,8 +4504,60 @@ class EvidenceGenerator:
     }
 
     def _scores_from_evidence_pack(self, evidence_pack: Dict) -> Dict[str, int]:
-        """Calcular scores 1-5 por pilar desde evidence pack (coherente con report_generator)."""
-        compliance_to_points = {"compliant": 5, "partially_compliant": 4, "not_compliant": 2, "not_applicable": None}
+        """Calcular scores 1-5 por pilar con criterio conservador (coherente con report_generator)."""
+        compliance_to_points = {
+            "compliant": 5.0,
+            "partially_compliant": 3.0,
+            "not_compliant": 1.0,
+            "not_applicable": None,
+        }
+        domain_scores = {}
+        pillars = evidence_pack.get("pillars", {})
+
+        def _evidence_penalty(ev: Dict[str, Any]) -> float:
+            status = str(ev.get("status", "")).strip().lower()
+            ev_type = str(ev.get("type", "")).strip().lower()
+            if status in ("negative", "error"):
+                return 0.35
+            if status == "warning":
+                return 0.20
+            if status == "not_detected" or ev_type == "service_missing":
+                return 0.12
+            return 0.0
+
+        def _evidence_bonus(ev: Dict[str, Any]) -> float:
+            status = str(ev.get("status", "")).strip().lower()
+            if status == "positive":
+                return 0.10
+            return 0.0
+
+        for pillar in self.PILLARS:
+            pillar_data = pillars.get(pillar, {})
+            questions = pillar_data.get("well_architected_questions", [])
+            evidence = pillar_data.get("evidence", [])
+            points = []
+            for q in questions:
+                st = q.get("compliance", {}).get("status", "not_applicable")
+                pt = compliance_to_points.get(st)
+                if pt is not None:
+                    points.append(pt)
+
+            question_score = (sum(points) / len(points)) if points else 3.0
+            penalty = min(1.8, sum(_evidence_penalty(ev) for ev in evidence))
+            bonus = min(0.3, sum(_evidence_bonus(ev) for ev in evidence))
+            raw_score = question_score - penalty + bonus
+
+            domain_scores[pillar] = max(1, min(5, round(raw_score)))
+        return domain_scores
+
+    def _scores_from_evidence_pack_standard(self, evidence_pack: Dict) -> Dict[str, int]:
+        """Calcular scores 1-5 por pilar con fórmula estándar (histórica)."""
+        compliance_to_points = {
+            "compliant": 5,
+            "partially_compliant": 4,
+            "not_compliant": 2,
+            "not_applicable": None,
+        }
         domain_scores = {}
         pillars = evidence_pack.get("pillars", {})
         for pillar in self.PILLARS:
@@ -4577,12 +4629,15 @@ class EvidenceGenerator:
                 q["related_evidences"] = rel
             pillars_for_template[pillar] = {**data, "well_architected_questions": questions}
 
-        # Scorecard coherente con evidencias (misma lógica que report_generator)
+        # Scorecard con dos modos para UI web: estándar e interpretación conservadora
         scorecard_scores = self._scores_from_evidence_pack(evidence_pack)
+        scorecard_scores_standard = self._scores_from_evidence_pack_standard(evidence_pack)
         scorecard_list = []
+        scorecard_list_standard = []
         score_labels = {5: "Excelente", 4: "Bueno", 3: "Aceptable", 2: "Necesita Mejora", 1: "Crítico"}
         for pillar in self.PILLARS:
             s = scorecard_scores.get(pillar, 5)
+            s_std = scorecard_scores_standard.get(pillar, 5)
             info = self._PILLAR_WEB.get(pillar, {"color": "#6b7280", "slug": ""})
             scorecard_list.append({
                 "name": pillar,
@@ -4591,7 +4646,15 @@ class EvidenceGenerator:
                 "color": info["color"],
                 "slug": info["slug"],
             })
+            scorecard_list_standard.append({
+                "name": pillar,
+                "score": s_std,
+                "label": score_labels.get(s_std, "N/A"),
+                "color": info["color"],
+                "slug": info["slug"],
+            })
         average_score = sum(scorecard_scores.get(p, 5) for p in self.PILLARS) / len(self.PILLARS) if self.PILLARS else 0
+        average_score_standard = sum(scorecard_scores_standard.get(p, 5) for p in self.PILLARS) / len(self.PILLARS) if self.PILLARS else 0
 
         er = extra_reports or {}
         ctx = {
@@ -4602,6 +4665,9 @@ class EvidenceGenerator:
             "scorecard_scores": scorecard_scores,
             "scorecard_list": scorecard_list,
             "average_score": round(average_score, 1),
+            "scorecard_scores_standard": scorecard_scores_standard,
+            "scorecard_list_standard": scorecard_list_standard,
+            "average_score_standard": round(average_score_standard, 1),
             "executive_summary_html": Markup(er.get("executive_summary_html", "")) if er.get("executive_summary_html") else "",
             "findings_html": Markup(er.get("findings_html", "")) if er.get("findings_html") else "",
             "improvement_plan_html": Markup(er.get("improvement_plan_html", "")) if er.get("improvement_plan_html") else "",
@@ -4837,4 +4903,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

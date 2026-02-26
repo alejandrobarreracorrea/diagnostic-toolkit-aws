@@ -408,29 +408,54 @@ class ReportGenerator:
         logger.info(f"Anexo técnico generado: {output_file}")
     
     def _scores_from_evidence_pack(self, evidence_pack: Dict) -> Dict[str, int]:
-        """Calcular scores 1-5 por pilar desde evidence pack (coherente con evidencias)."""
+        """Calcular scores 1-5 por pilar desde evidence pack con criterio conservador."""
         compliance_to_points = {
-            "compliant": 5,
-            "partially_compliant": 4,
-            "not_compliant": 2,
-            "not_applicable": None,  # no cuenta en el promedio
+            "compliant": 5.0,
+            "partially_compliant": 3.0,
+            "not_compliant": 1.0,
+            "not_applicable": None,  # no cuenta en el promedio de preguntas
         }
         domains = ["Operational Excellence", "Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Sustainability"]
         domain_scores = {}
         pillars = evidence_pack.get("pillars", {})
+
+        def _evidence_penalty(ev: Dict[str, Any]) -> float:
+            status = str(ev.get("status", "")).strip().lower()
+            ev_type = str(ev.get("type", "")).strip().lower()
+            if status in ("negative", "error"):
+                return 0.35
+            if status == "warning":
+                return 0.20
+            if status == "not_detected" or ev_type == "service_missing":
+                return 0.12
+            return 0.0
+
+        def _evidence_bonus(ev: Dict[str, Any]) -> float:
+            status = str(ev.get("status", "")).strip().lower()
+            if status == "positive":
+                return 0.10
+            return 0.0
+
         for domain in domains:
             pillar_data = pillars.get(domain, {})
             questions = pillar_data.get("well_architected_questions", [])
+            evidence = pillar_data.get("evidence", [])
             points = []
             for q in questions:
                 st = q.get("compliance", {}).get("status", "not_applicable")
                 pt = compliance_to_points.get(st)
                 if pt is not None:
                     points.append(pt)
-            if points:
-                domain_scores[domain] = max(1, min(5, round(sum(points) / len(points))))
-            else:
-                domain_scores[domain] = 5
+
+            # Base por preguntas: si no hay preguntas evaluables, usar neutral 3.0
+            question_score = (sum(points) / len(points)) if points else 3.0
+
+            # Ajuste por evidencia observada: penaliza gaps y hallazgos negativos/warning
+            penalty = min(1.8, sum(_evidence_penalty(ev) for ev in evidence))
+            bonus = min(0.3, sum(_evidence_bonus(ev) for ev in evidence))
+
+            raw_score = question_score - penalty + bonus
+            domain_scores[domain] = max(1, min(5, round(raw_score)))
         return domain_scores
 
     def _generate_scorecard(self, data: Dict):
@@ -815,4 +840,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

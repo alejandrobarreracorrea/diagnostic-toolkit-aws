@@ -467,6 +467,41 @@
     }
     .scorecard-hero .score-big span { font-size: 28px; color: var(--text-muted); font-weight: 600; }
     .scorecard-hero .score-subtitle { color: var(--text-muted); margin-top: 8px; font-size: 15px; }
+    .score-mode-toggle {
+      margin-top: 16px;
+      display: inline-flex;
+      gap: 8px;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+    }
+    .score-mode-toggle button {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .score-mode-toggle button:hover {
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .score-mode-toggle button.is-active {
+      background: var(--accent);
+      color: var(--accent-fg);
+      border-color: var(--accent);
+    }
+    .score-mode-help {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
     .scorecard-hero .score-formula {
       margin-top: 20px;
       padding: 16px 20px;
@@ -594,19 +629,36 @@
     </div>
     <div id="panel-scorecard" class="tab-panel">
       <div class="scorecard-hero">
-        <div class="score-big">{{ average_score }}<span>/5.0</span></div>
+        <div class="score-big"><span id="overall-score">{{ average_score }}</span><span>/5.0</span></div>
         <p class="score-subtitle">Score promedio por pilar</p>
-        <div class="score-formula">
-          <strong>Fórmula de ponderación:</strong><br>
+        <div class="score-mode-toggle" role="group" aria-label="Modo de scoring por ambiente">
+          <button type="button" id="score-mode-standard">DLL / No productivo</button>
+          <button type="button" id="score-mode-conservative" class="is-active">Productivo</button>
+        </div>
+        <p class="score-mode-help">Usa <strong>DLL / No productivo</strong> para ambientes de prueba y <strong>Productivo</strong> para cuentas en operación real.</p>
+        <div class="score-formula" id="score-formula-standard" style="display:none;">
+          <strong>Fórmula de ponderación (DLL / No productivo):</strong><br>
           Por pilar: <code>score_pilar = redondeo(media(puntos por pregunta))</code>, con puntos: compliant=5, partially_compliant=4, not_compliant=2 (not_applicable se excluye). Límites 1–5.<br>
+          Score global: <code>average_score = media(score_Operational Excellence, …, score_Sustainability)</code> (promedio simple de los 6 pilares).
+        </div>
+        <div class="score-formula" id="score-formula-conservative">
+          <strong>Fórmula de ponderación (Productivo):</strong><br>
+          Por pilar: <code>score_pilar = redondeo(score_preguntas - penalizaciones + bono)</code>.<br>
+          Donde <code>score_preguntas = media(puntos por pregunta)</code>, con puntos: compliant=5, partially_compliant=3, not_compliant=1 (not_applicable se excluye).<br>
+          Penalizaciones por evidencia: not_detected/service_missing=0.12, warning=0.20, negative|error=0.35 (tope 1.8). Bono positive=0.10 (tope 0.3). Límites 1–5.<br>
           Score global: <code>average_score = media(score_Operational Excellence, …, score_Sustainability)</code> (promedio simple de los 6 pilares).
         </div>
         <div class="score-radar-wrap">
           <h2>Radar de valores por pilar</h2>
           <div id="score-radar" class="score-radar"
                data-max="5"
-               data-items='[
+               data-items-conservative='[
                {% for s in scorecard_list %}
+                 {"name": "{{ s.name }}", "score": {{ s.score }}}{% if not loop.last %},{% endif %}
+               {% endfor %}
+               ]'
+               data-items-standard='[
+               {% for s in scorecard_list_standard %}
                  {"name": "{{ s.name }}", "score": {{ s.score }}}{% if not loop.last %},{% endif %}
                {% endfor %}
                ]'>
@@ -614,14 +666,21 @@
         </div>
       </div>
       <div class="scorecard-grid">
-        {% for s in scorecard_list %}
-        <div class="scorecard-card" style="--pillar-color: {{ s.color }}">
-          <div class="name">{{ s.name }}</div>
+        {% for p in pillar_summaries %}
+        <div class="scorecard-card"
+             style="--pillar-color: {{ p.color }}"
+             data-pillar="{{ p.name }}"
+             data-score-conservative="{{ scorecard_scores.get(p.name, 5) }}"
+             data-score-standard="{{ scorecard_scores_standard.get(p.name, 5) }}">
+          <div class="name">{{ p.name }}</div>
           <div class="score-row">
-            <span class="score-num">{{ s.score }}/5</span>
-            <span class="score-label">{{ s.label }}</span>
+            <span class="score-num">{{ scorecard_scores.get(p.name, 5) }}/5</span>
+            <span class="score-label">
+              {% set sc = scorecard_scores.get(p.name, 5) %}
+              {% if sc == 5 %}Excelente{% elif sc == 4 %}Bueno{% elif sc == 3 %}Aceptable{% elif sc == 2 %}Necesita Mejora{% else %}Crítico{% endif %}
+            </span>
           </div>
-          <p class="summary">{{ pillars[s.name].summary }}</p>
+          <p class="summary">{{ pillars[p.name].summary }}</p>
         </div>
         {% endfor %}
       </div>
@@ -781,10 +840,10 @@
       });
 
       // Radar chart en Scorecard
-      function renderScoreRadar() {
+      function renderScoreRadar(mode) {
         var el = document.getElementById('score-radar');
         if (!el) return;
-        var raw = el.getAttribute('data-items') || '[]';
+        var raw = el.getAttribute(mode === 'standard' ? 'data-items-standard' : 'data-items-conservative') || '[]';
         var items;
         try {
           items = JSON.parse(raw);
@@ -849,10 +908,66 @@
         el.innerHTML = svgParts.join('');
       }
 
+      function scoreLabel(score) {
+        if (score >= 5) return 'Excelente';
+        if (score === 4) return 'Bueno';
+        if (score === 3) return 'Aceptable';
+        if (score === 2) return 'Necesita Mejora';
+        return 'Crítico';
+      }
+
+      function applyScoreMode(mode) {
+        var selected = (mode === 'standard') ? 'standard' : 'conservative';
+        var avg = selected === 'standard' ? '{{ average_score_standard }}' : '{{ average_score }}';
+        var avgEl = document.getElementById('overall-score');
+        if (avgEl) avgEl.textContent = avg;
+
+        var standardBtn = document.getElementById('score-mode-standard');
+        var conservativeBtn = document.getElementById('score-mode-conservative');
+        if (standardBtn && conservativeBtn) {
+          standardBtn.classList.toggle('is-active', selected === 'standard');
+          conservativeBtn.classList.toggle('is-active', selected === 'conservative');
+        }
+
+        var fStd = document.getElementById('score-formula-standard');
+        var fCon = document.getElementById('score-formula-conservative');
+        if (fStd && fCon) {
+          fStd.style.display = selected === 'standard' ? 'block' : 'none';
+          fCon.style.display = selected === 'conservative' ? 'block' : 'none';
+        }
+
+        var cards = document.querySelectorAll('.scorecard-card');
+        cards.forEach(function(card) {
+          var scoreRaw = card.getAttribute(selected === 'standard' ? 'data-score-standard' : 'data-score-conservative');
+          var score = parseInt(scoreRaw || '0', 10);
+          var numEl = card.querySelector('.score-num');
+          var labelEl = card.querySelector('.score-label');
+          if (numEl) numEl.textContent = score + '/5';
+          if (labelEl) labelEl.textContent = scoreLabel(score);
+        });
+
+        renderScoreRadar(selected);
+        try { localStorage.setItem('ecad-score-mode', selected); } catch (e) {}
+      }
+
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', renderScoreRadar);
+        document.addEventListener('DOMContentLoaded', function() {
+          var standardBtn = document.getElementById('score-mode-standard');
+          var conservativeBtn = document.getElementById('score-mode-conservative');
+          if (standardBtn) standardBtn.addEventListener('click', function() { applyScoreMode('standard'); });
+          if (conservativeBtn) conservativeBtn.addEventListener('click', function() { applyScoreMode('conservative'); });
+          var preferred = 'conservative';
+          try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
+          applyScoreMode(preferred);
+        });
       } else {
-        renderScoreRadar();
+        var standardBtn = document.getElementById('score-mode-standard');
+        var conservativeBtn = document.getElementById('score-mode-conservative');
+        if (standardBtn) standardBtn.addEventListener('click', function() { applyScoreMode('standard'); });
+        if (conservativeBtn) conservativeBtn.addEventListener('click', function() { applyScoreMode('conservative'); });
+        var preferred = 'conservative';
+        try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
+        applyScoreMode(preferred);
       }
     })();
   </script>

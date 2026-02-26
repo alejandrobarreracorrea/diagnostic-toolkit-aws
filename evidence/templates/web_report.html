@@ -401,6 +401,7 @@
     .tabs-wrap .tab-labels label:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
     .tabs-wrap input[name="main-tab"] { display: none; }
     .tabs-wrap input#tab-scorecard:checked ~ .tab-labels label[for="tab-scorecard"],
+    .tabs-wrap input#tab-coverage:checked ~ .tab-labels label[for="tab-coverage"],
     .tabs-wrap input#tab-evidence:checked ~ .tab-labels label[for="tab-evidence"],
     .tabs-wrap input#tab-caf:checked ~ .tab-labels label[for="tab-caf"],
     .tabs-wrap input#tab-maturity:checked ~ .tab-labels label[for="tab-maturity"],
@@ -414,6 +415,7 @@
     }
     .tabs-wrap .tab-panel { display: none; }
     .tabs-wrap input#tab-scorecard:checked ~ .tab-panel#panel-scorecard,
+    .tabs-wrap input#tab-coverage:checked ~ .tab-panel#panel-coverage,
     .tabs-wrap input#tab-evidence:checked ~ .tab-panel#panel-evidence,
     .tabs-wrap input#tab-caf:checked ~ .tab-panel#panel-caf,
     .tabs-wrap input#tab-maturity:checked ~ .tab-panel#panel-maturity,
@@ -640,6 +642,53 @@
       font-size: 12px;
       color: var(--text-muted);
     }
+    .coverage-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 28px 48px;
+    }
+    .coverage-hero {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+    .coverage-hero h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: -0.02em; }
+    .coverage-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .coverage-kpi {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: rgba(255,255,255,.02);
+    }
+    .coverage-kpi .v { font-size: 24px; font-weight: 800; line-height: 1; }
+    .coverage-kpi .l { margin-top: 6px; color: var(--text-muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    .coverage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .coverage-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 14px;
+    }
+    .coverage-card h3 { margin: 0 0 10px; font-size: 16px; }
+    .coverage-metric { margin-bottom: 8px; }
+    .coverage-metric .head { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .coverage-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+    .coverage-bar > span { display: block; height: 100%; border-radius: inherit; }
+    .coverage-bar.cover > span { background: #22c55e; }
+    .coverage-bar.conf > span { background: #06b6d4; }
+    .coverage-bar.ne > span { background: #f59e0b; }
+    .coverage-foot { margin-top: 12px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
     .scorecard-hero {
       text-align: center;
       padding: 40px 28px 32px;
@@ -799,6 +848,7 @@
 
   <div class="tabs-wrap">
     <input type="radio" name="main-tab" id="tab-scorecard" checked>
+    <input type="radio" name="main-tab" id="tab-coverage">
     <input type="radio" name="main-tab" id="tab-evidence">
     <input type="radio" name="main-tab" id="tab-caf">
     <input type="radio" name="main-tab" id="tab-maturity">
@@ -808,6 +858,7 @@
     <input type="radio" name="main-tab" id="tab-tagging">
     <div class="tab-labels">
       <label for="tab-scorecard">Scorecard</label>
+      <label for="tab-coverage">Cobertura</label>
       <label for="tab-evidence">Evidence Pack</label>
       <label for="tab-caf">CAF</label>
       <label for="tab-maturity">Modelo de Madurez</label>
@@ -873,6 +924,51 @@
         </div>
         {% endfor %}
       </div>
+    </div>
+    <div id="panel-coverage" class="tab-panel">
+      {% if coverage_report %}
+      <div class="coverage-wrap">
+        <section class="coverage-hero">
+          <h2>Cobertura y Confianza de Evaluación</h2>
+          <p class="remediation-meta">Visibilidad de qué parte del framework se evaluó automáticamente y con qué calidad de evidencia.</p>
+          <div class="coverage-kpis">
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.coverage_pct }}%</div><div class="l">Cobertura Global</div></div>
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.confidence_pct }}%</div><div class="l">Confianza Global</div></div>
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.not_evaluable_pct }}%</div><div class="l">No Evaluable</div></div>
+            <div class="coverage-kpi"><div class="v">{{ coverage_report.global.evaluated_controls }}/{{ coverage_report.global.total_controls }}</div><div class="l">Controles Evaluados</div></div>
+          </div>
+        </section>
+        <section class="coverage-grid">
+          {% for pillar, p in coverage_report.pillars.items() %}
+          <article class="coverage-card">
+            <h3>{{ pillar }}</h3>
+            <div class="coverage-metric">
+              <div class="head"><span>Cobertura</span><span>{{ p.coverage_pct }}%</span></div>
+              <div class="coverage-bar cover"><span style="width: {{ p.coverage_pct }}%;"></span></div>
+            </div>
+            <div class="coverage-metric">
+              <div class="head"><span>Confianza</span><span>{{ p.confidence_pct }}%</span></div>
+              <div class="coverage-bar conf"><span style="width: {{ p.confidence_pct }}%;"></span></div>
+            </div>
+            <div class="coverage-metric">
+              <div class="head"><span>No evaluable</span><span>{{ p.not_evaluable_pct }}%</span></div>
+              <div class="coverage-bar ne"><span style="width: {{ p.not_evaluable_pct }}%;"></span></div>
+            </div>
+            <p class="coverage-foot">Controles: {{ p.evaluated_controls }}/{{ p.total_controls }} evaluados, {{ p.not_evaluable_controls }} no evaluables.</p>
+          </article>
+          {% endfor %}
+        </section>
+        <section class="coverage-foot">
+          {% for note in coverage_report.notes %}
+          <div>- {{ note }}</div>
+          {% endfor %}
+        </section>
+      </div>
+      {% else %}
+      <div class="tab-report-placeholder">
+        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el reporte de cobertura.</p>
+      </div>
+      {% endif %}
     </div>
     <div id="panel-caf" class="tab-panel">
       <div class="tab-report-content">

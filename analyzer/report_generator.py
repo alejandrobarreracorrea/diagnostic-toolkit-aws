@@ -52,6 +52,8 @@ class ReportGenerator:
         self._generate_executive_summary(data)
         self._generate_findings_report(data)
         self._generate_improvement_plan(data)
+        self._generate_controls_catalog(data)
+        self._generate_coverage_report(data)
         self._generate_technical_annex(data)
         self._generate_scorecard(data)
         self._generate_inventory_report(data)
@@ -500,6 +502,131 @@ class ReportGenerator:
         with open(output_json, "w", encoding="utf-8") as f:
             json.dump(plan_data, f, indent=2, ensure_ascii=False)
         logger.info(f"Plan de mejoras (JSON) generado: {output_json}")
+
+    def _build_controls_catalog(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Construir catálogo de controles evaluables (fase 1: Well-Architected por pregunta)."""
+        evidence_pack = data.get("evidence_pack", {})
+        pillars = evidence_pack.get("pillars", {}) if isinstance(evidence_pack, dict) else {}
+        controls: List[Dict[str, Any]] = []
+        pillar_code = {
+            "Operational Excellence": "OPS",
+            "Security": "SEC",
+            "Reliability": "REL",
+            "Performance Efficiency": "PERF",
+            "Cost Optimization": "COST",
+            "Sustainability": "SUS",
+        }
+
+        for pillar, p_data in pillars.items():
+            for q in p_data.get("well_architected_questions", []):
+                qid = q.get("id", "")
+                if not qid:
+                    continue
+                controls.append({
+                    "control_id": f"WA-{pillar_code.get(pillar, 'GEN')}-{qid}",
+                    "framework": "AWS Well-Architected",
+                    "pillar": pillar,
+                    "question_id": qid,
+                    "title": q.get("question", ""),
+                    "automation_level": "automated_with_evidence",
+                    "evaluation_logic": "compliance_status_from_evidence_pack_question",
+                })
+
+        return {
+            "version": "1.0",
+            "generated_at": datetime.utcnow().isoformat(),
+            "scope": "Well-Architected questions present in evidence_pack",
+            "controls_count": len(controls),
+            "controls": controls,
+        }
+
+    def _generate_controls_catalog(self, data: Dict[str, Any]) -> None:
+        """Generar catálogo de controles para auditoría de cobertura."""
+        catalog = self._build_controls_catalog(data)
+        output_file = self.output_dir / "controls_catalog.json"
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(catalog, f, indent=2, ensure_ascii=False)
+        logger.info(f"Catálogo de controles generado: {output_file}")
+
+    def _build_coverage_report(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Construir reporte de cobertura y confianza por pilar."""
+        evidence_pack = data.get("evidence_pack", {})
+        pillars = evidence_pack.get("pillars", {}) if isinstance(evidence_pack, dict) else {}
+        catalog = self._build_controls_catalog(data)
+        controls = catalog.get("controls", [])
+
+        def _q_confidence(question: Dict[str, Any], status: str) -> float:
+            rel = question.get("related_evidences", [])
+            if status not in ("compliant", "partially_compliant", "not_compliant"):
+                return 0.0
+            if rel:
+                return 1.0
+            # Cumplimiento sin evidencia directa en la pregunta: confianza media.
+            return 0.6
+
+        pillars_summary: Dict[str, Any] = {}
+        for pillar in sorted(set(c.get("pillar") for c in controls)):
+            questions = pillars.get(pillar, {}).get("well_architected_questions", [])
+            total = len(questions)
+            evaluated = 0
+            not_evaluable = 0
+            confidence_values: List[float] = []
+
+            for q in questions:
+                status = (q.get("compliance", {}).get("status") or "").strip()
+                if status in ("compliant", "partially_compliant", "not_compliant"):
+                    evaluated += 1
+                    confidence_values.append(_q_confidence(q, status))
+                else:
+                    not_evaluable += 1
+
+            coverage_pct = round((evaluated / total) * 100, 1) if total else 0.0
+            confidence_pct = round((sum(confidence_values) / len(confidence_values)) * 100, 1) if confidence_values else 0.0
+            not_evaluable_pct = round((not_evaluable / total) * 100, 1) if total else 0.0
+
+            pillars_summary[pillar] = {
+                "total_controls": total,
+                "evaluated_controls": evaluated,
+                "not_evaluable_controls": not_evaluable,
+                "coverage_pct": coverage_pct,
+                "confidence_pct": confidence_pct,
+                "not_evaluable_pct": not_evaluable_pct,
+            }
+
+        all_total = sum(v["total_controls"] for v in pillars_summary.values())
+        all_eval = sum(v["evaluated_controls"] for v in pillars_summary.values())
+        all_ne = sum(v["not_evaluable_controls"] for v in pillars_summary.values())
+        # Promedio simple de confianza entre pilares con valores.
+        conf_values = [v["confidence_pct"] for v in pillars_summary.values() if v["evaluated_controls"] > 0]
+        global_conf = round(sum(conf_values) / len(conf_values), 1) if conf_values else 0.0
+
+        return {
+            "version": "1.0",
+            "generated_at": datetime.utcnow().isoformat(),
+            "framework_scope": "AWS Well-Architected",
+            "global": {
+                "total_controls": all_total,
+                "evaluated_controls": all_eval,
+                "not_evaluable_controls": all_ne,
+                "coverage_pct": round((all_eval / all_total) * 100, 1) if all_total else 0.0,
+                "confidence_pct": global_conf,
+                "not_evaluable_pct": round((all_ne / all_total) * 100, 1) if all_total else 0.0,
+            },
+            "pillars": pillars_summary,
+            "notes": [
+                "coverage_pct mide controles evaluados / controles en alcance.",
+                "confidence_pct refleja calidad de evidencia (directa=alta, inferida=media).",
+                "not_evaluable incluye preguntas organizacionales o sin señal automatizable.",
+            ],
+        }
+
+    def _generate_coverage_report(self, data: Dict[str, Any]) -> None:
+        """Generar reporte JSON de cobertura y confianza."""
+        coverage = self._build_coverage_report(data)
+        output_file = self.output_dir / "coverage_report.json"
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(coverage, f, indent=2, ensure_ascii=False)
+        logger.info(f"Reporte de cobertura generado: {output_file}")
     
     def _generate_technical_annex(self, data: Dict):
         """Generar anexo técnico."""
@@ -917,6 +1044,10 @@ class ReportGenerator:
                 if improvement_plan_json.exists():
                     with open(improvement_plan_json, "r", encoding="utf-8") as f:
                         extra["improvement_plan_data"] = json.load(f)
+                coverage_report_json = reports_dir / "coverage_report.json"
+                if coverage_report_json.exists():
+                    with open(coverage_report_json, "r", encoding="utf-8") as f:
+                        extra["coverage_report"] = json.load(f)
             except ImportError:
                 logger.debug("Paquete markdown no instalado; pestañas de reportes mostrarán placeholder. pip install markdown para contenido completo.")
             # Fallback: si no hay security_maturity_html (p. ej. markdown no instalado) pero sí datos, generar HTML desde evidence_pack
@@ -952,6 +1083,14 @@ class ReportGenerator:
                             extra["improvement_plan_data"] = json.load(f)
                     except Exception as e:
                         logger.debug("No se pudo cargar improvement_plan.json: %s", e)
+            if "coverage_report" not in extra:
+                coverage_report_json = reports_dir / "coverage_report.json"
+                if coverage_report_json.exists():
+                    try:
+                        with open(coverage_report_json, "r", encoding="utf-8") as f:
+                            extra["coverage_report"] = json.load(f)
+                    except Exception as e:
+                        logger.debug("No se pudo cargar coverage_report.json: %s", e)
             from evidence.generator import EvidenceGenerator
             gen = EvidenceGenerator(str(self.run_dir))
             gen._generate_web_report(evidence_pack, extra_reports=extra)

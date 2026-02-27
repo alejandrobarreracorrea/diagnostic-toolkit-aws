@@ -217,9 +217,14 @@ export AWS_REGION=us-east-1
 export AWS_REGIONS=us-east-1,us-west-2,eu-west-1  # Múltiples regiones
 
 # Límites y configuración
-export ECAD_MAX_THREADS=20
-export ECAD_MAX_PAGES=100
-export ECAD_MAX_FOLLOWUPS=5
+export ECAD_MAX_THREADS=12
+export ECAD_MAX_PAGES=50
+export ECAD_MAX_FOLLOWUPS=10
+export ECAD_MAX_SERVICE_SECONDS=240
+export ECAD_MAX_OPS_PER_SERVICE=80
+export ECAD_CONNECT_TIMEOUT=15
+export ECAD_READ_TIMEOUT=45
+export ECAD_OPERATION_TIMEOUT=120
 
 # Filtros de servicios
 export ECAD_SERVICE_ALLOWLIST=ec2,rds,s3,lambda  # Solo estos servicios
@@ -231,8 +236,11 @@ export ECAD_SERVICE_DENYLIST=workspaces,connect  # Excluir estos servicios
 set AWS_ROLE_ARN=arn:aws:iam::ACCOUNT:role/ECADRole
 set AWS_EXTERNAL_ID=your-external-id
 set AWS_REGION=us-east-1
-set ECAD_MAX_THREADS=20
-set ECAD_MAX_PAGES=100
+set ECAD_MAX_THREADS=12
+set ECAD_MAX_PAGES=50
+set ECAD_MAX_FOLLOWUPS=10
+set ECAD_MAX_SERVICE_SECONDS=240
+set ECAD_MAX_OPS_PER_SERVICE=80
 ```
 
 **Windows (PowerShell):**
@@ -240,8 +248,11 @@ set ECAD_MAX_PAGES=100
 $env:AWS_ROLE_ARN="arn:aws:iam::ACCOUNT:role/ECADRole"
 $env:AWS_EXTERNAL_ID="your-external-id"
 $env:AWS_REGION="us-east-1"
-$env:ECAD_MAX_THREADS="20"
-$env:ECAD_MAX_PAGES="100"
+$env:ECAD_MAX_THREADS="12"
+$env:ECAD_MAX_PAGES="50"
+$env:ECAD_MAX_FOLLOWUPS="10"
+$env:ECAD_MAX_SERVICE_SECONDS="240"
+$env:ECAD_MAX_OPS_PER_SERVICE="80"
 ```
 
 ### Archivo de Configuración

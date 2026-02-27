@@ -412,8 +412,6 @@
     .tabs-wrap input#tab-maturity:checked ~ .tab-labels label[for="tab-maturity"],
     .tabs-wrap input#tab-phases:checked ~ .tab-labels label[for="tab-phases"],
     .tabs-wrap input#tab-inventory:checked ~ .tab-labels label[for="tab-inventory"],
-    .tabs-wrap input#tab-executive:checked ~ .tab-labels label[for="tab-executive"],
-    .tabs-wrap input#tab-findings:checked ~ .tab-labels label[for="tab-findings"],
     .tabs-wrap input#tab-improvement-plan:checked ~ .tab-labels label[for="tab-improvement-plan"],
     .tabs-wrap input#tab-tagging:checked ~ .tab-labels label[for="tab-tagging"] {
       background: var(--accent);
@@ -427,8 +425,6 @@
     .tabs-wrap input#tab-maturity:checked ~ .tab-panel#panel-maturity,
     .tabs-wrap input#tab-phases:checked ~ .tab-panel#panel-phases,
     .tabs-wrap input#tab-inventory:checked ~ .tab-panel#panel-inventory,
-    .tabs-wrap input#tab-executive:checked ~ .tab-panel#panel-executive,
-    .tabs-wrap input#tab-findings:checked ~ .tab-panel#panel-findings,
     .tabs-wrap input#tab-improvement-plan:checked ~ .tab-panel#panel-improvement-plan,
     .tabs-wrap input#tab-tagging:checked ~ .tab-panel#panel-tagging { display: block; }
     .tab-report-content {
@@ -957,6 +953,347 @@
       font-size: 12px;
     }
     .phase-lens-item .meta { color: var(--text-muted); }
+    .caf-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 28px 48px;
+    }
+    .caf-hero {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+    .caf-hero h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+    .caf-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .caf-kpi {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.02);
+      padding: 10px 12px;
+    }
+    .caf-kpi .v {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .caf-kpi .l {
+      margin-top: 6px;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .caf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+    }
+    .caf-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 14px;
+    }
+    .caf-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .caf-head-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .caf-semaphore {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+    .caf-semaphore.aligned { background: #22c55e; border-color: rgba(34,197,94,.55); }
+    .caf-semaphore.attention { background: #f59e0b; border-color: rgba(245,158,11,.55); }
+    .caf-semaphore.at_risk { background: #ef4444; border-color: rgba(239,68,68,.55); }
+    .caf-semaphore.organizational { background: #8b5cf6; border-color: rgba(139,92,246,.55); }
+    .caf-semaphore.manual { background: #06b6d4; border-color: rgba(6,182,212,.55); }
+    .caf-card h3 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    .caf-desc {
+      margin: 0 0 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .caf-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 11px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .caf-badge.aligned { color: #86efac; border-color: rgba(134,239,172,.4); }
+    .caf-badge.attention { color: #fcd34d; border-color: rgba(252,211,77,.4); }
+    .caf-badge.at_risk { color: #fca5a5; border-color: rgba(252,165,165,.4); }
+    .caf-badge.organizational { color: #c4b5fd; border-color: rgba(196,181,253,.4); }
+    .caf-badge.manual { color: #7dd3fc; border-color: rgba(125,211,252,.4); }
+    .caf-item-list {
+      display: grid;
+      gap: 8px;
+    }
+    .caf-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.02);
+      padding: 10px;
+    }
+    .caf-item-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .caf-item-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .caf-chip-org {
+      display: inline-flex;
+      margin-left: 6px;
+      border: 1px solid rgba(196,181,253,.45);
+      color: #c4b5fd;
+      border-radius: 999px;
+      padding: 1px 7px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    .caf-item-meta {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .caf-item-meta a {
+      color: #67e8f9;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .caf-org-backlog {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 14px;
+    }
+    .caf-org-backlog h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    .caf-org-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .caf-org-list a {
+      color: #67e8f9;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .wafr-explorer {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 14px;
+    }
+    .wafr-explorer h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+    .wafr-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 10px 0;
+    }
+    .wafr-toolbar input,
+    .wafr-toolbar select {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    .wafr-toolbar input { min-width: 240px; flex: 1; }
+    .wafr-table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    .wafr-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .wafr-table th,
+    .wafr-table td {
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    .wafr-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+      background: rgba(255,255,255,.03);
+    }
+    .wafr-table tr:hover td { background: rgba(255,255,255,.02); }
+    .wafr-table tr.is-selected td { background: rgba(56,189,248,.10); }
+    .wafr-row-btn {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 0;
+      margin: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+    }
+    .wafr-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      border: 1px solid transparent;
+    }
+    .wafr-badge.compliant { color: #86efac; border-color: rgba(134,239,172,.4); }
+    .wafr-badge.evaluated { color: #7dd3fc; border-color: rgba(125,211,252,.4); }
+    .wafr-badge.partially_compliant { color: #fcd34d; border-color: rgba(252,211,77,.4); }
+    .wafr-badge.not_compliant { color: #fca5a5; border-color: rgba(252,165,165,.4); }
+    .wafr-badge.not_evaluable { color: #c4b5fd; border-color: rgba(196,181,253,.4); }
+    .wafr-legend {
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.02);
+      padding: 10px 12px;
+    }
+    .wafr-legend summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .wafr-legend summary::-webkit-details-marker { display: none; }
+    .wafr-legend summary::after {
+      content: "▼";
+      font-size: 10px;
+      color: var(--text-muted);
+      transition: transform .2s ease;
+    }
+    .wafr-legend[open] summary::after {
+      transform: rotate(180deg);
+    }
+    .wafr-legend-content {
+      margin-top: 8px;
+    }
+    .wafr-legend-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .wafr-legend-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .wafr-detail {
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.02);
+      padding: 12px;
+    }
+    .wafr-detail h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+    .wafr-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 8px 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .wafr-detail-grid .v { color: var(--text); }
+    .wafr-detail-grid .v a { color: #67e8f9; text-decoration: underline; text-underline-offset: 2px; }
+    .wafr-chips {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .wafr-chip {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,.02);
+    }
     .inventory-wrap {
       max-width: 1000px;
       margin: 0 auto;
@@ -986,80 +1323,254 @@
       letter-spacing: .03em;
       text-transform: uppercase;
     }
-    .inventory-toolbar select {
+    .inventory-toolbar select,
+    .inventory-toolbar input {
       background: var(--surface-hover);
       border: 1px solid var(--border);
       color: var(--text);
       border-radius: 10px;
       padding: 8px 10px;
       font-size: 13px;
-      min-width: 220px;
+      min-width: 180px;
     }
-    .inventory-table-wrap {
+    .inventory-toolbar input {
+      min-width: 260px;
+      flex: 1;
+    }
+    .inventory-list-view,
+    .inventory-service-view {
+      display: block;
+    }
+    .inventory-service-view {
+      display: none;
+    }
+    .inventory-service-view.is-open {
+      display: block;
+    }
+    .inventory-list-view.is-hidden {
+      display: none;
+    }
+    .inventory-explorer {
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      background: var(--surface);
-      overflow: auto;
-    }
-    .inventory-accordion {
-      margin-top: 14px;
-      display: grid;
-      gap: 10px;
-    }
-    .inventory-item {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: var(--surface);
       overflow: hidden;
+      background: var(--surface);
     }
-    .inventory-item summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+    .inventory-main-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .inventory-main-table th,
+    .inventory-main-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+    .inventory-main-table th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      background: rgba(255,255,255,.02);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .inventory-main-table tr:hover td {
+      background: rgba(255,255,255,.03);
+    }
+    .inventory-main-table tr.is-selected td {
+      background: rgba(6, 182, 212, .08);
+    }
+    .inventory-service {
+      font-weight: 700;
       font-size: 14px;
-      font-weight: 600;
     }
-    .inventory-item summary::-webkit-details-marker { display: none; }
-    .inventory-item summary .meta {
+    .inventory-service-link {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-decoration-color: rgba(6, 182, 212, .4);
+      text-underline-offset: 3px;
+    }
+    .inventory-service-link:hover {
+      color: #67e8f9;
+      text-decoration-color: rgba(103, 232, 249, .8);
+    }
+    .inventory-type {
       color: var(--text-muted);
       font-size: 12px;
-      font-weight: 500;
     }
-    .inventory-item .body {
-      border-top: 1px solid var(--border);
-      padding: 12px 14px;
+    .inventory-inline-samples {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.4;
+      max-width: 360px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .inventory-item .body h4 {
+    .inventory-service-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.01) 100%);
+      overflow: hidden;
+    }
+    .inventory-service-panel .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+    .inventory-service-panel .title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .inventory-service-panel .meta {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .inventory-service-panel .body {
+      padding: 14px 16px;
+    }
+    .inventory-back-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-hover);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .inventory-resource-toolbar {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .inventory-resource-toolbar input,
+    .inventory-resource-toolbar select {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+    .inventory-resource-toolbar input { min-width: 280px; flex: 1; }
+    .inventory-mode-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,.03);
+      font-size: 12px;
+      color: var(--text-muted);
+      user-select: none;
+      cursor: pointer;
+    }
+    .inventory-mode-switch input {
+      accent-color: #06b6d4;
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      min-width: 14px;
+    }
+    .inventory-res-table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .inventory-resource-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .inventory-resource-table th,
+    .inventory-resource-table td {
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    .inventory-resource-table th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+      background: rgba(255,255,255,.02);
+    }
+    .inventory-resource-table .value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+      font-size: 12px;
+      word-break: break-word;
+    }
+    .inventory-resource-table .kind {
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .inventory-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .inventory-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 9px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,.03);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .inventory-service-panel h4 {
       margin: 0 0 8px;
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: .05em;
       color: var(--text-muted);
     }
-    .inventory-item .resource-list {
+    .inventory-resource-list {
       margin: 0;
       padding-left: 18px;
       font-size: 13px;
       line-height: 1.45;
       color: var(--text);
       word-break: break-word;
-      max-height: 240px;
+      max-height: 260px;
       overflow: auto;
     }
-    .inventory-item .source-ops {
-      margin-top: 10px;
+    .inventory-source-ops {
+      margin-top: 12px;
       font-size: 12px;
       color: var(--text-muted);
     }
     .inventory-status-ok { color: #86efac; }
     .inventory-status-err { color: #fcd34d; }
     .inventory-status-empty { color: #fca5a5; }
-    .inventory-view { display: none; }
-    .inventory-view.is-active { display: block; }
     .inventory-pagination {
       margin-top: 10px;
       display: flex;
@@ -1136,21 +1647,17 @@
     <input type="radio" name="main-tab" id="tab-maturity">
     <input type="radio" name="main-tab" id="tab-phases">
     <input type="radio" name="main-tab" id="tab-inventory">
-    <input type="radio" name="main-tab" id="tab-executive">
-    <input type="radio" name="main-tab" id="tab-findings">
     <input type="radio" name="main-tab" id="tab-improvement-plan">
     <input type="radio" name="main-tab" id="tab-tagging">
     <div class="tab-labels">
-      <label for="tab-scorecard">Scorecard</label>
-      <label for="tab-evidence">Evidence Pack</label>
-      <label for="tab-caf">CAF</label>
-      <label for="tab-maturity">Modelo de Madurez</label>
-      <label for="tab-phases">Evaluación por fases</label>
-      <label for="tab-inventory">Inventario</label>
-      <label for="tab-tagging">Tags por servicio</label>
-      <label for="tab-executive">Resumen ejecutivo</label>
-      <label for="tab-findings">Hallazgos</label>
-      <label for="tab-improvement-plan">Plan de mejoras</label>
+      <label for="tab-scorecard">Visión General</label>
+      <label for="tab-evidence">Paquete de Evidencias (WA Core)</label>
+      <label for="tab-phases">Controles WAFR</label>
+      <label for="tab-improvement-plan">Plan de Mejora</label>
+      <label for="tab-caf">Adopción de Nube (CAF)</label>
+      <label for="tab-maturity">Madurez de Seguridad</label>
+      <label for="tab-inventory">Inventario de Activos</label>
+      <label for="tab-tagging">Gobierno de Tags</label>
     </div>
     <div id="panel-scorecard" class="tab-panel">
       <div class="scorecard-hero">
@@ -1211,9 +1718,86 @@
       </div>
     </div>
     <div id="panel-caf" class="tab-panel">
-      <div class="tab-report-content">
-        <p>Esta sección está reservada para contenido del <strong>AWS Cloud Adoption Framework (CAF)</strong>. Próximamente.</p>
+      {% if caf_data and caf_data.perspectives %}
+      <div class="caf-wrap">
+        <article class="caf-hero">
+          <h2>AWS Cloud Adoption Framework (CAF)</h2>
+          <p>Vista basada en insumos técnicos del run y señales organizacionales. Los elementos marcados como <strong>Organizacional</strong> requieren definición/proceso humano.</p>
+          <div class="caf-kpis">
+            <div class="caf-kpi"><div class="v">{{ caf_data.summary.perspectives }}</div><div class="l">Perspectivas CAF</div></div>
+            <div class="caf-kpi"><div class="v">{{ caf_data.summary.organizational_items }}</div><div class="l">Insumos Organizacionales</div></div>
+            <div class="caf-kpi"><div class="v">{{ caf_data.summary.technical_items }}</div><div class="l">Insumos Técnicos</div></div>
+            <div class="caf-kpi"><div class="v">{{ caf_data.summary.services_discovered }}</div><div class="l">Servicios Detectados</div></div>
+            <div class="caf-kpi"><div class="v">{{ caf_data.summary.collection_success_pct }}%</div><div class="l">Éxito Recolección</div></div>
+          </div>
+        </article>
+        <section class="caf-grid">
+          {% for p in caf_data.perspectives %}
+          <article class="caf-card">
+            <div class="caf-card-head">
+              <div class="caf-head-left">
+                <span class="caf-semaphore {{ p.status }}" aria-hidden="true"></span>
+                <h3>{{ p.name }}</h3>
+              </div>
+              <span class="caf-badge {{ p.status }}">{{ p.status_label }}</span>
+            </div>
+            <p class="caf-desc">{{ p.description }}</p>
+            <div class="caf-item-list">
+              {% for item in p["items"] %}
+              <div class="caf-item">
+                <div class="caf-item-top">
+                  <p class="caf-item-title">
+                    {{ item.title }}
+                    {% if item.organizational %}<span class="caf-chip-org">Organizacional</span>{% endif %}
+                  </p>
+                  <span class="caf-badge {{ item.status }}">{{ item.status_label }}</span>
+                </div>
+                <p class="caf-item-meta"><strong>Insumo:</strong> {{ item.evidence }}</p>
+                <p class="caf-item-meta">
+                  <strong>Fuente:</strong>
+                  {% if item.source_url %}
+                  <a href="{{ item.source_url }}" target="_blank" rel="noopener">{{ item.source }}</a>
+                  {% else %}
+                  {{ item.source }}
+                  {% endif %}
+                </p>
+                <p class="caf-item-meta"><strong>Acción sugerida:</strong> {{ item.action }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </section>
+        {% if caf_data.organizational_backlog %}
+        <article class="caf-org-backlog">
+          <h3>Top 5 decisiones organizacionales pendientes</h3>
+          <ol class="caf-org-list">
+            {% for it in caf_data.organizational_backlog %}
+            <li>
+              <strong>[{{ it.perspective }}]</strong> {{ it.title }}
+              <span class="caf-badge {{ it.status }}">{{ it.status_label }}</span>
+              <br>
+              Acción: {{ it.action }}
+              {% if it.source %}
+              <br>
+              Fuente:
+              {% if it.source_url %}
+              <a href="{{ it.source_url }}" target="_blank" rel="noopener">{{ it.source }}</a>
+              {% else %}
+              {{ it.source }}
+              {% endif %}
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ol>
+        </article>
+        {% endif %}
       </div>
+      {% else %}
+      <div class="tab-report-content">
+        <p>No hay insumos suficientes para construir la vista CAF en este run.</p>
+      </div>
+      {% endif %}
     </div>
     <div id="panel-maturity" class="tab-panel">
       {% if security_maturity_html %}
@@ -1242,6 +1826,8 @@
             </div>
           </article>
           {% set p2 = phases_data.phase_2_extended %}
+          {% set p2_visible = p2 and p2.metrics and p2.metrics.total_controls|int > 0 %}
+          {% if p2_visible %}
           <article class="phase-card">
             <h3>{{ p2.name }}</h3>
             <p>{{ p2.description }}</p>
@@ -1269,9 +1855,10 @@
             </div>
             {% endif %}
           </article>
+          {% endif %}
           {% set p3 = phases_data.phase_3_wafr_official %}
           <article class="phase-card">
-            <h3>{{ p3.name }}</h3>
+            <h3>{% if p2_visible %}{{ p3.name }}{% else %}Fase 2 - WAFR con Official Lenses{% endif %}</h3>
             <p>{{ p3.description }}</p>
             <span class="phase-status">Estado: {{ p3.status }}</span>
             <ul class="phase-ready-list">
@@ -1283,6 +1870,114 @@
             </ul>
           </article>
         </div>
+        {% if controls_catalog and controls_catalog.controls %}
+        {% set wafr_controls = controls_catalog.controls %}
+        <section class="wafr-explorer">
+          <h3>WAFR Controls Explorer</h3>
+          <div class="wafr-toolbar">
+            <input id="wafr-search" type="text" placeholder="Buscar por ID, control, lógica, servicio..." />
+            <select id="wafr-filter-lens">
+              <option value="all">Lens: Todos</option>
+              {% for lens in controls_catalog.lenses %}
+              <option value="{{ lens.id }}">{{ lens.name }}</option>
+              {% endfor %}
+            </select>
+            <select id="wafr-filter-pillar">
+              <option value="all">Pilar: Todos</option>
+              {% for p in wafr_controls | map(attribute='pillar') | unique | sort %}
+              <option value="{{ p }}">{{ p }}</option>
+              {% endfor %}
+            </select>
+            <select id="wafr-filter-status">
+              <option value="all">Estado: Todos</option>
+              <option value="evaluated">Evaluated</option>
+              <option value="compliant">Compliant</option>
+              <option value="partially_compliant">Partially compliant</option>
+              <option value="not_compliant">Not compliant</option>
+              <option value="not_evaluable">Not evaluable</option>
+            </select>
+          </div>
+          <div class="wafr-table-wrap">
+            <table class="wafr-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Control</th>
+                  <th>Pilar</th>
+                  <th>Lens</th>
+                  <th>Fuente oficial</th>
+                  <th>Estado</th>
+                  <th>Conf.</th>
+                  <th>Servicios</th>
+                </tr>
+              </thead>
+              <tbody id="wafr-controls-body">
+                {% for c in wafr_controls %}
+                {% set status = c.status if c.status else ('evaluated' if c.evaluated else 'not_evaluable') %}
+                <tr class="wafr-row"
+                    data-search="{{ c.control_id|lower }} {{ c.title|lower }} {{ c.pillar|lower }} {{ c.lens_name|lower }} {{ c.source_reference|default('')|lower }} {{ c.evaluation_logic|default('')|lower }} {{ (c.related_services|default([])|join(' '))|lower }}"
+                    data-lens="{{ c.lens_id }}"
+                    data-pillar="{{ c.pillar }}"
+                    data-status="{{ status }}"
+                    data-control-json='{{ c|tojson|e }}'>
+                  <td>{{ c.control_id }}</td>
+                  <td><button type="button" class="wafr-row-btn">{{ c.title }}</button></td>
+                  <td>{{ c.pillar }}</td>
+                  <td>{{ c.lens_name }}</td>
+                  <td>
+                    {% if c.source_url_detail or c.source_url %}
+                    <a href="{{ c.source_url_detail if c.source_url_detail else c.source_url }}" target="_blank" rel="noopener">
+                      {{ c.source_reference if c.source_reference else 'AWS official' }}
+                    </a>
+                    {% else %}
+                    {{ c.source_reference if c.source_reference else '—' }}
+                    {% endif %}
+                  </td>
+                  <td><span class="wafr-badge {{ status }}">{{ status }}</span></td>
+                  <td>{{ (c.confidence * 100)|round(1) if c.confidence is not none else 0 }}%</td>
+                  <td>{{ c.related_services|default([])|length }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="wafr-detail" id="wafr-control-detail">
+            <h4>Detalle del control</h4>
+            <div class="wafr-detail-grid">
+              <div>ID: <span class="v" id="wafr-d-id">Seleccione un control</span></div>
+              <div>Estado: <span class="v" id="wafr-d-status">—</span></div>
+              <div>Pilar: <span class="v" id="wafr-d-pillar">—</span></div>
+              <div>Lens: <span class="v" id="wafr-d-lens">—</span></div>
+              <div>Confianza: <span class="v" id="wafr-d-confidence">—</span></div>
+              <div>Evidencia: <span class="v" id="wafr-d-evidence">—</span></div>
+              <div>Fuente: <span class="v" id="wafr-d-source">—</span></div>
+              <div>Ref. oficial: <span class="v" id="wafr-d-ref">—</span></div>
+              <div style="grid-column: 1 / -1;">Lógica: <span class="v" id="wafr-d-logic">—</span></div>
+              <div style="grid-column: 1 / -1;">Traza de evidencia: <span class="v" id="wafr-d-evcount">—</span></div>
+            </div>
+            <div class="wafr-chips" id="wafr-d-services"></div>
+            <div class="wafr-chips" id="wafr-d-detected"></div>
+            <div class="wafr-chips" id="wafr-d-missing"></div>
+          </div>
+          <div class="inventory-pagination">
+            <div class="left">
+              <span class="info" id="wafr-visible-count"></span>
+            </div>
+          </div>
+          <details class="wafr-legend">
+            <summary>Convención de estados</summary>
+            <div class="wafr-legend-content">
+              <ul class="wafr-legend-list">
+                <li><span class="wafr-badge compliant">compliant</span><span>Control cumple según evidencia recolectada.</span></li>
+                <li><span class="wafr-badge partially_compliant">partially_compliant</span><span>Cumplimiento parcial; hay brechas o faltantes.</span></li>
+                <li><span class="wafr-badge not_compliant">not_compliant</span><span>No cumple o existe hallazgo crítico/negativo.</span></li>
+                <li><span class="wafr-badge evaluated">evaluated</span><span>Fue evaluado automáticamente, pero no clasifica en cumplimiento directo.</span></li>
+                <li><span class="wafr-badge not_evaluable">not_evaluable</span><span>Requiere validación manual o no hay señales suficientes para evaluar.</span></li>
+              </ul>
+            </div>
+          </details>
+        </section>
+        {% endif %}
       </div>
       {% else %}
       <div class="tab-report-placeholder">
@@ -1299,49 +1994,76 @@
           <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_with_errors }}</div><div class="l">Con Errores</div></div>
           <div class="coverage-kpi"><div class="v">{{ inventory_data.summary.services_without_data }}</div><div class="l">Sin Datos</div></div>
         </div>
-        <div class="inventory-toolbar">
-          <label for="inventory-view-select">Vista de Inventario</label>
-          <select id="inventory-view-select">
-            <option value="consolidado">Consolidado</option>
-            <option value="servicios">Inventario por servicio</option>
-          </select>
-        </div>
-        <div id="inventory-view-consolidado" class="inventory-view is-active">
-          <div class="inventory-table-wrap">
-          <table class="tab-report-content" style="padding:0; margin:0; max-width:none;">
-            <thead>
-              <tr>
-                <th>Servicio</th>
-                <th>Estado</th>
-                <th>Regiones</th>
-                <th>Ops OK</th>
-                <th>Ops Error</th>
-                <th>Ops Totales</th>
-                <th>Recursos</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in inventory_data.rows %}
-              <tr class="inventory-row inventory-row-consolidado">
-                <td>{{ row.service }}</td>
-                <td>
-                  {% if row.status == 'con_datos' %}
-                  <span class="inventory-status-ok">Con datos</span>
-                  {% elif row.status == 'errores' %}
-                  <span class="inventory-status-err">Con errores</span>
-                  {% else %}
-                  <span class="inventory-status-empty">Sin datos</span>
-                  {% endif %}
-                </td>
-                <td>{{ row.regions }}</td>
-                <td>{{ row.operations_ok }}</td>
-                <td>{{ row.operations_error }}</td>
-                <td>{{ row.operations_total }}</td>
-                <td>{{ row.resources }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <section id="inventory-list-view" class="inventory-list-view">
+          <div class="inventory-toolbar">
+            <label for="inventory-search">Inventario Explorer</label>
+            <input id="inventory-search" type="text" placeholder="Buscar servicio, recurso, ARN, ID..." />
+            <select id="inventory-status-filter">
+              <option value="all">Estado: Todos</option>
+              <option value="con_datos">Con datos</option>
+              <option value="errores">Con errores</option>
+              <option value="sin_datos">Sin datos</option>
+            </select>
+            <select id="inv-page-size-consolidado">
+              <option value="10">10 / página</option>
+              <option value="25" selected>25 / página</option>
+              <option value="50">50 / página</option>
+              <option value="100">100 / página</option>
+            </select>
+          </div>
+          <div class="inventory-explorer">
+            <table class="inventory-main-table">
+              <thead>
+                <tr>
+                  <th>Servicio</th>
+                  <th>Tipo principal</th>
+                  <th>Estado</th>
+                  <th>Recursos</th>
+                  <th>Regiones</th>
+                  <th>Cobertura API</th>
+                  <th>Muestras detectadas</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body">
+                {% for row in inventory_data.rows %}
+                <tr class="inventory-row inventory-row-consolidado"
+                    data-service="{{ row.service }}"
+                    data-status="{{ row.status }}"
+                    data-resource-type="{{ row.resource_type }}"
+                    data-search="{{ row.service|lower }} {{ row.resource_type|lower }} {% for s in row.resource_samples_real[:3] %}{{ s.value|lower }} {% endfor %} {% for s in row.resource_samples_catalog[:3] %}{{ s.value|lower }} {% endfor %}"
+                    data-samples-real-json='{{ row.resource_samples_real|tojson|e }}'
+                    data-samples-catalog-json='{{ row.resource_samples_catalog|tojson|e }}'
+                    data-ops-real-json='{{ row.sample_source_ops_real|tojson|e }}'
+                    data-ops-catalog-json='{{ row.sample_source_ops_catalog|tojson|e }}'
+                    data-subcategories-real-json='{{ row.resource_subcategories_real|tojson|e }}'
+                    data-subcategories-catalog-json='{{ row.resource_subcategories_catalog|tojson|e }}'>
+                  <td class="inventory-service">
+                    <button type="button" class="inventory-service-link" data-open-service="{{ row.service }}">{{ row.service }}</button>
+                  </td>
+                  <td class="inventory-type">{{ row.resource_type }}</td>
+                  <td>
+                    {% if row.status == 'con_datos' %}
+                    <span class="inventory-status-ok">Con datos</span>
+                    {% elif row.status == 'errores' %}
+                    <span class="inventory-status-err">Con errores</span>
+                    {% else %}
+                    <span class="inventory-status-empty">Sin datos</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ row.resources }}</td>
+                  <td>{{ row.regions }}</td>
+                  <td>{{ row.operations_ok }}/{{ row.operations_total }}</td>
+                  <td class="inventory-inline-samples">
+                    {% if row.resource_samples_preview %}
+                      {% for s in row.resource_samples_preview %}{{ s.value }}{% if not loop.last %}, {% endif %}{% endfor %}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
           <div class="inventory-pagination">
             <div class="left">
@@ -1349,82 +2071,61 @@
               <button type="button" id="inv-next-consolidado">Siguiente</button>
               <span class="info" id="inv-page-info-consolidado"></span>
             </div>
-            <div class="right">
-              <label for="inv-page-size-consolidado" style="font-size:12px;color:var(--text-muted);">Filas por página</label>
-              <select id="inv-page-size-consolidado">
-                <option value="10">10</option>
-                <option value="25" selected>25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-            </div>
           </div>
-        </div>
-        <div id="inventory-view-servicios" class="inventory-view">
-          <div class="inventory-accordion">
-            {% for row in inventory_data.rows %}
-            <details class="inventory-item">
-              <summary>
-                <span>{{ row.service }}</span>
-                <span class="meta">recursos: {{ row.resources }} · ops OK: {{ row.operations_ok }} · error: {{ row.operations_error }}</span>
-              </summary>
-              <div class="body">
-                <h4>Recursos detectados (muestra)</h4>
-                {% if row.resource_samples %}
-                <ul class="resource-list">
-                  {% for r in row.resource_samples %}
-                  <li>{{ r }}</li>
-                  {% endfor %}
-                </ul>
-                {% else %}
-                <p class="tab-report-placeholder" style="padding:0; text-align:left;">No se extrajeron identificadores de recursos para este servicio con los datos disponibles.</p>
-                {% endif %}
-                {% if row.sample_source_ops %}
-                <div class="source-ops">Operaciones fuente: {{ row.sample_source_ops|join(', ') }}</div>
-                {% endif %}
+        </section>
+
+        <section id="inventory-service-view" class="inventory-service-view">
+          <article class="inventory-service-panel">
+            <div class="head">
+              <button type="button" class="inventory-back-btn" id="inv-back-to-list">← Volver a servicios</button>
+              <div class="title" id="inv-service-title">Servicio</div>
+              <div class="meta" id="inv-service-meta">—</div>
+            </div>
+            <div class="body">
+              <div class="inventory-resource-toolbar">
+                <input id="inv-service-search" type="text" placeholder="Buscar recurso dentro del servicio..." />
+                <select id="inv-service-page-size">
+                  <option value="25">25 / página</option>
+                  <option value="50" selected>50 / página</option>
+                  <option value="100">100 / página</option>
+                </select>
+                <label class="inventory-mode-switch">
+                  <input id="inv-service-show-no-arn" type="checkbox" />
+                  <span>Mostrar sin ARN</span>
+                </label>
               </div>
-            </details>
-            {% endfor %}
-          </div>
-          <div class="inventory-pagination">
-            <div class="left">
-              <button type="button" id="inv-prev-servicios">Anterior</button>
-              <button type="button" id="inv-next-servicios">Siguiente</button>
-              <span class="info" id="inv-page-info-servicios"></span>
+              <div class="inventory-chips" id="inv-service-subcats"></div>
+              <div class="inventory-res-table-wrap">
+                <table class="inventory-resource-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Nombre</th>
+                      <th>ARN</th>
+                      <th>Categoría ARN</th>
+                      <th>Subcategoría</th>
+                      <th>Tipo</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inv-service-resource-body"></tbody>
+                </table>
+              </div>
+              <div class="inventory-pagination">
+                <div class="left">
+                  <button type="button" id="inv-service-prev">Anterior</button>
+                  <button type="button" id="inv-service-next">Siguiente</button>
+                  <span class="info" id="inv-service-page-info"></span>
+                </div>
+              </div>
+              <h4>Operaciones fuente</h4>
+              <div class="inventory-source-ops" id="inv-service-ops">—</div>
             </div>
-            <div class="right">
-              <label for="inv-page-size-servicios" style="font-size:12px;color:var(--text-muted);">Servicios por página</label>
-              <select id="inv-page-size-servicios">
-                <option value="10">10</option>
-                <option value="25" selected>25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-            </div>
-          </div>
-        </div>
+          </article>
+        </section>
       </div>
       {% else %}
       <div class="tab-report-placeholder">
         <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el inventario de servicios y recursos en esta vista.</p>
-      </div>
-      {% endif %}
-    </div>
-    <div id="panel-executive" class="tab-panel">
-      {% if executive_summary_html %}
-      <div class="tab-report-content">{{ executive_summary_html }}</div>
-      {% else %}
-      <div class="tab-report-placeholder">
-        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el resumen ejecutivo en esta vista.</p>
-      </div>
-      {% endif %}
-    </div>
-    <div id="panel-findings" class="tab-panel">
-      {% if findings_html %}
-      <div class="tab-report-content">{{ findings_html }}</div>
-      {% else %}
-      <div class="tab-report-placeholder">
-        <p>Ejecute <code>make reports RUN_DIR=...</code> para incluir el reporte de hallazgos en esta vista.</p>
       </div>
       {% endif %}
     </div>
@@ -1671,7 +2372,7 @@
       <div class="container" style="padding-bottom: 24px;">
         {% if coverage_report and coverage_report.global %}
         <article class="coverage-global">
-          <h3>Cobertura Global Fase 2</h3>
+          <h3>Cobertura Global de Controles WAFR (WA Core + WAFR Extended)</h3>
           <div class="coverage-kpis">
             <div class="coverage-kpi"><div class="v">{{ coverage_report.global.coverage_pct }}%</div><div class="l">Cobertura</div></div>
             <div class="coverage-kpi"><div class="v">{{ coverage_report.global.confidence_pct }}%</div><div class="l">Confianza</div></div>
@@ -1681,6 +2382,13 @@
           </div>
         </article>
         {% endif %}
+        <article class="coverage-global" style="margin-bottom: 14px;">
+          <h3>Paquete de Evidencias Well-Architected Core (WA Core)</h3>
+          <p class="coverage-foot" style="margin-top:0;">
+            Las tarjetas por pilar y el detalle de preguntas/evidencias de esta sección corresponden a la evaluación base WA Core.
+            La evaluación extendida de controles oficiales WAFR se presenta en la pestaña <strong>Controles WAFR</strong>.
+          </p>
+        </article>
         <div class="pillar-cards">
           {% for p in pillar_summaries %}
           <a class="pillar-card" href="#pillar-{{ p.slug }}" style="--pillar-color: {{ p.color }}">
@@ -1939,7 +2647,7 @@
           try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
           applyScoreMode(preferred);
           initRemediationFilters();
-          initInventoryView();
+          initWafrControls();
           initInventoryPagination();
         });
       } else {
@@ -1951,110 +2659,799 @@
         try { preferred = localStorage.getItem('ecad-score-mode') || 'conservative'; } catch (e) {}
         applyScoreMode(preferred);
         initRemediationFilters();
-        initInventoryView();
+        initWafrControls();
         initInventoryPagination();
       }
 
-      function initInventoryView() {
-        var select = document.getElementById('inventory-view-select');
-        if (!select) return;
-        var viewCon = document.getElementById('inventory-view-consolidado');
-        var viewSvc = document.getElementById('inventory-view-servicios');
-        if (!viewCon || !viewSvc) return;
+      function initWafrControls() {
+        var body = document.getElementById('wafr-controls-body');
+        if (!body) return;
+        var rows = Array.prototype.slice.call(body.querySelectorAll('.wafr-row'));
+        if (!rows.length) return;
 
-        var key = 'ecad-inventory-view';
-        function applyView(value) {
-          var selected = value === 'servicios' ? 'servicios' : 'consolidado';
-          viewCon.classList.toggle('is-active', selected === 'consolidado');
-          viewSvc.classList.toggle('is-active', selected === 'servicios');
-          select.value = selected;
-          try { localStorage.setItem(key, selected); } catch (e) {}
+        var q = document.getElementById('wafr-search');
+        var lens = document.getElementById('wafr-filter-lens');
+        var pillar = document.getElementById('wafr-filter-pillar');
+        var status = document.getElementById('wafr-filter-status');
+        var count = document.getElementById('wafr-visible-count');
+        var dId = document.getElementById('wafr-d-id');
+        var dStatus = document.getElementById('wafr-d-status');
+        var dPillar = document.getElementById('wafr-d-pillar');
+        var dLens = document.getElementById('wafr-d-lens');
+        var dConfidence = document.getElementById('wafr-d-confidence');
+        var dEvidence = document.getElementById('wafr-d-evidence');
+        var dSource = document.getElementById('wafr-d-source');
+        var dRef = document.getElementById('wafr-d-ref');
+        var dLogic = document.getElementById('wafr-d-logic');
+        var dEvCount = document.getElementById('wafr-d-evcount');
+        var dServices = document.getElementById('wafr-d-services');
+        var dDetected = document.getElementById('wafr-d-detected');
+        var dMissing = document.getElementById('wafr-d-missing');
+        if (!q || !lens || !pillar || !status || !count || !dId || !dStatus || !dPillar || !dLens || !dConfidence || !dEvidence || !dSource || !dRef || !dLogic || !dEvCount || !dServices || !dDetected || !dMissing) return;
+
+        function txt(v) { return String(v || ''); }
+        function normalize(v) { return txt(v).toLowerCase(); }
+        function parseControl(row) {
+          try {
+            return JSON.parse(row.getAttribute('data-control-json') || '{}');
+          } catch (e) {
+            return {};
+          }
         }
-        var preferred = 'consolidado';
-        try { preferred = localStorage.getItem(key) || 'consolidado'; } catch (e) {}
-        applyView(preferred);
-        select.addEventListener('change', function() { applyView(select.value); });
+        function addChips(container, title, items) {
+          container.innerHTML = '';
+          var list = Array.isArray(items) ? items : [];
+          if (!list.length) {
+            var empty = document.createElement('span');
+            empty.className = 'wafr-chip';
+            empty.textContent = title + ': —';
+            container.appendChild(empty);
+            return;
+          }
+          list.forEach(function(item) {
+            var chip = document.createElement('span');
+            chip.className = 'wafr-chip';
+            chip.textContent = title + ': ' + String(item);
+            container.appendChild(chip);
+          });
+        }
+        function showDetail(control) {
+          dId.textContent = txt(control.control_id || '—');
+          dStatus.textContent = txt(control.status || (control.evaluated ? 'evaluated' : 'not_evaluable') || '—');
+          dPillar.textContent = txt(control.pillar || '—');
+          dLens.textContent = txt(control.lens_name || control.lens_id || '—');
+          var conf = control.confidence;
+          dConfidence.textContent = (typeof conf === 'number') ? (Math.round(conf * 1000) / 10) + '%' : '—';
+          dEvidence.textContent = txt(control.evidence_level || '—');
+          dRef.textContent = txt(control.source_reference || '—');
+          dSource.innerHTML = '—';
+          if (control && (control.source_url_detail || control.source_url)) {
+            var a = document.createElement('a');
+            a.href = String(control.source_url_detail || control.source_url);
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = txt(control.source_label || 'AWS official');
+            dSource.innerHTML = '';
+            dSource.appendChild(a);
+          }
+          dLogic.textContent = txt(control.evaluation_logic || '—');
+          var evTrace = Array.isArray(control.evidence_trace) ? control.evidence_trace : [];
+          dEvCount.textContent = evTrace.length ? (evTrace.length + ' evidencias relacionadas') : 'Sin evidencia relacionada';
+          addChips(dServices, 'Servicio', control.related_services || []);
+          addChips(dDetected, 'Detectado', control.detected_services || []);
+          addChips(dMissing, 'Faltante', control.missing_services || []);
+        }
+        function visibleRows() {
+          var qq = normalize(q.value.trim());
+          var lensVal = lens.value || 'all';
+          var pillarVal = pillar.value || 'all';
+          var statusVal = status.value || 'all';
+          return rows.filter(function(row) {
+            if (lensVal !== 'all' && row.getAttribute('data-lens') !== lensVal) return false;
+            if (pillarVal !== 'all' && row.getAttribute('data-pillar') !== pillarVal) return false;
+            if (statusVal !== 'all' && row.getAttribute('data-status') !== statusVal) return false;
+            if (!qq) return true;
+            return normalize(row.getAttribute('data-search')).indexOf(qq) >= 0;
+          });
+        }
+        function render() {
+          var vis = visibleRows();
+          rows.forEach(function(row) { row.style.display = 'none'; row.classList.remove('is-selected'); });
+          vis.forEach(function(row) { row.style.display = ''; });
+          count.textContent = vis.length + ' controles visibles';
+          if (vis.length) {
+            vis[0].classList.add('is-selected');
+            showDetail(parseControl(vis[0]));
+          } else {
+            showDetail({});
+          }
+        }
+
+        rows.forEach(function(row) {
+          var btn = row.querySelector('.wafr-row-btn');
+          var onSelect = function(ev) {
+            if (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+            }
+            rows.forEach(function(r) { r.classList.remove('is-selected'); });
+            row.classList.add('is-selected');
+            showDetail(parseControl(row));
+          };
+          row.addEventListener('click', onSelect);
+          if (btn) btn.addEventListener('click', onSelect);
+        });
+        [q, lens, pillar, status].forEach(function(el) {
+          el.addEventListener('input', render);
+          el.addEventListener('change', render);
+        });
+        render();
       }
 
       function initInventoryPagination() {
-        function setup(cfg) {
-          var items = Array.prototype.slice.call(document.querySelectorAll(cfg.itemsSelector));
-          if (!items.length) return;
-          var prev = document.getElementById(cfg.prevId);
-          var next = document.getElementById(cfg.nextId);
-          var info = document.getElementById(cfg.infoId);
-          var sizeSel = document.getElementById(cfg.sizeId);
-          if (!prev || !next || !info || !sizeSel) return;
+        var rows = Array.prototype.slice.call(document.querySelectorAll('#inventory-table-body .inventory-row-consolidado'));
+        if (!rows.length) return;
+        var listView = document.getElementById('inventory-list-view');
+        var serviceView = document.getElementById('inventory-service-view');
+        var prev = document.getElementById('inv-prev-consolidado');
+        var next = document.getElementById('inv-next-consolidado');
+        var info = document.getElementById('inv-page-info-consolidado');
+        var sizeSel = document.getElementById('inv-page-size-consolidado');
+        var search = document.getElementById('inventory-search');
+        var statusFilter = document.getElementById('inventory-status-filter');
+        var backBtn = document.getElementById('inv-back-to-list');
+        var svcTitle = document.getElementById('inv-service-title');
+        var svcMeta = document.getElementById('inv-service-meta');
+        var svcOps = document.getElementById('inv-service-ops');
+        var svcSubcats = document.getElementById('inv-service-subcats');
+        var svcSearch = document.getElementById('inv-service-search');
+        var svcSize = document.getElementById('inv-service-page-size');
+        var svcShowNoArnSwitch = document.getElementById('inv-service-show-no-arn');
+        var svcBody = document.getElementById('inv-service-resource-body');
+        var svcPrev = document.getElementById('inv-service-prev');
+        var svcNext = document.getElementById('inv-service-next');
+        var svcInfo = document.getElementById('inv-service-page-info');
+        if (!listView || !serviceView || !prev || !next || !info || !sizeSel || !search || !statusFilter || !backBtn || !svcTitle || !svcMeta || !svcOps || !svcSubcats || !svcSearch || !svcSize || !svcShowNoArnSwitch || !svcBody || !svcPrev || !svcNext || !svcInfo) return;
 
-          var keyPage = 'ecad-inv-page-' + cfg.key;
-          var keySize = 'ecad-inv-size-' + cfg.key;
-          var page = 1;
-          var size = parseInt(sizeSel.value || '25', 10) || 25;
-          try {
-            var pStored = parseInt(localStorage.getItem(keyPage) || '1', 10);
-            var sStored = parseInt(localStorage.getItem(keySize) || String(size), 10);
-            if (!isNaN(pStored) && pStored > 0) page = pStored;
-            if (!isNaN(sStored) && sStored > 0) size = sStored;
-          } catch (e) {}
+        var keyPage = 'ecad-inv-page-explorer';
+        var keySize = 'ecad-inv-size-explorer';
+        var keyQuery = 'ecad-inv-query-explorer';
+        var keyStatus = 'ecad-inv-status-explorer';
+        var keySvcPage = 'ecad-inv-svc-page';
+        var keySvcSize = 'ecad-inv-svc-size';
+        var keySvcQuery = 'ecad-inv-svc-query';
+        var keySvcShowNoArn = 'ecad-inv-svc-show-no-arn';
 
-          function render() {
-            var total = items.length;
-            var totalPages = Math.max(1, Math.ceil(total / size));
-            if (page > totalPages) page = totalPages;
-            if (page < 1) page = 1;
-            var start = (page - 1) * size;
-            var end = start + size;
-            items.forEach(function(item, idx) {
-              item.style.display = (idx >= start && idx < end) ? '' : 'none';
-            });
-            prev.disabled = page <= 1;
-            next.disabled = page >= totalPages;
-            info.textContent = 'Página ' + page + ' de ' + totalPages + ' · ' + total + ' elementos';
-            sizeSel.value = String(size);
-            try {
-              localStorage.setItem(keyPage, String(page));
-              localStorage.setItem(keySize, String(size));
-            } catch (e) {}
+        var page = 1;
+        var size = parseInt(sizeSel.value || '25', 10) || 25;
+        var filtered = rows.slice();
+        var selectedService = null;
+        var selectedResourcesReal = [];
+        var selectedEntitiesReal = [];
+        var selectedOpsReal = [];
+        var servicePage = 1;
+        var serviceSize = parseInt(svcSize.value || '50', 10) || 50;
+        var serviceFiltered = [];
+        var showNoArn = false;
+
+        try {
+          var pStored = parseInt(localStorage.getItem(keyPage) || '1', 10);
+          var sStored = parseInt(localStorage.getItem(keySize) || String(size), 10);
+          var qStored = localStorage.getItem(keyQuery) || '';
+          var stStored = localStorage.getItem(keyStatus) || 'all';
+          var spStored = parseInt(localStorage.getItem(keySvcPage) || '1', 10);
+          var ssStored = parseInt(localStorage.getItem(keySvcSize) || String(serviceSize), 10);
+          var sqStored = localStorage.getItem(keySvcQuery) || '';
+          var snaStored = localStorage.getItem(keySvcShowNoArn) || 'false';
+          if (!isNaN(pStored) && pStored > 0) page = pStored;
+          if (!isNaN(sStored) && sStored > 0) size = sStored;
+          if (!isNaN(spStored) && spStored > 0) servicePage = spStored;
+          if (!isNaN(ssStored) && ssStored > 0) serviceSize = ssStored;
+          search.value = qStored;
+          statusFilter.value = stStored;
+          svcSearch.value = sqStored;
+          svcSize.value = String(serviceSize);
+          showNoArn = snaStored === 'true';
+          svcShowNoArnSwitch.checked = showNoArn;
+        } catch (e) {}
+
+        function normalizeText(v) { return (v || '').toLowerCase(); }
+        function toSlug(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+        function toArray(v) { return Array.isArray(v) ? v : []; }
+        function buildResourceEntities(items, serviceName) {
+          var list = toArray(items);
+          function isLikelyCidr(text) {
+            if (!text) return false;
+            var s = String(text).trim();
+            return /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/.test(s) || /^[0-9a-fA-F:]+\/\d{1,3}$/.test(s);
+          }
+          function isLikelyIp(text) {
+            if (!text) return false;
+            var s = String(text).trim();
+            return /^(\d{1,3}\.){3}\d{1,3}$/.test(s) || /^[0-9a-fA-F:]{2,}$/.test(s);
+          }
+          function looksTechnicalValue(text) {
+            if (!text) return true;
+            var s = String(text).trim();
+            if (!s) return true;
+            if (s.indexOf('arn:') === 0) return true;
+            if (isLikelyCidr(s) || isLikelyIp(s)) return true;
+            if (/^ip-\d+-\d+-\d+-\d+\.ec2\.internal$/i.test(s)) return true;
+            if (/^sg-[a-z0-9]+$/i.test(s) || /^subnet-[a-z0-9]+$/i.test(s) || /^vpc-[a-z0-9]+$/i.test(s)) return true;
+            if (/^i-[a-z0-9]+$/i.test(s) || /^vol-[a-z0-9]+$/i.test(s) || /^snap-[a-z0-9]+$/i.test(s)) return true;
+            return false;
+          }
+          function deriveIdFromArn(arn) {
+            if (!arn) return '';
+            var tailSlash = arn.split('/').pop() || '';
+            if (tailSlash && tailSlash !== arn) return tailSlash;
+            var tailColon = arn.split(':').pop() || '';
+            if (tailColon && tailColon !== arn) return tailColon;
+            return '';
+          }
+          function idPrefixScoreForSubcategory(id, subcategory) {
+            var sid = String(id || '').toLowerCase();
+            var sub = String(subcategory || '').toLowerCase();
+            var map = [
+              ['subnets', 'subnet-'],
+              ['vpcs', 'vpc-'],
+              ['instances', 'i-'],
+              ['volumes', 'vol-'],
+              ['snapshots', 'snap-'],
+              ['security groups', 'sg-'],
+              ['route tables', 'rtb-'],
+              ['network interfaces', 'eni-'],
+              ['internet gateways', 'igw-'],
+              ['nat gateways', 'nat-'],
+            ];
+            for (var i = 0; i < map.length; i++) {
+              if (sub === map[i][0]) return sid.indexOf(map[i][1]) === 0 ? 100 : 0;
+            }
+            return 0;
+          }
+          function scoreIdCandidate(entry, key, candidate) {
+            var k = String(key || '').toLowerCase();
+            var c = String(candidate || '').toLowerCase();
+            var score = 0;
+            if (!c) return score;
+            if (/^([a-z]{1,12}-[a-z0-9]+)/i.test(c)) score += 10;
+            if (/\.subnetid$/.test(k)) score += 50;
+            if (/\.vpcid$/.test(k)) score += 40;
+            if (/\.instanceid$/.test(k)) score += 50;
+            if (/\.volumeid$/.test(k)) score += 50;
+            if (/\.snapshotid$/.test(k)) score += 50;
+            if (/\.networkinterfaceid$/.test(k)) score += 50;
+            score += idPrefixScoreForSubcategory(c, entry.subcategory || '');
+            if (entry.arn) {
+              var tail = deriveIdFromArn(entry.arn).toLowerCase();
+              if (tail && c === tail) score += 500;
+              else if (tail) score -= 200;
+            }
+            return score;
+          }
+          function normalizeEntityKey(rawKey) {
+            var ek = String(rawKey || '').trim();
+            if (!ek) return '';
+            var parts = ek.split('.');
+            var out = [];
+            var indexedCount = 0;
+            for (var i = 0; i < parts.length; i++) {
+              out.push(parts[i]);
+              if (/\[\d+\]/.test(parts[i])) indexedCount += 1;
+              // Mantener hasta la entidad principal (ej: data[0].subnets[3])
+              if (indexedCount >= 2) break;
+            }
+            return out.join('.');
+          }
+          function pickDisplay(e) {
+            var n = String(e.name || '').trim();
+            var i = String(e.id || '').trim();
+            var v = String(e.value || '').trim();
+            var a = String(e.arn || '').trim();
+            if (n && !looksTechnicalValue(n) && n !== a && n !== i) return n;
+            if (i && i !== a) return i;
+            if (v && v !== a) return v;
+            if (a) return a;
+            return '—';
+          }
+          function pickName(e) {
+            var n = String(e.name || '').trim();
+            var i = String(e.id || '').trim();
+            var v = String(e.value || '').trim();
+            var a = String(e.arn || '').trim();
+            if (n && !looksTechnicalValue(n) && n !== a) return n;
+            if (i && i !== a) return i;
+            if (a) {
+              var tail = deriveIdFromArn(a);
+              if (tail) return tail;
+            }
+            if (v && !looksTechnicalValue(v)) return v;
+            if (v) return v;
+            return '—';
+          }
+          function entityMatchesSubcategory(e) {
+            var sub = String(e.subcategory || '').toLowerCase();
+            var id = String(e.id || '').toLowerCase();
+            var arn = String(e.arn || '').toLowerCase();
+            function ok(prefix, arnToken) {
+              if (id && id.indexOf(prefix) === 0) return true;
+              if (arn && arn.indexOf(arnToken) >= 0) return true;
+              return false;
+            }
+            var strict = {
+              'vpcs': ['vpc-', ':vpc/'],
+              'subnets': ['subnet-', ':subnet/'],
+              'instances': ['i-', ':instance/'],
+              'volumes': ['vol-', ':volume/'],
+              'snapshots': ['snap-', ':snapshot/'],
+              'security groups': ['sg-', ':security-group/'],
+              'route tables': ['rtb-', ':route-table/'],
+              'network interfaces': ['eni-', ':network-interface/'],
+              'internet gateways': ['igw-', ':internet-gateway/'],
+              'nat gateways': ['nat-', ':natgateway/'],
+            };
+            if (!strict[sub]) return true;
+            return ok(strict[sub][0], strict[sub][1]);
+          }
+          function makeEntry(canonical, subcategory) {
+            return {
+              canonical: canonical,
+              subcategory: subcategory || 'Otros',
+              arn: null,
+              name: null,
+              id: null,
+              idScore: -1,
+              value: null,
+              kind: 'value'
+            };
+          }
+          function absorb(entry, item) {
+            var value = String((item && item.value) || '').trim();
+            if (!value) return;
+            var key = String((item && item.key) || '');
+            var kind = (item && item.kind) || 'value';
+            var resolvedArn = String((item && item.resolved_arn) || '').trim();
+            if (value.indexOf('arn:') === 0) entry.arn = value;
+            else if (!entry.arn && resolvedArn.indexOf('arn:') === 0) entry.arn = resolvedArn;
+            if (kind === 'name' || /name$/i.test(key)) {
+              if (!looksTechnicalValue(value) && !entry.name) entry.name = value;
+              else if (!entry.value) entry.value = value;
+            } else if (kind === 'id' || /id$/i.test(key)) {
+              var candidateScore = scoreIdCandidate(entry, key, value);
+              if (!entry.id || candidateScore >= entry.idScore) {
+                entry.id = value;
+                entry.idScore = candidateScore;
+              }
+            }
+            else if (!entry.value) entry.value = value;
+            if (!entry.value) entry.value = value;
+            if (entry.name) entry.kind = 'name';
+            else if (entry.id) entry.kind = 'id';
+            else if (entry.value) entry.kind = kind || 'value';
           }
 
-          prev.addEventListener('click', function() {
-            if (page > 1) {
-              page -= 1;
-              render();
+          // Paso 1: agrupar por entity_key cuando exista (misma entidad del payload).
+          var byEntity = {};
+          var looseItems = [];
+          list.forEach(function(item) {
+            var value = String((item && item.value) || '').trim();
+            if (!value) return;
+            var subcategory = (item && item.subcategory) || 'Otros';
+            var entityKey = normalizeEntityKey((item && item.entity_key) || '');
+            if (entityKey) {
+              var ek = subcategory + '::' + entityKey;
+              if (!byEntity[ek]) byEntity[ek] = makeEntry(ek, subcategory);
+              absorb(byEntity[ek], item);
+            } else {
+              looseItems.push(item);
             }
           });
-          next.addEventListener('click', function() {
-            var totalPages = Math.max(1, Math.ceil(items.length / size));
-            if (page < totalPages) {
-              page += 1;
-              render();
+
+          // Paso 2: items sueltos (sin entity_key) se agrupan por ARN o por subcategory+valor.
+          var byLoose = {};
+          looseItems.forEach(function(item) {
+            var value = String((item && item.value) || '').trim();
+            var subcategory = (item && item.subcategory) || 'Otros';
+            var lk = value.indexOf('arn:') === 0 ? value : (subcategory + '::' + value.toLowerCase());
+            if (!byLoose[lk]) byLoose[lk] = makeEntry(lk, subcategory);
+            absorb(byLoose[lk], item);
+          });
+
+          // Paso 3: fusionar todo y deduplicar final por ARN (si existe), sino por clave canónica.
+          var merged = {};
+          function pushEntry(e) {
+            var mk = e.arn ? ('arn::' + e.arn) : ('key::' + e.canonical);
+            if (!merged[mk]) merged[mk] = makeEntry(mk, e.subcategory);
+            var t = merged[mk];
+            if (e.arn) t.arn = e.arn;
+            if (e.name && !t.name) t.name = e.name;
+            if (e.id && !t.id) t.id = e.id;
+            if (e.value && !t.value) t.value = e.value;
+            if ((e.idScore || -1) > (t.idScore || -1)) {
+              t.id = e.id;
+              t.idScore = e.idScore;
+            }
+            t.kind = t.name ? 'name' : (t.id ? 'id' : (e.kind || t.kind));
+          }
+          Object.keys(byEntity).forEach(function(k) { pushEntry(byEntity[k]); });
+          Object.keys(byLoose).forEach(function(k) { pushEntry(byLoose[k]); });
+
+          var preliminary = Object.keys(merged).map(function(k) {
+            var e = merged[k];
+            if (!e.id && e.arn) {
+              var arnTail = deriveIdFromArn(e.arn);
+              if (arnTail) e.id = arnTail;
+            }
+            e.display = pickDisplay(e);
+            e.name_display = pickName(e);
+            e.arn_display = e.arn || 'ARN no disponible en API fuente';
+            return e;
+          });
+
+          // Deduplicación final: prioriza ARN; si no hay ARN usa clave estable para no ocultar recursos.
+          var finalMap = {};
+          preliminary.forEach(function(e) {
+            var finalKey = e.arn
+              ? ('arn::' + e.arn)
+              : (
+                e.id
+                  ? ('id::' + normalizeText((e.subcategory || '') + '::' + e.id))
+                  : ('key::' + normalizeText((e.subcategory || '') + '::' + (e.value || e.name_display || e.display || '')))
+              );
+            if (!finalMap[finalKey]) {
+              finalMap[finalKey] = e;
+              return;
+            }
+            var cur = finalMap[finalKey];
+            if (!cur.name && e.name) cur.name = e.name;
+            if (!cur.id && e.id) cur.id = e.id;
+            if (!cur.arn && e.arn) cur.arn = e.arn;
+            if (!cur.value && e.value) cur.value = e.value;
+            if ((e.idScore || -1) > (cur.idScore || -1)) {
+              cur.id = e.id;
+              cur.idScore = e.idScore;
+            }
+            cur.display = pickDisplay(cur);
+            cur.name_display = pickName(cur);
+            cur.arn_display = cur.arn || 'ARN no disponible en API fuente';
+            if (!cur.subcategory && e.subcategory) cur.subcategory = e.subcategory;
+            cur.kind = cur.name ? 'name' : (cur.id ? 'id' : (cur.kind || e.kind || 'value'));
+          });
+
+          // Segunda pasada: colapsar duplicados por subcategoría+id (prioriza filas con ARN).
+          var byId = {};
+          Object.keys(finalMap).forEach(function(k) {
+            var e = finalMap[k];
+            var idKey = e.id ? normalizeText((e.subcategory || '') + '::' + e.id) : '';
+            if (!idKey) {
+              byId[k] = e;
+              return;
+            }
+            if (!byId[idKey]) {
+              byId[idKey] = e;
+              return;
+            }
+            var cur = byId[idKey];
+            var winner = cur;
+            if (!cur.arn && e.arn) winner = e;
+            if (winner !== cur) {
+              if (!winner.name && cur.name) winner.name = cur.name;
+              if (!winner.value && cur.value) winner.value = cur.value;
+              if (!winner.id && cur.id) winner.id = cur.id;
+              if (!winner.subcategory && cur.subcategory) winner.subcategory = cur.subcategory;
+              winner.name_display = pickName(winner);
+              winner.arn_display = winner.arn || 'ARN no disponible en API fuente';
+              byId[idKey] = winner;
+            } else {
+              if (!cur.arn && e.arn) cur.arn = e.arn;
+              if (!cur.name && e.name) cur.name = e.name;
+              if (!cur.value && e.value) cur.value = e.value;
+              cur.name_display = pickName(cur);
+              cur.arn_display = cur.arn || 'ARN no disponible en API fuente';
             }
           });
-          sizeSel.addEventListener('change', function() {
-            var val = parseInt(sizeSel.value || '25', 10);
-            size = (!isNaN(val) && val > 0) ? val : 25;
-            page = 1;
-            render();
+
+          // Tercera pasada: colapsar duplicados por subcategoría+nombre cuando uno tenga ARN y otro no.
+          var byName = {};
+          Object.keys(byId).forEach(function(k) {
+            var e = byId[k];
+            var nkey = normalizeText((e.subcategory || '') + '::' + (e.name_display || ''));
+            if (!e.name_display || e.name_display === '—') {
+              byName[k] = e;
+              return;
+            }
+            if (!byName[nkey]) {
+              byName[nkey] = e;
+              return;
+            }
+            var cur = byName[nkey];
+            var winner = cur;
+            if (!cur.arn && e.arn) winner = e;
+            if (winner !== cur) {
+              if (!winner.id && cur.id) winner.id = cur.id;
+              if (!winner.value && cur.value) winner.value = cur.value;
+              winner.name_display = pickName(winner);
+              winner.arn_display = winner.arn || 'ARN no disponible en API fuente';
+              byName[nkey] = winner;
+            } else {
+              if (!cur.arn && e.arn) cur.arn = e.arn;
+              if (!cur.id && e.id) cur.id = e.id;
+              if (!cur.value && e.value) cur.value = e.value;
+              cur.name_display = pickName(cur);
+              cur.arn_display = cur.arn || 'ARN no disponible en API fuente';
+            }
           });
-          render();
+
+          return Object.keys(byName).map(function(k) { return byName[k]; }).filter(entityMatchesSubcategory).sort(function(a, b) {
+            var sa = normalizeText(a.subcategory);
+            var sb = normalizeText(b.subcategory);
+            if (sa < sb) return -1;
+            if (sa > sb) return 1;
+            var da = normalizeText(a.display);
+            var db = normalizeText(b.display);
+            if (da < db) return -1;
+            if (da > db) return 1;
+            return 0;
+          });
         }
 
-        setup({
-          key: 'consolidado',
-          itemsSelector: '#inventory-view-consolidado .inventory-row-consolidado',
-          prevId: 'inv-prev-consolidado',
-          nextId: 'inv-next-consolidado',
-          infoId: 'inv-page-info-consolidado',
-          sizeId: 'inv-page-size-consolidado'
+        function countSubcategories(entities) {
+          var map = {};
+          toArray(entities).forEach(function(e) {
+            var name = e.subcategory || 'Otros';
+            map[name] = (map[name] || 0) + 1;
+          });
+          return Object.keys(map).sort(function(a, b) { return map[b] - map[a]; }).map(function(name) {
+            return { name: name, count: map[name] };
+          });
+        }
+
+        function arnCategory(item) {
+          if (item && item.arn) return 'Con ARN';
+          if (item && item.kind === 'catalog') return 'Catálogo/API (sin ARN en respuesta)';
+          if (item && item.id) return 'Recurso sin ARN en la operación base';
+          return 'Dato auxiliar/no recurso';
+        }
+
+        function applyFilters() {
+          var query = normalizeText(search.value.trim());
+          var status = statusFilter.value || 'all';
+          filtered = rows.filter(function(row) {
+            var okStatus = status === 'all' || row.getAttribute('data-status') === status;
+            if (!okStatus) return false;
+            if (!query) return true;
+            var hay = normalizeText([
+              row.getAttribute('data-service'),
+              row.getAttribute('data-resource-type'),
+              row.getAttribute('data-search')
+            ].join(' '));
+            return hay.indexOf(query) >= 0;
+          });
+          page = 1;
+          renderList();
+        }
+
+        function renderList() {
+          var total = filtered.length;
+          var totalPages = Math.max(1, Math.ceil(total / size));
+          if (page > totalPages) page = totalPages;
+          if (page < 1) page = 1;
+          var start = (page - 1) * size;
+          var end = start + size;
+
+          rows.forEach(function(row) { row.style.display = 'none'; });
+          filtered.forEach(function(row, idx) {
+            row.style.display = (idx >= start && idx < end) ? '' : 'none';
+          });
+
+          prev.disabled = page <= 1;
+          next.disabled = page >= totalPages;
+          info.textContent = 'Página ' + page + ' de ' + totalPages + ' · ' + total + ' servicios';
+          sizeSel.value = String(size);
+
+          try {
+            localStorage.setItem(keyPage, String(page));
+            localStorage.setItem(keySize, String(size));
+            localStorage.setItem(keyQuery, search.value || '');
+            localStorage.setItem(keyStatus, statusFilter.value || 'all');
+          } catch (e) {}
+        }
+
+        function openService(row) {
+          if (!row) return;
+          selectedService = row.getAttribute('data-service') || 'service';
+          try {
+            selectedResourcesReal = JSON.parse(row.getAttribute('data-samples-real-json') || '[]');
+          } catch (e) {
+            selectedResourcesReal = [];
+          }
+          try {
+            selectedOpsReal = JSON.parse(row.getAttribute('data-ops-real-json') || '[]');
+          } catch (e) {
+            selectedOpsReal = [];
+          }
+          selectedEntitiesReal = buildResourceEntities(selectedResourcesReal, selectedService);
+          var resourceType = row.getAttribute('data-resource-type') || 'Resources';
+
+          svcTitle.textContent = selectedService;
+          svcMeta.textContent = 'Tipo principal: ' + resourceType;
+          servicePage = 1;
+          renderServiceResources();
+
+          rows.forEach(function(r) { r.classList.remove('is-selected'); });
+          row.classList.add('is-selected');
+          listView.classList.add('is-hidden');
+          serviceView.classList.add('is-open');
+          try { window.location.hash = 'inv-svc-' + toSlug(selectedService); } catch (e) {}
+        }
+
+        function closeService() {
+          selectedService = null;
+          listView.classList.remove('is-hidden');
+          serviceView.classList.remove('is-open');
+          rows.forEach(function(r) { r.classList.remove('is-selected'); });
+          try {
+            if (window.location.hash.indexOf('#inv-svc-') === 0) {
+              history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+          } catch (e) {}
+        }
+
+        function renderServiceResources() {
+          var allEntities = selectedEntitiesReal.slice();
+          var totalEntities = allEntities.length;
+          var withArnCount = allEntities.filter(function(item) { return !!item.arn; }).length;
+          var activeEntities = allEntities;
+          if (!showNoArn) {
+            activeEntities = activeEntities.filter(function(item) { return !!item.arn; });
+          }
+          var activeSubcategories = countSubcategories(activeEntities);
+          svcMeta.textContent = (svcMeta.textContent || '').split(' · ')[0] + ' · Con ARN: ' + withArnCount + ' / ' + totalEntities + ' · Mostrados: ' + activeEntities.length;
+          svcOps.textContent = selectedOpsReal.length ? selectedOpsReal.join(', ') : '—';
+          svcSubcats.innerHTML = '';
+          if (activeSubcategories.length) {
+            activeSubcategories.forEach(function(item) {
+              var chip = document.createElement('span');
+              chip.className = 'inventory-chip';
+              chip.textContent = (item.name || 'Otros') + ': ' + String(item.count || 0);
+              svcSubcats.appendChild(chip);
+            });
+          } else {
+            svcSubcats.innerHTML = '<span class="inventory-chip">Sin subcategorías detectadas</span>';
+          }
+
+          var query = normalizeText(svcSearch.value.trim());
+          serviceFiltered = activeEntities.filter(function(item) {
+            if (!query) return true;
+            var hay = normalizeText([
+              item.name_display || item.display || '',
+              item.arn_display || item.arn || '',
+              arnCategory(item),
+              item.id || '',
+              item.kind || '',
+              item.subcategory || '',
+            ].join(' '));
+            return hay.indexOf(query) >= 0;
+          });
+
+          var total = serviceFiltered.length;
+          var totalPages = Math.max(1, Math.ceil(total / serviceSize));
+          if (servicePage > totalPages) servicePage = totalPages;
+          if (servicePage < 1) servicePage = 1;
+          var start = (servicePage - 1) * serviceSize;
+          var end = start + serviceSize;
+          var slice = serviceFiltered.slice(start, end);
+
+          svcBody.innerHTML = '';
+          if (!slice.length) {
+            svcBody.innerHTML = '<tr><td colspan="6">No hay recursos para los filtros actuales.</td></tr>';
+          } else {
+            slice.forEach(function(item, i) {
+              var tr = document.createElement('tr');
+              var idx = document.createElement('td');
+              idx.textContent = String(start + i + 1);
+              var value = document.createElement('td');
+              value.className = 'value';
+              value.textContent = item.name_display || item.display || '—';
+              var arn = document.createElement('td');
+              arn.className = 'value';
+              arn.textContent = item.arn_display || item.arn || 'ARN no disponible en API fuente';
+              var arnCat = document.createElement('td');
+              arnCat.textContent = arnCategory(item);
+              var subcat = document.createElement('td');
+              subcat.textContent = item.subcategory || 'Otros';
+              var kind = document.createElement('td');
+              kind.className = 'kind';
+              kind.textContent = item.kind || 'value';
+              tr.appendChild(idx);
+              tr.appendChild(value);
+              tr.appendChild(arn);
+              tr.appendChild(arnCat);
+              tr.appendChild(subcat);
+              tr.appendChild(kind);
+              svcBody.appendChild(tr);
+            });
+          }
+          svcPrev.disabled = servicePage <= 1;
+          svcNext.disabled = servicePage >= totalPages;
+          svcInfo.textContent = 'Página ' + servicePage + ' de ' + totalPages + ' · ' + total + ' recursos';
+
+          try {
+            localStorage.setItem(keySvcPage, String(servicePage));
+            localStorage.setItem(keySvcSize, String(serviceSize));
+            localStorage.setItem(keySvcQuery, svcSearch.value || '');
+            localStorage.setItem(keySvcShowNoArn, showNoArn ? 'true' : 'false');
+          } catch (e) {}
+        }
+
+        rows.forEach(function(row) {
+          row.addEventListener('click', function() { openService(row); });
+          var link = row.querySelector('.inventory-service-link');
+          if (link) {
+            link.addEventListener('click', function(ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              openService(row);
+            });
+          }
         });
-        setup({
-          key: 'servicios',
-          itemsSelector: '#inventory-view-servicios .inventory-item',
-          prevId: 'inv-prev-servicios',
-          nextId: 'inv-next-servicios',
-          infoId: 'inv-page-info-servicios',
-          sizeId: 'inv-page-size-servicios'
+        prev.addEventListener('click', function() {
+          if (page > 1) { page -= 1; renderList(); }
         });
+        next.addEventListener('click', function() {
+          var totalPages = Math.max(1, Math.ceil(filtered.length / size));
+          if (page < totalPages) { page += 1; renderList(); }
+        });
+        sizeSel.addEventListener('change', function() {
+          var val = parseInt(sizeSel.value || '25', 10);
+          size = (!isNaN(val) && val > 0) ? val : 25;
+          page = 1;
+          renderList();
+        });
+        search.addEventListener('input', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
+        backBtn.addEventListener('click', closeService);
+        svcSearch.addEventListener('input', function() {
+          servicePage = 1;
+          renderServiceResources();
+        });
+        svcSize.addEventListener('change', function() {
+          var val = parseInt(svcSize.value || '50', 10);
+          serviceSize = (!isNaN(val) && val > 0) ? val : 50;
+          servicePage = 1;
+          renderServiceResources();
+        });
+        svcShowNoArnSwitch.addEventListener('change', function() {
+          showNoArn = !!svcShowNoArnSwitch.checked;
+          servicePage = 1;
+          renderServiceResources();
+        });
+        svcPrev.addEventListener('click', function() {
+          if (servicePage > 1) {
+            servicePage -= 1;
+            renderServiceResources();
+          }
+        });
+        svcNext.addEventListener('click', function() {
+          var totalPages = Math.max(1, Math.ceil(serviceFiltered.length / serviceSize));
+          if (servicePage < totalPages) {
+            servicePage += 1;
+            renderServiceResources();
+          }
+        });
+
+        applyFilters();
+
+        try {
+          var hash = window.location.hash || '';
+          if (hash.indexOf('#inv-svc-') === 0) {
+            var slug = hash.replace('#inv-svc-', '');
+            var match = rows.find(function(r) {
+              return toSlug(r.getAttribute('data-service')) === slug;
+            });
+            if (match) openService(match);
+          }
+        } catch (e) {}
       }
 
       function initRemediationFilters() {

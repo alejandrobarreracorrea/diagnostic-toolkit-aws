@@ -35,6 +35,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Defaults orientados a maximizar cobertura en la primera ejecución.
+DEFAULT_MAX_THREADS = 12
+DEFAULT_MAX_PAGES = 50
+DEFAULT_MAX_FOLLOWUPS = 10
+DEFAULT_MAX_SERVICE_SECONDS = 240
+DEFAULT_MAX_OPS_PER_SERVICE = 80
+DEFAULT_CONNECT_TIMEOUT = 15
+DEFAULT_READ_TIMEOUT = 45
+DEFAULT_OPERATION_TIMEOUT = 120
+
 # Servicios globales de AWS: no tienen endpoint por región — se consultan solo en us-east-1
 # para evitar duplicados y errores de endpoint en regiones que no los soportan.
 _GLOBAL_SERVICES = frozenset({
@@ -112,6 +122,8 @@ class Collector:
         service_allowlist: Optional[List[str]] = None,
         service_denylist: Optional[List[str]] = None,
         max_service_seconds: int = 90,
+        max_ops_per_service: int = DEFAULT_MAX_OPS_PER_SERVICE,
+        include_nonsafe_ops: bool = False,
     ):
         self.output_dir = Path(output_dir)
         self.raw_dir = self.output_dir / "raw"
@@ -130,6 +142,10 @@ class Collector:
         # Tiempo máximo por tarea (servicio+región). Si un servicio tiene 200+ ops y algunas son lentas,
         # se corta para no bloquear el pool de threads.
         self.max_service_seconds = max_service_seconds
+        # Presupuesto de operaciones por servicio para evitar colas largas de bajo valor.
+        self.max_ops_per_service = max_ops_per_service
+        # Si es false, se priorizan operaciones safe-to-call para maximizar éxitos.
+        self.include_nonsafe_ops = include_nonsafe_ops
         
         # Estadísticas — protegidas con lock para uso seguro en múltiples threads
         self._stats_lock = threading.Lock()
@@ -151,9 +167,9 @@ class Collector:
         # Componentes
         self.discovery = ServiceDiscovery(self.session)
         # Configurar timeouts para evitar operaciones que se cuelguen
-        connect_timeout = int(os.getenv("ECAD_CONNECT_TIMEOUT", "10"))
-        read_timeout = int(os.getenv("ECAD_READ_TIMEOUT", "30"))
-        operation_timeout = int(os.getenv("ECAD_OPERATION_TIMEOUT", "60"))
+        connect_timeout = int(os.getenv("ECAD_CONNECT_TIMEOUT", str(DEFAULT_CONNECT_TIMEOUT)))
+        read_timeout = int(os.getenv("ECAD_READ_TIMEOUT", str(DEFAULT_READ_TIMEOUT)))
+        operation_timeout = int(os.getenv("ECAD_OPERATION_TIMEOUT", str(DEFAULT_OPERATION_TIMEOUT)))
         self.executor = OperationExecutor(
             self.session,
             max_pages=max_pages,
@@ -345,6 +361,16 @@ class Collector:
             if not operations:
                 logger.debug(f"No se encontraron operaciones para {service_name} en {region}")
                 return
+
+            # Reordenar para ejecutar primero operaciones críticas de inventario.
+            # Esto evita que queden fuera por timeout en servicios muy grandes (ej. ec2).
+            ordered_operations = self._prioritize_operations(service_name, operations)
+            filtered_operations = self._filter_and_budget_operations(service_name, ordered_operations)
+            dropped = len(ordered_operations) - len(filtered_operations)
+            if dropped > 0:
+                with self._stats_lock:
+                    self.stats["operations_skipped"] += dropped
+            ordered_operations = filtered_operations
             
             safe_ops = [op for op, info in operations.items() if info.get("safe_to_call", False)]
             logger.debug(
@@ -356,12 +382,12 @@ class Collector:
             executed_count = 0
             first_op = True
             service_start = time.time()
-            for op_name, op_info in operations.items():
+            for idx, (op_name, op_info) in enumerate(ordered_operations):
                 # Timeout por tarea de servicio: si llevamos demasiado tiempo, dejamos de ejecutar
                 # más operaciones para este servicio y liberamos el thread.
                 elapsed_service = time.time() - service_start
                 if elapsed_service > self.max_service_seconds:
-                    remaining = len(operations) - executed_count
+                    remaining = len(ordered_operations) - idx
                     logger.warning(
                         f"{service_name}/{region}: timeout de tarea ({elapsed_service:.0f}s), "
                         f"se omiten {remaining} operaciones restantes"
@@ -380,7 +406,7 @@ class Collector:
                         with self._unavailable_lock:
                             self._unavailable_endpoints.add(endpoint_key)
                         with self._stats_lock:
-                            self.stats["operations_skipped"] += len(operations) - 1
+                            self.stats["operations_skipped"] += len(ordered_operations) - 1
                         return
 
                     self._save_result(service_name, region, op_name, result)
@@ -405,6 +431,89 @@ class Collector:
         except Exception as e:
             logger.error(f"Error recolectando {service_name}/{region}: {e}")
             raise
+
+    def _prioritize_operations(self, service_name: str, operations: Dict[str, Dict]) -> List[tuple]:
+        """Ordenar operaciones para ejecutar primero inventario real y señales de alto valor."""
+        service_key = (service_name or "").lower()
+        priority_map = {
+            "ec2": [
+                "DescribeInstances",
+                "DescribeVolumes",
+                "DescribeSnapshots",
+                "DescribeVpcs",
+                "DescribeSubnets",
+                "DescribeSecurityGroups",
+                "DescribeNetworkInterfaces",
+                "DescribeRouteTables",
+                "DescribeInternetGateways",
+                "DescribeNatGateways",
+                "DescribeAddresses",
+                "DescribeLaunchTemplates",
+            ],
+            "rds": [
+                "DescribeDBInstances",
+                "DescribeDBClusters",
+                "DescribeDBSnapshots",
+                "DescribeDBClusterSnapshots",
+                "DescribeDBSubnetGroups",
+                "DescribeDBParameterGroups",
+                "DescribeOptionGroups",
+            ],
+            "s3": ["ListBuckets"],
+            "lambda": ["ListFunctions"],
+            "dynamodb": ["ListTables"],
+            "iam": ["ListUsers", "ListRoles", "ListPolicies", "ListGroups"],
+            "ecs": ["ListClusters", "ListServices", "ListTasks"],
+            "eks": ["ListClusters", "ListNodegroups"],
+        }
+        preferred = priority_map.get(service_key, [])
+        if not preferred:
+            return list(operations.items())
+
+        preferred_set = set(preferred)
+        priority_items: List[tuple] = []
+        remainder_items: List[tuple] = []
+
+        for name in preferred:
+            if name in operations:
+                priority_items.append((name, operations[name]))
+
+        for name, info in operations.items():
+            if name not in preferred_set:
+                remainder_items.append((name, info))
+
+        return priority_items + remainder_items
+
+    def _operation_budget_for_service(self, service_name: str) -> int:
+        """Presupuesto máximo de operaciones por servicio."""
+        heavy_budgets = {
+            "ec2": 70,
+            "sagemaker": 70,
+            "quicksight": 70,
+            "glue": 70,
+            "iot": 70,
+            "cloudfront": 70,
+            "cloudformation": 70,
+        }
+        return heavy_budgets.get((service_name or "").lower(), self.max_ops_per_service)
+
+    def _filter_and_budget_operations(self, service_name: str, ordered_operations: List[tuple]) -> List[tuple]:
+        """Filtrar operaciones no-safe (salvo críticas) y aplicar presupuesto por servicio."""
+        priority_names = set(name for name, _ in ordered_operations[:24])
+        filtered: List[tuple] = []
+        for name, info in ordered_operations:
+            safe = bool(info.get("safe_to_call", False))
+            if safe or self.include_nonsafe_ops or name in priority_names:
+                filtered.append((name, info))
+
+        budget = self._operation_budget_for_service(service_name)
+        if budget > 0 and len(filtered) > budget:
+            logger.info(
+                f"{service_name}: presupuesto de operaciones {budget} aplicado "
+                f"(total candidatas: {len(filtered)})"
+            )
+            return filtered[:budget]
+        return filtered
     
     def _save_result(
         self,
@@ -471,20 +580,20 @@ def main():
     parser.add_argument(
         "--max-threads",
         type=int,
-        default=int(os.getenv("ECAD_MAX_THREADS", "15")),
-        help="Número máximo de threads paralelos (default: 15)"
+        default=int(os.getenv("ECAD_MAX_THREADS", str(DEFAULT_MAX_THREADS))),
+        help=f"Número máximo de threads paralelos (default: {DEFAULT_MAX_THREADS})"
     )
     parser.add_argument(
         "--max-pages",
         type=int,
-        default=int(os.getenv("ECAD_MAX_PAGES", "20")),
-        help="Número máximo de páginas por operación paginada (default: 20)"
+        default=int(os.getenv("ECAD_MAX_PAGES", str(DEFAULT_MAX_PAGES))),
+        help=f"Número máximo de páginas por operación paginada (default: {DEFAULT_MAX_PAGES})"
     )
     parser.add_argument(
         "--max-followups",
         type=int,
-        default=int(os.getenv("ECAD_MAX_FOLLOWUPS", "5")),
-        help="Número máximo de followups por operación List"
+        default=int(os.getenv("ECAD_MAX_FOLLOWUPS", str(DEFAULT_MAX_FOLLOWUPS))),
+        help=f"Número máximo de followups por operación List (default: {DEFAULT_MAX_FOLLOWUPS})"
     )
     parser.add_argument(
         "--service-allowlist",
@@ -497,8 +606,20 @@ def main():
     parser.add_argument(
         "--max-service-seconds",
         type=int,
-        default=int(os.getenv("ECAD_MAX_SERVICE_SECONDS", "90")),
-        help="Timeout en segundos por tarea de servicio/región (default: 90)"
+        default=int(os.getenv("ECAD_MAX_SERVICE_SECONDS", str(DEFAULT_MAX_SERVICE_SECONDS))),
+        help=f"Timeout en segundos por tarea de servicio/región (default: {DEFAULT_MAX_SERVICE_SECONDS})"
+    )
+    parser.add_argument(
+        "--max-ops-per-service",
+        type=int,
+        default=int(os.getenv("ECAD_MAX_OPS_PER_SERVICE", str(DEFAULT_MAX_OPS_PER_SERVICE))),
+        help=f"Máximo de operaciones por servicio tras priorización (default: {DEFAULT_MAX_OPS_PER_SERVICE})"
+    )
+    parser.add_argument(
+        "--include-nonsafe-ops",
+        action="store_true",
+        default=os.getenv("ECAD_INCLUDE_NONSAFE_OPS", "0").lower() in ("1", "true", "yes"),
+        help="Incluir operaciones que requieren parámetros (puede aumentar errores/timeouts)"
     )
 
     args = parser.parse_args()
@@ -530,6 +651,8 @@ def main():
         service_allowlist=service_allowlist,
         service_denylist=service_denylist,
         max_service_seconds=args.max_service_seconds,
+        max_ops_per_service=args.max_ops_per_service,
+        include_nonsafe_ops=args.include_nonsafe_ops,
     )
     
     try:
@@ -545,4 +668,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

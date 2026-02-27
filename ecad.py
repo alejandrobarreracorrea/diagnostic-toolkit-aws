@@ -349,6 +349,16 @@ def run_demo():
 
 def run_collect():
     """Recolectar datos desde AWS."""
+    # Base robusta para maximizar cobertura en una sola ejecución.
+    default_threads = "12"
+    default_max_pages = "50"
+    default_max_followups = "10"
+    default_max_service_seconds = "240"
+    default_max_ops_per_service = "80"
+    default_connect_timeout = "15"
+    default_read_timeout = "45"
+    default_operation_timeout = "120"
+
     print("\n📥 Recolectando datos desde AWS...")
     print("   Esto puede tardar varias horas en entornos grandes\n")
     
@@ -391,7 +401,7 @@ def run_collect():
             return False
     
     # Threads
-    threads = input("\n2. Threads paralelos (default: 20, más = más rápido pero más carga): ").strip() or "20"
+    threads = input(f"\n2. Threads paralelos (default: {default_threads}, balanceado para cobertura/estabilidad): ").strip() or default_threads
     
     # Servicios
     print("\n3. Servicios a recolectar:")
@@ -434,6 +444,13 @@ def run_collect():
     if external_id:
         os.environ['AWS_EXTERNAL_ID'] = external_id
     os.environ['ECAD_MAX_THREADS'] = threads
+    os.environ.setdefault('ECAD_MAX_PAGES', default_max_pages)
+    os.environ.setdefault('ECAD_MAX_FOLLOWUPS', default_max_followups)
+    os.environ.setdefault('ECAD_MAX_SERVICE_SECONDS', default_max_service_seconds)
+    os.environ.setdefault('ECAD_MAX_OPS_PER_SERVICE', default_max_ops_per_service)
+    os.environ.setdefault('ECAD_CONNECT_TIMEOUT', default_connect_timeout)
+    os.environ.setdefault('ECAD_READ_TIMEOUT', default_read_timeout)
+    os.environ.setdefault('ECAD_OPERATION_TIMEOUT', default_operation_timeout)
     
     if service_allowlist:
         os.environ['ECAD_SERVICE_ALLOWLIST'] = service_allowlist
@@ -1728,4 +1745,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n\n👋 ¡Hasta luego!\n")
         sys.exit(0)
-

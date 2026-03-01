@@ -104,6 +104,56 @@
       pointer-events: none;
     }
     .hero .container { position: relative; z-index: 1; }
+    .hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-right: 56px;
+      min-height: 44px;
+    }
+    .brand-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      min-width: 0;
+    }
+    .brand-logo-frame {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      min-height: 0;
+      min-width: 0;
+    }
+    .brand-logo {
+      max-height: 156px;
+      width: auto;
+      max-width: 440px;
+      object-fit: contain;
+      display: block;
+    }
+    .brand-name {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+    @media (max-width: 768px) {
+      .brand-logo-frame { min-height: 0; min-width: 0; padding: 0; }
+      .brand-logo { max-height: 96px; max-width: 280px; }
+      .brand-name { max-width: 200px; }
+    }
     .hero .label {
       display: inline-block;
       font-size: 12px;
@@ -1627,12 +1677,35 @@
 <body>
   <header class="hero">
     <div class="container">
+      <div class="hero-top">
+        {% if brand and (brand.logo_web_path or brand.company_name) %}
+          {% set show_brand_text = (brand.show_text if brand.show_text is not none else true) %}
+          {% if brand.home_url %}
+          <a class="brand-wrap" href="{{ brand.home_url }}" target="_blank" rel="noopener">
+          {% else %}
+          <div class="brand-wrap">
+          {% endif %}
+            {% if brand.logo_web_path %}
+            <span class="brand-logo-frame">
+              <img class="brand-logo" src="{{ brand.logo_web_path }}" alt="{{ brand.company_name if brand.company_name else 'Brand logo' }}" />
+            </span>
+            {% endif %}
+            {% if show_brand_text and brand.company_name %}
+            <span class="brand-name">{{ brand.company_name }}</span>
+            {% endif %}
+          {% if brand.home_url %}
+          </a>
+          {% else %}
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
       <button type="button" class="theme-toggle" id="theme-toggle" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema">
         <span class="icon-dark" aria-hidden="true">🌙</span>
         <span class="icon-light" aria-hidden="true">☀️</span>
       </button>
       <span class="label">Well-Architected Framework{% if metadata.well_arch_version %} · v{{ metadata.well_arch_version }}{% endif %}</span>
-      <h1>Evidence Pack</h1>
+      <h1>{{ brand.report_title if brand and brand.report_title else 'Evidence Pack' }}</h1>
       <p class="meta">
         <span>Account {{ metadata.account_id }}</span>
         <span>{{ metadata.generated_at }}</span>

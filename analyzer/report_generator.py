@@ -9,6 +9,7 @@ import logging
 import re
 import sys
 import gzip
+import shutil
 from pathlib import Path
 from typing import Dict, Any, List, Set, Optional
 from datetime import datetime
@@ -2507,6 +2508,78 @@ class ReportGenerator:
             lines.append("</tbody></table>")
         return "\n".join(lines)
 
+    def _load_branding_config(self) -> Dict[str, Any]:
+        """Cargar configuración de white-label desde JSON."""
+        candidates = [
+            self.run_dir / "branding.json",
+            Path(__file__).resolve().parent.parent / "branding.json",
+        ]
+        config: Dict[str, Any] = {}
+        for path in candidates:
+            if not path.exists():
+                continue
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    raw = json.load(f)
+                if isinstance(raw, dict):
+                    config = raw
+                    break
+            except Exception as e:
+                logger.debug("No se pudo cargar branding desde %s: %s", path, e)
+        brand = config.get("brand", config) if isinstance(config, dict) else {}
+        if not isinstance(brand, dict):
+            return {}
+        return {
+            "company_name": str(brand.get("company_name", "") or "").strip(),
+            "home_url": str(brand.get("home_url", "") or "").strip(),
+            "logo_path": str(brand.get("logo_path", "") or "").strip(),
+            "show_text": bool(brand.get("show_text", True)),
+            "report_title": str(brand.get("report_title", "") or "").strip(),
+        }
+
+    def _prepare_branding_assets(self, brand: Dict[str, Any]) -> Dict[str, Any]:
+        """Resolver ruta de logo y copiarlo al output web para reporte portable."""
+        if not isinstance(brand, dict):
+            return {}
+        out = dict(brand)
+        logo_path = str(out.get("logo_path", "") or "").strip()
+        if not logo_path:
+            return out
+        if logo_path.startswith("http://") or logo_path.startswith("https://"):
+            out["logo_web_path"] = logo_path
+            return out
+
+        logo_candidates: List[Path] = []
+        candidate = Path(logo_path).expanduser()
+        logo_candidates.append(candidate)
+        if not candidate.is_absolute():
+            logo_candidates.append((self.run_dir / candidate).resolve())
+            logo_candidates.append((Path(__file__).resolve().parent.parent / candidate).resolve())
+
+        logo_file: Optional[Path] = None
+        for p in logo_candidates:
+            if p.exists() and p.is_file():
+                logo_file = p
+                break
+        if not logo_file:
+            logger.warning("Branding: no se encontró logo en '%s'.", logo_path)
+            return out
+
+        ext = logo_file.suffix.lower()
+        if ext not in {".png", ".jpg", ".jpeg", ".svg", ".webp"}:
+            logger.warning("Branding: extensión de logo no soportada (%s). Usa png/jpg/svg/webp.", ext)
+            return out
+
+        try:
+            web_assets = self.run_dir / "outputs" / "web" / "assets"
+            web_assets.mkdir(parents=True, exist_ok=True)
+            target = web_assets / f"brand-logo{ext}"
+            shutil.copy2(logo_file, target)
+            out["logo_web_path"] = f"assets/{target.name}"
+        except Exception as e:
+            logger.warning("Branding: no se pudo copiar logo a outputs/web/assets: %s", e)
+        return out
+
     def _generate_web_unified(self, data: Dict) -> None:
         """Regenerar reporte web unificado con todos los reportes (Scorecard, Evidence, CAF, Modelo de Madurez, Resumen, Hallazgos, Plan de mejoras)."""
         evidence_pack = data.get("evidence_pack", {})
@@ -2604,6 +2677,7 @@ class ReportGenerator:
                 extra["phases_data"] = self._build_evaluation_phases_from_coverage(extra["coverage_report"])
             else:
                 extra["phases_data"] = {}
+            extra["brand"] = self._prepare_branding_assets(self._load_branding_config())
             extra["caf_data"] = self._build_caf_data(data)
             extra["inventory_data"] = self._build_inventory_web_data(data)
             from evidence.generator import EvidenceGenerator

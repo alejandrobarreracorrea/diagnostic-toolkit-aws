@@ -4675,6 +4675,7 @@ class EvidenceGenerator:
             "coverage_report": er.get("coverage_report"),
             "controls_catalog": er.get("controls_catalog"),
             "phases_data": er.get("phases_data"),
+            "brand": er.get("brand", {}),
             "caf_data": er.get("caf_data"),
             "inventory_data": er.get("inventory_data"),
             "security_maturity_html": Markup(er.get("security_maturity_html", "")) if er.get("security_maturity_html") else "",

@@ -1,0 +1,9 @@
+{
+  "brand": {
+    "company_name": "Mi Empresa",
+    "home_url": "https://www.miempresa.com",
+    "logo_path": "branding/logo.png",
+    "show_text": true,
+    "report_title": "Reporte de Diagnostico Cloud"
+  }
+}

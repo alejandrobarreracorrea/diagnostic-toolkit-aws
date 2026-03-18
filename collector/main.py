@@ -104,6 +104,25 @@ _DEFAULT_SOFT_DENYLIST = frozenset({
     "tnb",               # Telco Network Builder
     "freetier",
     "workspacesthinclient",
+    # Servicios que siempre fallan por no estar disponibles o deprecados
+    "elastictranscoder",       # Endpoint no disponible (servicio deprecado)
+    "cloudhsm",                # Endpoint no disponible (reemplazado por cloudhsmv2)
+    "sdb",                     # SimpleDB deprecado, AuthorizationFailure permanente
+    "importexport",            # Servicio descontinuado
+    "applicationcostprofiler", # Endpoint no disponible
+    "kinesis-video-archived-media",  # Requiere parámetros obligatorios siempre
+    "sagemaker-geospatial",    # Endpoint no disponible
+    "evidently",               # Endpoint no disponible
+    "route53-recovery-readiness",  # Endpoint no disponible
+    "route53-recovery-cluster",    # Endpoint no disponible
+    "route53globalresolver",       # Endpoint no disponible
+    "mediastore-data",         # Endpoint no disponible (requiere container endpoint)
+    "gameliftstreams",         # Endpoint no disponible
+    "iot-managed-integrations",# Endpoint no disponible
+    "codeguru-security",       # FeatureNoLongerAvailableException (servicio retirado)
+    "codecatalyst",            # Requiere autenticación con bearer token, no IAM
+    "personalize-runtime",     # Requiere parámetros obligatorios siempre
+    "globalaccelerator",       # Endpoint no disponible desde us-east-1 (requiere us-west-2)
 })
 
 
@@ -155,6 +174,8 @@ class Collector:
             "operations_successful": 0,
             "operations_failed": 0,
             "operations_skipped": 0,
+            "operational_errors": 0,
+            "parameter_errors": 0,
             "errors": []
         }
         # Cache para saltarse rápido servicios cuyo endpoint no está disponible en una región
@@ -416,6 +437,14 @@ class Collector:
                     if result.get("success"):
                         with self._stats_lock:
                             self.stats["operations_successful"] += 1
+                    elif result.get("operational_error"):
+                        with self._stats_lock:
+                            self.stats["operations_failed"] += 1
+                            self.stats["operational_errors"] += 1
+                    elif result.get("parameter_error"):
+                        with self._stats_lock:
+                            self.stats["operations_failed"] += 1
+                            self.stats["parameter_errors"] += 1
                     else:
                         with self._stats_lock:
                             self.stats["operations_failed"] += 1

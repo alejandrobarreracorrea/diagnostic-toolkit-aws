@@ -241,6 +241,51 @@
         "wellarchitected:List*"
       ],
       "Resource": "*"
+    },
+    {
+      "Sid": "ECADReadOnlyMissing",
+      "Effect": "Allow",
+      "Action": [
+        "airflow:Get*",
+        "airflow:List*",
+        "amp:Describe*",
+        "amp:List*",
+        "aoss:Get*",
+        "aoss:List*",
+        "app-integrations:Get*",
+        "app-integrations:List*",
+        "application-insights:Describe*",
+        "application-insights:List*",
+        "appflow:Describe*",
+        "appflow:List*",
+        "cassandra:Select",
+        "cloudhsmv2:Describe*",
+        "cloudhsmv2:List*",
+        "elasticfilesystem:Describe*",
+        "elasticfilesystem:List*",
+        "geo:Describe*",
+        "geo:List*",
+        "geo:Search*",
+        "launch-wizard:Describe*",
+        "launch-wizard:List*",
+        "lex:Describe*",
+        "lex:Get*",
+        "lex:List*",
+        "mobiletargeting:Get*",
+        "mobiletargeting:List*",
+        "notifications-contacts:Get*",
+        "notifications-contacts:List*",
+        "servicequotas:Get*",
+        "servicequotas:List*",
+        "ssm-quicksetup:Get*",
+        "ssm-quicksetup:List*",
+        "states:Describe*",
+        "states:Get*",
+        "states:List*",
+        "workspaces-web:Get*",
+        "workspaces-web:List*"
+      ],
+      "Resource": "*"
     }
   ]
 }

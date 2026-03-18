@@ -22,6 +22,140 @@ from botocore.config import Config
 
 logger = logging.getLogger(__name__)
 
+# Errores operacionales conocidos: errores que no son fallos del collector sino
+# condiciones de la cuenta AWS del cliente. Se registran con un mensaje descriptivo
+# para que el analista entienda la causa sin necesidad de investigar.
+_KNOWN_OPERATIONAL_ERRORS: Dict[str, str] = {
+    "UninitializedAccountException": (
+        "Servicio no inicializado: la cuenta no ha activado este servicio (ej. MGN, DRS). "
+        "Se requiere configuración inicial en la consola AWS antes de poder consultar datos."
+    ),
+    "OptInRequiredException": (
+        "Servicio requiere opt-in: la cuenta no está inscrita en este servicio (ej. Compute Optimizer). "
+        "Se debe habilitar manualmente desde la consola AWS."
+    ),
+    "SubscriptionRequiredException": (
+        "Requiere plan de soporte: las APIs de Health y Support necesitan plan Business o Enterprise. "
+        "La cuenta actual no tiene un plan de soporte activo."
+    ),
+    "AWSOrganizationsNotInUseException": (
+        "Sin AWS Organizations: esta cuenta no pertenece a una organización de AWS. "
+        "Las operaciones de Organizations, SCPs y cuentas delegadas no aplican."
+    ),
+    "OrganizationAccessDeniedException": (
+        "Sin acceso a funciones de Organization: la cuenta no es la cuenta de gestión o "
+        "no tiene acceso delegado para consultar reglas/conformance packs a nivel organizacional."
+    ),
+    "OrganizationNotFoundException": (
+        "Organización no encontrada: la cuenta no está asociada a ninguna organización de AWS."
+    ),
+    "InvalidAccessException": (
+        "Servicio no habilitado: Security Hub u otro servicio no ha sido activado en esta cuenta/región. "
+        "Se debe habilitar desde la consola AWS antes de consultar datos."
+    ),
+    "SecurityIncidentResponseNotActiveException": (
+        "Security Incident Response no está activo en esta cuenta. "
+        "Requiere activación previa para poder consultar casos."
+    ),
+    "HomeRegionNotSetException": (
+        "Migration Hub no configurado: no se ha establecido una región de origen (home region). "
+        "Se debe configurar AWS Migration Hub antes de poder consultar datos de descubrimiento."
+    ),
+    "InvalidOperationException": (
+        "Operación no válida para esta cuenta: el servicio (ej. Firewall Manager) requiere "
+        "estar configurado como cuenta administradora o delegada de Organizations."
+    ),
+    "ConflictException": (
+        "Conflicto de versión del servicio: se está intentando consultar una versión del servicio "
+        "que no corresponde a la habilitada en esta cuenta (ej. Security Hub V1 vs V2)."
+    ),
+    "NotAuthorized": (
+        "Servicio no autorizado: la cuenta no tiene acceso a este servicio. "
+        "Puede requerir activación o suscripción específica."
+    ),
+    "FeatureNoLongerAvailableException": (
+        "Funcionalidad retirada: este servicio o característica ha sido descontinuado por AWS "
+        "y ya no acepta consultas."
+    ),
+    "FeatureDisabled": (
+        "Funcionalidad deshabilitada: esta característica no está habilitada para la cuenta actual."
+    ),
+    "NotConfiguredException": (
+        "Servicio no configurado: se requiere configuración inicial (ej. IoT logging) "
+        "antes de poder consultar estos datos."
+    ),
+    "ClusterNotFoundException": (
+        "Cluster no encontrado: la operación requiere un cluster ECS/EKS activo. "
+        "No hay clusters registrados en la región consultada."
+    ),
+    "RegistryPolicyNotFoundException": (
+        "No existe política de registro ECR configurada en esta cuenta."
+    ),
+    "ReportNotPresent": (
+        "Credential Report no generado: no se ha generado un reporte de credenciales IAM. "
+        "Se debe ejecutar GenerateCredentialReport primero."
+    ),
+    "SigningConfigurationNotFoundException": (
+        "Configuración de firma ECR no encontrada: el registro no tiene configuración de firma habilitada."
+    ),
+    "ResourceNotFoundFault": (
+        "Recurso no encontrado: el recurso referenciado (ej. tarea de replicación DMS) no existe "
+        "o fue eliminado."
+    ),
+    "UnsupportedOperation": (
+        "Operación no soportada: esta funcionalidad no está disponible en la región o tipo de "
+        "recurso consultado (ej. Elastic GPUs deprecado)."
+    ),
+    "UnsupportedOperationException": (
+        "Operación no soportada: esta funcionalidad está deshabilitada o no disponible "
+        "para esta cuenta/región."
+    ),
+    "ResourceNotFoundException": (
+        "Recurso no encontrado: el servicio consultado no tiene recursos configurados "
+        "en esta cuenta/región (ej. Shield sin suscripción, SecurityHub sin habilitar, "
+        "Control Tower sin configurar). Esto es esperado si el servicio no está en uso."
+    ),
+    "NoSuchEntity": (
+        "Entidad IAM no encontrada: el recurso consultado no existe (ej. Login Profile no "
+        "configurado, Password Policy no definida). Esto indica configuración por defecto."
+    ),
+    "EntityNotFoundException": (
+        "Entidad no encontrada: la configuración consultada no existe (ej. Lake Formation "
+        "Identity Center, Glue Identity Center). El servicio no ha sido configurado con "
+        "esta integración."
+    ),
+}
+
+# Errores que indican que la operación requiere parámetros que no pudieron inferirse.
+# No son fallos del collector sino limitaciones de la API: la operación necesita un
+# recurso específico (ID, ARN, nombre) para funcionar.
+_PARAMETER_ERRORS: frozenset = frozenset({
+    "ValidationException",
+    "ValidationError",
+    "InvalidRequestException",
+    "InvalidArgumentException",
+    "InvalidArgument",
+    "InvalidParameterValue",
+    "InvalidParameterValueException",
+    "InvalidParameterCombination",
+    "InvalidParameterCombinationException",
+    "InvalidParameterException",
+    "InvalidParametersException",
+    "InvalidInputException",
+    "InvalidInput",
+    "MissingParameter",
+    "BadRequestException",
+    "BadRequest",
+    "ClientException",
+    "RepositoryNameRequiredException",
+    "OpsItemInvalidParameterException",
+    "CFNRegistryException",
+    "DirectConnectClientException",
+    "400",
+    "404",
+    "InternalFailure",
+})
+
 
 def _pascal_to_snake(name: str) -> str:
     """Convertir PascalCase a snake_case."""
@@ -174,7 +308,7 @@ class OperationExecutor:
         
         except ClientError as e:
             error_code = e.response.get('Error', {}).get('Code', 'Unknown')
-            
+
             # Errores esperados que no son críticos
             if error_code in ['AccessDenied', 'UnauthorizedOperation']:
                 logger.debug(f"Acceso denegado: {service_name}.{operation_name}")
@@ -185,7 +319,7 @@ class OperationExecutor:
                         "message": str(e)
                     }
                 }
-            
+
             # Throttling - retry ya manejado arriba
             if error_code in ['Throttling', 'TooManyRequestsException']:
                 logger.warning(f"Throttling en {service_name}.{operation_name}")
@@ -196,7 +330,43 @@ class OperationExecutor:
                         "message": "Rate limit exceeded"
                     }
                 }
-            
+
+            # Errores operacionales conocidos — condiciones de la cuenta, no del collector
+            if error_code in _KNOWN_OPERATIONAL_ERRORS:
+                descriptive_msg = _KNOWN_OPERATIONAL_ERRORS[error_code]
+                logger.debug(
+                    f"Error operacional conocido en {service_name}.{operation_name}: "
+                    f"{error_code} — {descriptive_msg}"
+                )
+                return {
+                    "success": False,
+                    "error": {
+                        "code": error_code,
+                        "message": descriptive_msg
+                    },
+                    "operational_error": True
+                }
+
+            # Errores de parámetros — la operación requiere un recurso específico
+            # (ID, ARN, nombre) que no pudo inferirse desde operaciones List previas.
+            if error_code in _PARAMETER_ERRORS:
+                logger.debug(
+                    f"Error de parámetros en {service_name}.{operation_name}: "
+                    f"{error_code} — operación requiere parámetros que no pudieron inferirse"
+                )
+                return {
+                    "success": False,
+                    "error": {
+                        "code": error_code,
+                        "message": (
+                            f"Operación requiere parámetros obligatorios: {operation_name} necesita "
+                            f"un recurso específico (ID/ARN/nombre) que no pudo inferirse "
+                            f"automáticamente desde operaciones List previas."
+                        )
+                    },
+                    "parameter_error": True
+                }
+
             # Otros errores
             logger.debug(f"Error en {service_name}.{operation_name}: {error_code}")
             return {
